@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,10 +16,18 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconDownload, IconSearch, IconTrophy, IconMail, IconPhone, IconUser } from "@tabler/icons-react";
+import { IconDownload, IconSearch, IconTrophy, IconMail, IconPhone, IconUser, IconUsers } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface DoorEntry {
   id: string;
@@ -102,6 +111,17 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
     }
   };
 
+  const recentEntries = calendar.leads
+    .flatMap((lead) =>
+      lead.entries.map((entry) => ({
+        ...entry,
+        lead,
+      }))
+    )
+    .sort((a, b) => new Date(b.enteredAt).getTime() - new Date(a.enteredAt).getTime())
+    .slice(0, 10);
+  const hasLeads = calendar.leads.length > 0;
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -168,11 +188,34 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
           </div>
 
           {filteredLeads.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                {calendar.leads.length === 0 ? "Ingen leads registrert ennå" : "Ingen leads matcher søket"}
-              </p>
-            </div>
+            <Empty className="py-16">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  {hasLeads ? (
+                    <IconSearch className="h-6 w-6" />
+                  ) : (
+                    <IconUsers className="h-6 w-6" />
+                  )}
+                </EmptyMedia>
+                <EmptyTitle>
+                  {hasLeads ? "Ingen treff" : "Ingen leads registrert ennå"}
+                </EmptyTitle>
+                <EmptyDescription>
+                  {hasLeads
+                    ? "Ingen leads matcher søket ditt. Juster filtrene og prøv igjen."
+                    : "Når kalenderen din samler inn deltakere, vil leads vises her."}
+                </EmptyDescription>
+              </EmptyHeader>
+              {!hasLeads && (
+                <EmptyContent>
+                  <Link href={`/dashboard/calendars/${calendar.id}`}>
+                    <Button variant="outline">
+                      Gå til kalenderoversikten
+                    </Button>
+                  </Link>
+                </EmptyContent>
+              )}
+            </Empty>
           ) : (
             <div className="border rounded-lg">
               <Table>
@@ -259,17 +302,21 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
           <CardDescription>Nyeste deltakelser på tvers av alle luker</CardDescription>
         </CardHeader>
         <CardContent>
-          <ItemGroup className="gap-2">
-            {calendar.leads
-              .flatMap((lead) =>
-                lead.entries.map((entry) => ({
-                  ...entry,
-                  lead,
-                }))
-              )
-              .sort((a, b) => new Date(b.enteredAt).getTime() - new Date(a.enteredAt).getTime())
-              .slice(0, 10)
-              .map((entry) => (
+          {recentEntries.length === 0 ? (
+            <Empty className="py-12">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <IconUsers className="h-6 w-6" />
+                </EmptyMedia>
+                <EmptyTitle>Ingen aktivitet ennå</EmptyTitle>
+                <EmptyDescription>
+                  Når deltakere åpner luker, vises de nyeste hendelsene her.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <ItemGroup className="gap-2">
+              {recentEntries.map((entry) => (
                 <Item key={entry.id} variant="outline" size="sm">
                   <ItemMedia className="w-10 h-10 rounded-full bg-primary/10 font-semibold">
                     {entry.door.doorNumber}
@@ -287,7 +334,8 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
                   </ItemActions>
                 </Item>
               ))}
-          </ItemGroup>
+            </ItemGroup>
+          )}
         </CardContent>
       </Card>
     </div>

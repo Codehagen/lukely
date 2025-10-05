@@ -4,6 +4,15 @@ import { getCurrentUser } from "@/app/actions/user";
 import { getDateRange } from "@/lib/analytics-utils";
 import { CalendarAnalyticsPeriodSelector } from "@/components/calendar-analytics-period-selector";
 import { CalendarAnalyticsContent } from "@/components/calendar-analytics-content";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { IconChartBar } from "@tabler/icons-react";
 
 async function getCalendar(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findUnique({
@@ -223,7 +232,11 @@ export default async function CalendarAnalyticsPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>Fant ingen arbeidsområde</div>;
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState description="Opprett et arbeidsområde for å se kalenderanalyser." />
+      </div>
+    );
   }
 
   const calendar = await getCalendar(id, userWithWorkspace.defaultWorkspaceId);
@@ -234,20 +247,41 @@ export default async function CalendarAnalyticsPage({
 
   const dateRange = getDateRange(period);
   const analytics = await getCalendarAnalytics(id, dateRange);
+  const hasInsights =
+    analytics.overview.totalViews > 0 ||
+    analytics.overview.totalEntries > 0 ||
+    analytics.timeline.length > 0 ||
+    analytics.doorPerformance.some(
+      (door) => door.totalViews > 0 || door.entries > 0 || Number(door.clicks) > 0
+    );
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-medium">Analyser</h3>
-          <p className="text-sm text-muted-foreground">
-            Detaljert innsikt i kampanjens ytelse
+          <h2 className="text-3xl font-bold tracking-tight">Analyser</h2>
+          <p className="text-muted-foreground">
+            Detaljert innsikt i kampanjens ytelse for {calendar.title}
           </p>
         </div>
         <CalendarAnalyticsPeriodSelector />
       </div>
 
-      <CalendarAnalyticsContent data={analytics} />
+      {hasInsights ? (
+        <CalendarAnalyticsContent data={analytics} />
+      ) : (
+        <Empty className="py-16">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <IconChartBar className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>Ingen analyser ennå</EmptyTitle>
+            <EmptyDescription>
+              Når {calendar.title} begynner å få trafikk og deltakelser, vises innsikten her.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/app/actions/user";
 import prisma from "@/lib/prisma";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 
 async function getLeads(workspaceId: string) {
   const leads = await prisma.lead.findMany({
@@ -73,14 +74,7 @@ export default async function LeadsPage() {
   if (!userWithWorkspace?.defaultWorkspaceId) {
     return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Leads</h2>
-            <p className="text-muted-foreground">
-              Fant ingen arbeidsområde
-            </p>
-          </div>
-        </div>
+        <WorkspaceEmptyState description="Opprett et arbeidsområde for å se leads fra kalenderne dine." />
       </div>
     );
   }

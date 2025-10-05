@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/app/actions/user";
 import prisma from "@/lib/prisma";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,7 +13,8 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { IconBriefcase, IconCalendar, IconUsers, IconTrophy } from "@tabler/icons-react";
+import { IconCalendar, IconUsers, IconTrophy } from "@tabler/icons-react";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -50,26 +50,11 @@ export default async function DashboardPage() {
   // No workspace - show empty state
   if (!userWithWorkspace?.defaultWorkspaceId) {
     return (
-      <div className="container py-8">
-        <Empty className="min-h-[600px]">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <IconBriefcase className="h-8 w-8" />
-            </EmptyMedia>
-            <EmptyTitle>Fant ingen arbeidsområde</EmptyTitle>
-            <EmptyDescription>
-              Du må opprette et arbeidsområde før du kan lage kalendere og administrere konkurranser.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Link href="/dashboard/workspace/new">
-              <Button size="lg">
-                <IconBriefcase className="mr-2 h-4 w-4" />
-                Opprett arbeidsområdet ditt
-              </Button>
-            </Link>
-          </EmptyContent>
-        </Empty>
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState
+          description="Du må opprette et arbeidsområde før du kan lage kalendere og administrere konkurranser."
+          actionLabel="Opprett arbeidsområdet ditt"
+        />
       </div>
     );
   }

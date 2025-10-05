@@ -6,8 +6,17 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/app/actions/user";
 import { redirect } from "next/navigation";
 import { IconCalendar, IconUsers, IconGift } from "@tabler/icons-react";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 async function getCalendars(workspaceId: string) {
   return await prisma.calendar.findMany({
@@ -42,8 +51,8 @@ export default async function CalendarsPage() {
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
     return (
-      <div className="container py-8">
-        <p>Fant ingen arbeidsområde. Opprett et arbeidsområde først.</p>
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState description="Opprett et arbeidsområde før du kan lage kalendere." />
       </div>
     );
   }
@@ -100,19 +109,25 @@ export default async function CalendarsPage() {
       </div>
 
       {calendars.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Ingen kalendere ennå</CardTitle>
-            <CardDescription>
-              Kom i gang ved å lage din første konkurransekalender
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Empty className="py-16">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <IconCalendar className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>Ingen kalendere ennå</EmptyTitle>
+            <EmptyDescription>
+              Kom i gang ved å lage din første konkurransekalender.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
             <Link href="/dashboard/calendars/new">
-              <Button>Lag din første kalender</Button>
+              <Button>
+                <IconCalendar className="mr-2 h-4 w-4" />
+                Opprett kalender
+              </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </EmptyContent>
+        </Empty>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {calendars.map((calendar) => (

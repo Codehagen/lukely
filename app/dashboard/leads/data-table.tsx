@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { IconDownload, IconSearch } from "@tabler/icons-react";
+import { IconCalendar, IconDownload, IconSearch, IconUsers } from "@tabler/icons-react";
 
 import {
   Table,
@@ -38,6 +39,14 @@ import { DataTablePagination } from "@/components/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table-view-options";
 import { toast } from "sonner";
 import { Lead } from "./columns";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -56,6 +65,7 @@ export function DataTable<TData, TValue>({
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const hasRows = data.length > 0;
 
   const table = useReactTable({
     data,
@@ -214,11 +224,38 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Ingen resultater.
+                <TableCell colSpan={columns.length} className="h-40">
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        {hasRows ? (
+                          <IconSearch className="h-6 w-6" />
+                        ) : (
+                          <IconUsers className="h-6 w-6" />
+                        )}
+                      </EmptyMedia>
+                      <EmptyTitle>
+                        {hasRows ? "Ingen treff" : "Ingen leads tilgjengelig"}
+                      </EmptyTitle>
+                      <EmptyDescription>
+                        {hasRows
+                          ? "Ingen rader matcher filtrene dine. Fjern filtre og prøv igjen."
+                          : "Når du samler leads fra kalenderne dine, vises de her."}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    {!hasRows && (
+                      <EmptyContent>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/dashboard/calendars/new">
+                            <>
+                              <IconCalendar className="mr-2 h-4 w-4" />
+                              Opprett kalender
+                            </>
+                          </Link>
+                        </Button>
+                      </EmptyContent>
+                    )}
+                  </Empty>
                 </TableCell>
               </TableRow>
             )}

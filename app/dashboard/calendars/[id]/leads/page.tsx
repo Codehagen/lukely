@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/app/actions/user";
 import LeadsManagement from "@/components/leads-management";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 
 async function getCalendarWithLeads(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findFirst({
@@ -65,7 +66,11 @@ export default async function LeadsPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>Fant ingen arbeidsområde</div>;
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState description="Opprett et arbeidsområde for å administrere leads." />
+      </div>
+    );
   }
 
   const calendar = await getCalendarWithLeads(

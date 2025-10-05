@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/app/actions/user";
 import CalendarSettings from "@/components/calendar-settings";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 
 async function getCalendar(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findFirst({
@@ -30,7 +31,11 @@ export default async function SettingsPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>Fant ingen arbeidsområde</div>;
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState description="Opprett et arbeidsområde for å endre kalenderinnstillinger." />
+      </div>
+    );
   }
 
   const calendar = await getCalendar(id, userWithWorkspace.defaultWorkspaceId);

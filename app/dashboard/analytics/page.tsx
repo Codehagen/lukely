@@ -16,6 +16,15 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 async function getWorkspaceAnalytics(workspaceId: string) {
   // Get all calendars for this workspace
@@ -61,7 +70,11 @@ export default async function AnalyticsPage() {
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>Fant ingen arbeidsområde</div>;
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState />
+      </div>
+    );
   }
 
   const { calendars, totals } = await getWorkspaceAnalytics(
@@ -132,13 +145,25 @@ export default async function AnalyticsPage() {
         </CardHeader>
         <CardContent>
           {calendars.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <IconChartBar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Ingen kalendere funnet</p>
-              <p className="text-sm mt-2">
-                Opprett din første kalender for å se analyser
-              </p>
-            </div>
+            <Empty className="py-16">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <IconChartBar className="h-6 w-6" />
+                </EmptyMedia>
+                <EmptyTitle>Ingen kalendere funnet</EmptyTitle>
+                <EmptyDescription>
+                  Opprett din første kalender for å se analyser og innsikt.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Link href="/dashboard/calendars/new">
+                  <Button>
+                    <IconCalendar className="mr-2 h-4 w-4" />
+                    Opprett kalender
+                  </Button>
+                </Link>
+              </EmptyContent>
+            </Empty>
           ) : (
             <div className="space-y-4">
               {calendars.map((calendar) => (

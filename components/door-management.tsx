@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +17,19 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { IconEdit, IconGift, IconLock } from "@tabler/icons-react";
+import { IconEdit, IconGift, IconLock, IconCalendar } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface Product {
   id: string;
@@ -62,6 +71,7 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
     value: "",
     quantity: "1",
   });
+  const hasDoors = calendar.doors.length > 0;
 
   const handleEditDoor = (door: Door) => {
     setSelectedDoor(door);
@@ -126,8 +136,9 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {calendar.doors.map((door) => (
+      {hasDoors ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {calendar.doors.map((door) => (
           <Card key={door.id} className={isDoorOpen(door) ? "" : "opacity-60"}>
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -282,16 +293,29 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                 </div>
               ) : (
                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => handleEditDoor(door)}
-                    >
-                      <IconGift className="h-4 w-4 mr-2" />
-                      Legg til produkt
-                    </Button>
-                  </DialogTrigger>
+                  <Empty className="py-8 border border-dashed rounded-lg">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <IconGift className="h-6 w-6" />
+                      </EmptyMedia>
+                      <EmptyTitle>Ingen produkt lagt til</EmptyTitle>
+                      <EmptyDescription>
+                        Legg til et produkt for å gjøre luken klar til kampanjen.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => handleEditDoor(door)}
+                        >
+                          <IconGift className="h-4 w-4 mr-2" />
+                          Legg til produkt
+                        </Button>
+                      </DialogTrigger>
+                    </EmptyContent>
+                  </Empty>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>Legg til produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
@@ -376,8 +400,28 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
               )}
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <Empty className="py-16">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <IconCalendar className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>Ingen luker tilgjengelig</EmptyTitle>
+            <EmptyDescription>
+              Juster kalenderoppsettet for å generere luker før du legger til produkter.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/calendars/${calendar.id}`}>
+                Gå til kalenderoversikten
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
+      )}
     </div>
   );
 }

@@ -1,6 +1,17 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import PublicCalendar from "@/components/public-calendar";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { IconCalendar } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 async function getCalendarBySlug(slug: string) {
   return await prisma.calendar.findUnique({
@@ -49,13 +60,25 @@ export default async function PublicCalendarPage({
   // Check if calendar is published
   if (calendar.status === "DRAFT" || calendar.status === "ARCHIVED") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Kalender ikke tilgjengelig</h1>
-          <p className="text-muted-foreground">
-            Denne kalenderen er ikke aktiv akkurat nå
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <Empty className="max-w-md">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <IconCalendar className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>Kalender ikke tilgjengelig</EmptyTitle>
+            <EmptyDescription>
+              Denne kalenderen er ikke aktiv akkurat nå. Kontakt arrangøren eller prøv igjen senere.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button asChild>
+              <Link href="/">
+                Gå til forsiden
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
       </div>
     );
   }

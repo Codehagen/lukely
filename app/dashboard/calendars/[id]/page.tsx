@@ -25,6 +25,8 @@ import { nb } from "date-fns/locale";
 import { CalendarStatusSwitcher } from "@/components/calendar-status-switcher";
 import { CalendarQuickBranding } from "@/components/calendar-quick-branding";
 import { CopyUrlButton } from "@/components/copy-url-button";
+import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
+import { CalendarActivityTimeline } from "@/components/calendar-activity-timeline";
 
 async function getCalendar(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findFirst({
@@ -76,7 +78,11 @@ export default async function CalendarOverviewPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>Fant ingen arbeidsområde</div>;
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <WorkspaceEmptyState description="Opprett et arbeidsområde for å få tilgang til kalenderdetaljer." />
+      </div>
+    );
   }
 
   const calendar = await getCalendar(id, userWithWorkspace.defaultWorkspaceId);
@@ -280,9 +286,7 @@ export default async function CalendarOverviewPage({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Aktivitetslogg kommer snart ...
-              </p>
+              <CalendarActivityTimeline calendarId={calendar.id} />
             </CardContent>
           </Card>
         </TabsContent>

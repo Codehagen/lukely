@@ -13,11 +13,18 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { IconTrophy, IconDice, IconLock, IconCheck } from "@tabler/icons-react";
+import { IconTrophy, IconDice, IconLock, IconCheck, IconCalendar, IconUsers } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface Lead {
   id: string;
@@ -68,6 +75,7 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
   const router = useRouter();
   const [selectedDoor, setSelectedDoor] = useState<Door | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
+  const hasDoors = calendar.doors.length > 0;
 
   const selectRandomWinner = async (door: Door) => {
     if (door.entries.length === 0) {
@@ -103,13 +111,14 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {calendar.doors.map((door) => (
-          <Card
-            key={door.id}
-            className={`${!isDoorOpen(door) ? "opacity-60" : ""} ${
-              door.winner ? "border-yellow-400" : ""
-            }`}
+      {hasDoors ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {calendar.doors.map((door) => (
+            <Card
+              key={door.id}
+              className={`${!isDoorOpen(door) ? "opacity-60" : ""} ${
+                door.winner ? "border-yellow-400" : ""
+              }`}
           >
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -179,9 +188,22 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                 )}
               </div>
             </CardContent>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Empty className="py-16">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <IconCalendar className="h-6 w-6" />
+            </EmptyMedia>
+            <EmptyTitle>Ingen luker opprettet</EmptyTitle>
+            <EmptyDescription>
+              Opprett luker og produkter før du kan trekke vinnere.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
 
       {/* Winner Selection Dialog */}
       <Dialog open={!!selectedDoor} onOpenChange={() => setSelectedDoor(null)}>
@@ -214,38 +236,52 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
 
                 <div>
                   <h4 className="font-semibold mb-3">Alle deltakelser</h4>
-                  <div className="border rounded-lg max-h-96 overflow-y-auto">
-                    <ItemGroup className="gap-1 p-2">
-                      {selectedDoor.entries.map((entry) => {
-                        const participant = entry.lead.name || entry.lead.email;
-                        return (
-                          <Item
-                            key={entry.id}
-                            variant="outline"
-                            size="sm"
-                            className="hover:bg-muted/60"
-                          >
-                            <ItemMedia className="w-9 h-9 rounded-full bg-muted text-xs font-semibold">
-                              {participant.charAt(0)?.toUpperCase()}
-                            </ItemMedia>
-                            <ItemContent>
-                              <ItemTitle className="text-sm">
-                                {participant}
-                              </ItemTitle>
-                              {entry.lead.name && (
-                                <ItemDescription>
-                                  {entry.lead.email}
-                                </ItemDescription>
-                              )}
-                            </ItemContent>
-                            <ItemActions className="ml-auto text-xs text-muted-foreground">
-                              {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
-                            </ItemActions>
-                          </Item>
-                        );
-                      })}
-                    </ItemGroup>
-                  </div>
+                  {selectedDoor.entries.length === 0 ? (
+                    <Empty className="py-10">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <IconUsers className="h-6 w-6" />
+                        </EmptyMedia>
+                        <EmptyTitle>Ingen deltakelser ennå</EmptyTitle>
+                        <EmptyDescription>
+                          Del kalenderen for å samle deltakerne før du trekker en vinner.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  ) : (
+                    <div className="border rounded-lg max-h-96 overflow-y-auto">
+                      <ItemGroup className="gap-1 p-2">
+                        {selectedDoor.entries.map((entry) => {
+                          const participant = entry.lead.name || entry.lead.email;
+                          return (
+                            <Item
+                              key={entry.id}
+                              variant="outline"
+                              size="sm"
+                              className="hover:bg-muted/60"
+                            >
+                              <ItemMedia className="w-9 h-9 rounded-full bg-muted text-xs font-semibold">
+                                {participant.charAt(0)?.toUpperCase()}
+                              </ItemMedia>
+                              <ItemContent>
+                                <ItemTitle className="text-sm">
+                                  {participant}
+                                </ItemTitle>
+                                {entry.lead.name && (
+                                  <ItemDescription>
+                                    {entry.lead.email}
+                                  </ItemDescription>
+                                )}
+                              </ItemContent>
+                              <ItemActions className="ml-auto text-xs text-muted-foreground">
+                                {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
+                              </ItemActions>
+                            </Item>
+                          );
+                        })}
+                      </ItemGroup>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
