@@ -163,7 +163,7 @@ export default async function AnalyticsPage() {
                       </div>
                     </div>
                   </div>
-                  <Link href={`/dashboard/calendars/${calendar.id}`}>
+                  <Link href={`/dashboard/calendars/${calendar.id}/analytics`}>
                     <Button variant="outline" size="sm">
                       <IconChartBar className="mr-2 h-4 w-4" />
                       Se analyser
