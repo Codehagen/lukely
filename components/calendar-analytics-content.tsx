@@ -1,24 +1,20 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
-  Eye,
-  Users,
-  Target,
-  Clock,
-  TrendingUp,
-  Smartphone,
-  Monitor,
-  Tablet,
-  Mail,
-  Share2,
-  ExternalLink,
-  MoreHorizontal
-} from "lucide-react";
+  IconEye,
+  IconUsers,
+  IconTarget,
+  IconClock,
+  IconTrendingUp,
+  IconDeviceMobile,
+  IconDeviceDesktop,
+  IconDeviceTablet,
+  IconMail,
+  IconShare,
+  IconExternalLink,
+  IconDots,
+} from "@tabler/icons-react";
 
 interface AnalyticsData {
   overview: {
@@ -62,88 +58,29 @@ interface AnalyticsData {
   }>;
 }
 
-interface CalendarAnalyticsProps {
-  calendarId: string;
+interface CalendarAnalyticsContentProps {
+  data: AnalyticsData;
 }
 
-export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
-  const [period, setPeriod] = useState("7d");
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+function formatDuration(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+}
 
-  useEffect(() => {
-    async function fetchAnalytics() {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/calendars/${calendarId}/analytics?period=${period}`);
-        const analyticsData = await response.json();
-        setData(analyticsData);
-      } catch (error) {
-        console.error("Failed to fetch analytics:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchAnalytics();
-  }, [calendarId, period]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Ingen data tilgjengelig</p>
-      </div>
-    );
-  }
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
-
+export function CalendarAnalyticsContent({ data }: CalendarAnalyticsContentProps) {
   const totalDeviceViews = data.devices.mobile + data.devices.desktop + data.devices.tablet;
   const totalTraffic = data.trafficSources.direct + data.trafficSources.social +
                       data.trafficSources.email + data.trafficSources.other;
 
   return (
     <div className="space-y-6">
-      {/* Period Selector */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-medium">Analyser</h3>
-          <p className="text-sm text-muted-foreground">
-            Detaljert innsikt i kampanjens ytelse
-          </p>
-        </div>
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="24h">Siste 24 timer</SelectItem>
-            <SelectItem value="7d">Siste 7 dager</SelectItem>
-            <SelectItem value="30d">Siste 30 dager</SelectItem>
-            <SelectItem value="90d">Siste 90 dager</SelectItem>
-            <SelectItem value="all">Alle tid</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totale visninger</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <IconEye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.overview.totalViews.toLocaleString()}</div>
@@ -156,7 +93,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Unike besøkende</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <IconUsers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.overview.uniqueVisitors.toLocaleString()}</div>
@@ -169,7 +106,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Konverteringsrate</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <IconTarget className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.overview.conversionRate}%</div>
@@ -182,7 +119,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Gjennomsnittlig tid</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <IconClock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -205,7 +142,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Smartphone className="h-4 w-4 text-muted-foreground" />
+                <IconDeviceMobile className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Mobil</span>
               </div>
               <div className="flex items-center gap-2">
@@ -220,7 +157,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Monitor className="h-4 w-4 text-muted-foreground" />
+                <IconDeviceDesktop className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Desktop</span>
               </div>
               <div className="flex items-center gap-2">
@@ -235,7 +172,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Tablet className="h-4 w-4 text-muted-foreground" />
+                <IconDeviceTablet className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Nettbrett</span>
               </div>
               <div className="flex items-center gap-2">
@@ -258,7 +195,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                <IconExternalLink className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Direkte</span>
               </div>
               <div className="flex items-center gap-2">
@@ -273,7 +210,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Share2 className="h-4 w-4 text-muted-foreground" />
+                <IconShare className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Sosiale medier</span>
               </div>
               <div className="flex items-center gap-2">
@@ -288,7 +225,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <IconMail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">E-post</span>
               </div>
               <div className="flex items-center gap-2">
@@ -303,7 +240,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                <IconDots className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Annet</span>
               </div>
               <div className="flex items-center gap-2">
@@ -324,7 +261,7 @@ export function CalendarAnalytics({ calendarId }: CalendarAnalyticsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+              <IconTrendingUp className="h-5 w-5" />
               Topp 5 luker
             </CardTitle>
             <CardDescription>Luker med flest deltakelser</CardDescription>

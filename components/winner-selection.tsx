@@ -5,6 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { IconTrophy, IconDice, IconLock, IconCheck } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
@@ -206,26 +214,37 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
 
                 <div>
                   <h4 className="font-semibold mb-3">Alle deltakelser</h4>
-                  <div className="border rounded-lg divide-y max-h-96 overflow-y-auto">
-                    {selectedDoor.entries.map((entry) => (
-                      <div key={entry.id} className="p-3 hover:bg-muted/50">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">
-                              {entry.lead.name || entry.lead.email}
-                            </p>
-                            {entry.lead.name && (
-                              <p className="text-sm text-muted-foreground">
-                                {entry.lead.email}
-                              </p>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="border rounded-lg max-h-96 overflow-y-auto">
+                    <ItemGroup className="gap-1 p-2">
+                      {selectedDoor.entries.map((entry) => {
+                        const participant = entry.lead.name || entry.lead.email;
+                        return (
+                          <Item
+                            key={entry.id}
+                            variant="outline"
+                            size="sm"
+                            className="hover:bg-muted/60"
+                          >
+                            <ItemMedia className="w-9 h-9 rounded-full bg-muted text-xs font-semibold">
+                              {participant.charAt(0)?.toUpperCase()}
+                            </ItemMedia>
+                            <ItemContent>
+                              <ItemTitle className="text-sm">
+                                {participant}
+                              </ItemTitle>
+                              {entry.lead.name && (
+                                <ItemDescription>
+                                  {entry.lead.email}
+                                </ItemDescription>
+                              )}
+                            </ItemContent>
+                            <ItemActions className="ml-auto text-xs text-muted-foreground">
+                              {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
+                            </ItemActions>
+                          </Item>
+                        );
+                      })}
+                    </ItemGroup>
                   </div>
                 </div>
               </div>

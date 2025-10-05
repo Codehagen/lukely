@@ -5,6 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IconDownload, IconSearch, IconTrophy, IconMail, IconPhone, IconUser } from "@tabler/icons-react";
 import { format } from "date-fns";
@@ -250,7 +259,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
           <CardDescription>Nyeste deltakelser på tvers av alle luker</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <ItemGroup className="gap-2">
             {calendar.leads
               .flatMap((lead) =>
                 lead.entries.map((entry) => ({
@@ -260,25 +269,25 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
               )
               .sort((a, b) => new Date(b.enteredAt).getTime() - new Date(a.enteredAt).getTime())
               .slice(0, 10)
-              .map((entry, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-semibold">
-                      {entry.door.doorNumber}
-                    </div>
-                    <div>
-                      <p className="font-medium">{entry.lead.name || entry.lead.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Deltok på {entry.door.product?.name || `Luke ${entry.door.doorNumber}`}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
+              .map((entry) => (
+                <Item key={entry.id} variant="outline" size="sm">
+                  <ItemMedia className="w-10 h-10 rounded-full bg-primary/10 font-semibold">
+                    {entry.door.doorNumber}
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle className="gap-0 text-sm">
+                      {entry.lead.name || entry.lead.email}
+                    </ItemTitle>
+                    <ItemDescription>
+                      Deltok på {entry.door.product?.name || `Luke ${entry.door.doorNumber}`}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions className="ml-auto text-sm text-muted-foreground">
                     {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
-                  </p>
-                </div>
+                  </ItemActions>
+                </Item>
               ))}
-          </div>
+          </ItemGroup>
         </CardContent>
       </Card>
     </div>

@@ -8,6 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { IconEdit, IconGift, IconLock } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
@@ -142,29 +150,42 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
             <CardContent>
               {door.product ? (
                 <div className="space-y-3">
-                  {door.product.imageUrl && (
-                    <img
-                      src={door.product.imageUrl}
-                      alt={door.product.name}
-                      className="w-full h-32 object-cover rounded-md"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium line-clamp-1">{door.product.name}</p>
-                    {door.product.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                        {door.product.description}
-                      </p>
+                  <Item variant="outline" className="w-full">
+                    {door.product.imageUrl ? (
+                      <ItemMedia
+                        variant="image"
+                        className="h-16 w-16 rounded-md"
+                      >
+                        <img
+                          src={door.product.imageUrl}
+                          alt={door.product.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </ItemMedia>
+                    ) : (
+                      <ItemMedia className="h-12 w-12 rounded-md bg-muted">
+                        <IconGift className="h-6 w-6 text-muted-foreground" />
+                      </ItemMedia>
                     )}
-                    <div className="flex items-center justify-between mt-2">
-                      {door.product.value && (
-                        <p className="text-sm font-medium">kr {door.product.value}</p>
+                    <ItemContent>
+                      <ItemTitle className="text-base font-medium">
+                        {door.product.name}
+                      </ItemTitle>
+                      {door.product.description && (
+                        <ItemDescription className="line-clamp-2">
+                          {door.product.description}
+                        </ItemDescription>
                       )}
-                      <p className="text-xs text-muted-foreground">
-                        {door._count.entries} deltakelser
-                      </p>
-                    </div>
-                  </div>
+                    </ItemContent>
+                    <ItemFooter className="gap-2 text-xs text-muted-foreground">
+                      {door.product.value && (
+                        <span className="text-sm font-medium text-foreground">
+                          kr {door.product.value}
+                        </span>
+                      )}
+                      <span className="ml-auto">{door._count.entries} deltakelser</span>
+                    </ItemFooter>
+                  </Item>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button

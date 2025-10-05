@@ -5,6 +5,15 @@ import prisma from "@/lib/prisma";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { IconBriefcase, IconCalendar, IconUsers, IconTrophy } from "@tabler/icons-react";
 
 export default async function DashboardPage() {
@@ -200,44 +209,47 @@ export default async function DashboardPage() {
               </EmptyContent>
             </Empty>
           ) : (
-            <div className="space-y-4">
+            <ItemGroup className="gap-3">
               {workspace.calendars.map((calendar) => {
                 const statusLabel = statusLabels[calendar.status] || calendar.status;
                 const typeLabel = typeLabels[calendar.type] || calendar.type;
 
                 return (
-                  <Link
+                  <Item
                     key={calendar.id}
-                    href={`/dashboard/calendars/${calendar.id}`}
-                    className="block"
+                    asChild
+                    variant="outline"
+                    className="hover:border-primary transition-colors"
                   >
-                    <div className="flex items-center justify-between p-4 rounded-lg border hover:border-primary transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className="w-12 h-12 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: calendar.brandColor + "20" }}
-                        >
-                          <IconCalendar
-                            className="h-6 w-6"
-                            style={{ color: calendar.brandColor || undefined }}
-                          />
-                        </div>
-                        <div>
-                          <p className="font-semibold">{calendar.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {calendar._count.leads} leads • {calendar._count.doors} luker
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{statusLabel}</p>
-                        <p className="text-xs text-muted-foreground">{typeLabel}</p>
-                      </div>
-                    </div>
-                  </Link>
+                    <Link href={`/dashboard/calendars/${calendar.id}`}>
+                      <ItemMedia
+                        className="w-12 h-12 rounded-lg"
+                        style={{
+                          backgroundColor: `${calendar.brandColor || "#3B82F6"}20`,
+                        }}
+                      >
+                        <IconCalendar
+                          className="h-6 w-6"
+                          style={{ color: calendar.brandColor || undefined }}
+                        />
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle className="font-semibold">
+                          {calendar.title}
+                        </ItemTitle>
+                        <ItemDescription>
+                          {calendar._count.leads} leads • {calendar._count.doors} luker
+                        </ItemDescription>
+                      </ItemContent>
+                      <ItemActions className="ml-auto flex flex-col items-end gap-0.5 text-right">
+                        <span className="text-sm font-medium">{statusLabel}</span>
+                        <span className="text-xs text-muted-foreground">{typeLabel}</span>
+                      </ItemActions>
+                    </Link>
+                  </Item>
                 );
               })}
-            </div>
+            </ItemGroup>
           )}
         </CardContent>
       </Card>

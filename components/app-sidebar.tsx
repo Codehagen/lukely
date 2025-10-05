@@ -58,7 +58,7 @@ const data = {
     },
     {
       title: "Analyser",
-      url: "#",
+      url: "/dashboard/analytics",
       icon: IconChartBar,
     },
     {
