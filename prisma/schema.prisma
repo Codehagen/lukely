@@ -95,6 +95,7 @@ model Workspace {
   invitations WorkspaceInvitation[]
   sessions    Session[]
   defaultForUsers User[] @relation("UserDefaultWorkspace")
+  calendars   Calendar[]
 
   @@map("workspace")
 }
@@ -144,4 +145,167 @@ enum Role {
   ADMIN
   MEMBER
   VIEWER
+}
+
+// Calendar template types
+enum CalendarType {
+  CHRISTMAS
+  VALENTINE
+  EASTER
+  CUSTOM
+}
+
+enum CalendarStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+// Main calendar model
+model Calendar {
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  description     String?
+  type            CalendarType
+  status          CalendarStatus  @default(DRAFT)
+
+  // Branding
+  brandColor      String?
+  logo            String?
+  bannerImage     String?
+
+  // Dates
+  startDate       DateTime
+  endDate         DateTime
+
+  // Configuration
+  doorCount       Int
+  allowMultipleEntries Boolean    @default(false)
+  requireEmail    Boolean         @default(true)
+  requireName     Boolean         @default(true)
+  requirePhone    Boolean         @default(false)
+  customFields    Json?
+
+  // Relations
+  workspaceId     String
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  doors           Door[]
+  leads           Lead[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([workspaceId])
+  @@index([slug])
+  @@index([status])
+  @@map("calendar")
+}
+
+// Individual doors/days in calendar
+model Door {
+  id              String          @id @default(cuid())
+  doorNumber      Int
+  openDate        DateTime
+
+  // Door content
+  title           String?
+  description     String?
+  image           String?
+
+  // Relations
+  calendarId      String
+  calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  product         Product?
+  entries         DoorEntry[]
+  winner          Winner?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([calendarId, doorNumber])
+  @@index([calendarId])
+  @@map("door")
+}
+
+// Products/prizes for each door
+model Product {
+  id              String          @id @default(cuid())
+  name            String
+  description     String?
+  imageUrl        String?
+  value           Float?
+  quantity        Int             @default(1)
+
+  // Relations
+  doorId          String          @unique
+  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("product")
+}
+
+// Lead data captured from users
+model Lead {
+  id              String          @id @default(cuid())
+  email           String
+  name            String?
+  phone           String?
+  customData      Json?
+
+  // Tracking
+  ipAddress       String?
+  userAgent       String?
+
+  // Relations
+  calendarId      String
+  calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  entries         DoorEntry[]
+  wins            Winner[]
+
+  createdAt       DateTime        @default(now())
+
+  @@index([calendarId])
+  @@index([email])
+  @@map("lead")
+}
+
+// Track which doors a lead has entered
+model DoorEntry {
+  id              String          @id @default(cuid())
+
+  // Relations
+  leadId          String
+  doorId          String
+  lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+
+  enteredAt       DateTime        @default(now())
+
+  @@unique([leadId, doorId])
+  @@index([doorId])
+  @@index([leadId])
+  @@map("door_entry")
+}
+
+// Winner selections for each door
+model Winner {
+  id              String          @id @default(cuid())
+
+  // Relations
+  doorId          String          @unique
+  leadId          String
+  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  selectedAt      DateTime        @default(now())
+  notified        Boolean         @default(false)
+  notifiedAt      DateTime?
+
+  @@index([leadId])
+  @@map("winner")
 }
