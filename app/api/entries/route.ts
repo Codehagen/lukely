@@ -1,13 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { validateQuizAnswers } from "@/lib/ai/quiz-orchestrator";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { calendarId, doorId, email, name, phone } = body;
+    const {
+      calendarId,
+      doorId,
+      email,
+      name,
+      phone,
+      marketingConsent,
+      termsAccepted,
+      privacyPolicyAccepted,
+      quizAnswers,
+    } = body;
 
     if (!email) {
       return NextResponse.json({ error: "E-post er påkrevd" }, { status: 400 });
+    }
+
+    // GDPR validation
+    if (!termsAccepted) {
+      return NextResponse.json({ error: "Du må godta vilkårene" }, { status: 400 });
+    }
+
+    if (!privacyPolicyAccepted) {
+      return NextResponse.json({ error: "Du må godta personvernerklæringen" }, { status: 400 });
     }
 
     // Check if calendar exists and is active
@@ -29,7 +49,10 @@ export async function POST(req: NextRequest) {
     // Check if door exists
     const door = await prisma.door.findUnique({
       where: { id: doorId },
-      include: { winner: true },
+      include: {
+        winner: true,
+        questions: true,
+      },
     });
 
     if (!door) {
@@ -70,21 +93,93 @@ export async function POST(req: NextRequest) {
           calendarId,
           ipAddress,
           userAgent,
+          marketingConsent: marketingConsent || false,
+          termsAccepted: termsAccepted || false,
+          privacyPolicyAccepted: privacyPolicyAccepted || false,
+          consentTimestamp: new Date(),
         },
       });
     } else {
-      // Update lead info if provided
+      // Update lead info and consent if provided
+      const updateData: any = {};
+
       if (name && !lead.name) {
-        await prisma.lead.update({
-          where: { id: lead.id },
-          data: { name },
-        });
+        updateData.name = name;
       }
       if (phone && !lead.phone) {
+        updateData.phone = phone;
+      }
+
+      // Update consent information (user can update their consent)
+      if (termsAccepted !== undefined) {
+        updateData.termsAccepted = termsAccepted;
+      }
+      if (privacyPolicyAccepted !== undefined) {
+        updateData.privacyPolicyAccepted = privacyPolicyAccepted;
+      }
+      if (marketingConsent !== undefined) {
+        updateData.marketingConsent = marketingConsent;
+      }
+
+      // Update consent timestamp if any consent changed
+      if (termsAccepted || privacyPolicyAccepted || marketingConsent !== undefined) {
+        updateData.consentTimestamp = new Date();
+      }
+
+      if (Object.keys(updateData).length > 0) {
         await prisma.lead.update({
           where: { id: lead.id },
-          data: { phone },
+          data: updateData,
         });
+      }
+    }
+
+    // Validate quiz if enabled
+    let quizScore: number | null = null;
+    let quizPassed = false;
+    let questionAnswers: Array<{
+      questionId: string;
+      answer: string;
+      isCorrect: boolean;
+    }> = [];
+
+    if (door.enableQuiz && door.questions.length > 0) {
+      if (!quizAnswers || !Array.isArray(quizAnswers)) {
+        return NextResponse.json(
+          { error: "Quiz svar er påkrevd" },
+          { status: 400 }
+        );
+      }
+
+      // Validate quiz answers
+      const validation = await validateQuizAnswers(
+        door.questions.map((q) => ({
+          id: q.id,
+          type: q.type,
+          correctAnswer: q.correctAnswer,
+          caseSensitive: q.caseSensitive,
+          acceptableAnswers: q.acceptableAnswers as string[] | null,
+        })),
+        quizAnswers
+      );
+
+      quizScore = validation.percentage;
+      quizPassed = quizScore >= door.quizPassingScore;
+      questionAnswers = validation.results;
+
+      // If retry is not allowed and quiz not passed, reject entry
+      if (!quizPassed && !door.allowRetry) {
+        return NextResponse.json(
+          {
+            error: `Du må ha minst ${door.quizPassingScore}% riktige svar for å delta`,
+            quizResult: {
+              score: quizScore,
+              passed: quizPassed,
+              results: door.showCorrectAnswers ? questionAnswers : undefined,
+            },
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -110,15 +205,40 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create door entry
-    await prisma.doorEntry.create({
+    // Create door entry with quiz results
+    const doorEntry = await prisma.doorEntry.create({
       data: {
         leadId: lead.id,
         doorId,
+        quizScore,
+        quizPassed,
+        eligibleForWinner: quizPassed || !door.enableQuiz,
       },
     });
 
-    return NextResponse.json({ success: true, message: "Deltakelsen er registrert" });
+    // Create quiz answer records if quiz was taken
+    if (door.enableQuiz && questionAnswers.length > 0) {
+      await prisma.questionAnswer.createMany({
+        data: questionAnswers.map((qa) => ({
+          doorEntryId: doorEntry.id,
+          questionId: qa.questionId,
+          answer: qa.answer,
+          isCorrect: qa.isCorrect,
+        })),
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Deltakelsen er registrert",
+      quizResult: door.enableQuiz
+        ? {
+            score: quizScore,
+            passed: quizPassed,
+            results: door.showCorrectAnswers ? questionAnswers : undefined,
+          }
+        : undefined,
+    });
   } catch (error) {
     console.error("Error creating entry:", error);
     return NextResponse.json(

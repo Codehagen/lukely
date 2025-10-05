@@ -43,6 +43,9 @@ interface Winner {
 interface DoorEntry {
   id: string;
   enteredAt: Date;
+  quizScore: number | null;
+  quizPassed: boolean;
+  eligibleForWinner: boolean;
   lead: Lead;
 }
 
@@ -57,6 +60,8 @@ interface Door {
   id: string;
   doorNumber: number;
   openDate: Date;
+  enableQuiz: boolean;
+  quizPassingScore: number;
   product: Product | null;
   winner: Winner | null;
   entries: DoorEntry[];
@@ -219,19 +224,47 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
               </DialogHeader>
 
               <div className="space-y-4 mt-4">
+                {/* Quiz Info */}
+                {selectedDoor.enableQuiz && (
+                  <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">Quiz aktivert</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Denne luken har quiz med {selectedDoor.quizPassingScore}% krav.
+                      {" "}Kun deltakere med riktige svar er kvalifiserte.
+                    </p>
+                    <div className="flex gap-4 mt-3 text-sm">
+                      <div>
+                        <span className="font-medium">Kvalifiserte:</span>{" "}
+                        {selectedDoor.entries.filter((e) => e.eligibleForWinner).length}
+                      </div>
+                      <div>
+                        <span className="font-medium">Ikke kvalifiserte:</span>{" "}
+                        {selectedDoor.entries.filter((e) => !e.eligibleForWinner).length}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">Tilfeldig trekning</h4>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Klikk på knappen for å trekke en tilfeldig vinner blant alle deltakelser
+                    {selectedDoor.enableQuiz
+                      ? "Trekker vinner blant kvalifiserte deltakere (med riktige quiz-svar)"
+                      : "Trekker tilfeldig vinner blant alle deltakelser"}
                   </p>
                   <Button
                     onClick={() => selectRandomWinner(selectedDoor)}
-                    disabled={isSelecting}
+                    disabled={isSelecting || selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0}
                     className="w-full"
                   >
                     <IconDice className="h-4 w-4 mr-2" />
                     {isSelecting ? "Velger ..." : "Trekk tilfeldig vinner"}
                   </Button>
+                  {selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0 && (
+                    <p className="text-sm text-destructive mt-2">
+                      Ingen kvalifiserte deltakere ennå
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -264,8 +297,18 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                                 {participant.charAt(0)?.toUpperCase()}
                               </ItemMedia>
                               <ItemContent>
-                                <ItemTitle className="text-sm">
+                                <ItemTitle className="text-sm flex items-center gap-2">
                                   {participant}
+                                  {!entry.eligibleForWinner && (
+                                    <Badge variant="destructive" className="text-xs">
+                                      Ikke kvalifisert
+                                    </Badge>
+                                  )}
+                                  {entry.quizScore !== null && (
+                                    <Badge variant={entry.quizPassed ? "default" : "secondary"} className="text-xs">
+                                      {Math.round(entry.quizScore)}%
+                                    </Badge>
+                                  )}
                                 </ItemTitle>
                                 {entry.lead.name && (
                                   <ItemDescription>

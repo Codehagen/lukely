@@ -30,6 +30,8 @@ interface Calendar {
   footerText: string | null;
   favicon: string | null;
   metaDescription: string | null;
+  termsUrl: string | null;
+  privacyPolicyUrl: string | null;
   startDate: Date;
   endDate: Date;
   doorCount: number;
@@ -54,6 +56,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     footerText: calendar.footerText || "",
     favicon: calendar.favicon || "",
     metaDescription: calendar.metaDescription || "",
+    termsUrl: calendar.termsUrl || "",
+    privacyPolicyUrl: calendar.privacyPolicyUrl || "",
     status: calendar.status,
     requireEmail: calendar.requireEmail,
     requireName: calendar.requireName,
@@ -310,6 +314,43 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
               />
               <FieldDescription>
                 SEO-beskrivelse for kalenderen
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      {/* GDPR & Legal */}
+      <Card>
+        <CardHeader>
+          <CardTitle>GDPR og juridiske lenker</CardTitle>
+          <CardDescription>Legg til lenker til vilkår og personvernerklæring</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="termsUrl">Vilkår URL</FieldLabel>
+              <Input
+                id="termsUrl"
+                value={formData.termsUrl}
+                onChange={(e) => setFormData({ ...formData, termsUrl: e.target.value })}
+                placeholder="https://example.com/terms"
+              />
+              <FieldDescription>
+                Lenke til vilkårene for konkurransen (påkrevd for GDPR-samsvar)
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="privacyPolicyUrl">Personvernerklæring URL</FieldLabel>
+              <Input
+                id="privacyPolicyUrl"
+                value={formData.privacyPolicyUrl}
+                onChange={(e) => setFormData({ ...formData, privacyPolicyUrl: e.target.value })}
+                placeholder="https://example.com/privacy"
+              />
+              <FieldDescription>
+                Lenke til personvernerklæringen (påkrevd for GDPR-samsvar)
               </FieldDescription>
             </Field>
           </FieldGroup>

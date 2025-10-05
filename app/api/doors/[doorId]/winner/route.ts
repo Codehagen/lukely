@@ -56,17 +56,20 @@ export async function POST(
       );
     }
 
-    // Check if there are entries
-    if (door.entries.length === 0) {
+    // Filter eligible entries (quiz passed or quiz not enabled)
+    const eligibleEntries = door.entries.filter((entry) => entry.eligibleForWinner);
+
+    // Check if there are eligible entries
+    if (eligibleEntries.length === 0) {
       return NextResponse.json(
-        { error: "Ingen deltakelser for denne luken" },
+        { error: "Ingen kvalifiserte deltakelser for denne luken" },
         { status: 400 }
       );
     }
 
-    // Select random winner
-    const randomIndex = Math.floor(Math.random() * door.entries.length);
-    const winningEntry = door.entries[randomIndex];
+    // Select random winner from eligible entries
+    const randomIndex = Math.floor(Math.random() * eligibleEntries.length);
+    const winningEntry = eligibleEntries[randomIndex];
 
     // Create winner record
     const winner = await prisma.winner.create({

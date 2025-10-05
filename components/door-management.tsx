@@ -17,7 +17,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { IconEdit, IconGift, IconLock, IconCalendar } from "@tabler/icons-react";
+import { IconEdit, IconGift, IconLock, IconCalendar, IconQuestionMark } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -197,18 +197,28 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                       <span className="ml-auto">{door._count.entries} deltakelser</span>
                     </ItemFooter>
                   </Item>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleEditDoor(door)}
-                      >
-                        <IconEdit className="h-4 w-4 mr-2" />
-                        Rediger produkt
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}
+                      className="flex-1"
+                    >
+                      <Button variant="outline" size="sm" className="w-full">
+                        <IconQuestionMark className="h-4 w-4 mr-2" />
+                        Quiz
                       </Button>
-                    </DialogTrigger>
+                    </Link>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleEditDoor(door)}
+                        >
+                          <IconEdit className="h-4 w-4 mr-2" />
+                          Produkt
+                        </Button>
+                      </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Rediger produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
@@ -290,113 +300,124 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                       </div>
                     </DialogContent>
                   </Dialog>
+                  </div>
                 </div>
               ) : (
-                <Dialog>
-                  <Empty className="py-8 border border-dashed rounded-lg">
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <IconGift className="h-6 w-6" />
-                      </EmptyMedia>
-                      <EmptyTitle>Ingen produkt lagt til</EmptyTitle>
-                      <EmptyDescription>
-                        Legg til et produkt for å gjøre luken klar til kampanjen.
-                      </EmptyDescription>
-                    </EmptyHeader>
-                    <EmptyContent>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => handleEditDoor(door)}
-                        >
-                          <IconGift className="h-4 w-4 mr-2" />
-                          Legg til produkt
-                        </Button>
-                      </DialogTrigger>
-                    </EmptyContent>
-                  </Empty>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Legg til produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 mt-4">
-                      <div>
-                        <Label htmlFor="name">Produktnavn *</Label>
-                        <Input
-                          id="name"
-                          value={productData.name}
-                          onChange={(e) =>
-                            setProductData({ ...productData, name: e.target.value })
-                          }
-                          placeholder="Premium kaffetrakter"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="description">Beskrivelse</Label>
-                        <Textarea
-                          id="description"
-                          value={productData.description}
-                          onChange={(e) =>
-                            setProductData({ ...productData, description: e.target.value })
-                          }
-                          placeholder="Skriv inn produktbeskrivelse..."
-                          rows={3}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="imageUrl">Bildelenke</Label>
-                        <Input
-                          id="imageUrl"
-                          value={productData.imageUrl}
-                          onChange={(e) =>
-                            setProductData({ ...productData, imageUrl: e.target.value })
-                          }
-                          placeholder="https://example.com/image.jpg"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <Dialog>
+                    <Empty className="py-8 border border-dashed rounded-lg">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <IconGift className="h-6 w-6" />
+                        </EmptyMedia>
+                        <EmptyTitle>Ingen produkt lagt til</EmptyTitle>
+                        <EmptyDescription>
+                          Legg til et produkt for å gjøre luken klar til kampanjen.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                      <EmptyContent>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => handleEditDoor(door)}
+                          >
+                            <IconGift className="h-4 w-4 mr-2" />
+                            Legg til produkt
+                          </Button>
+                        </DialogTrigger>
+                      </EmptyContent>
+                    </Empty>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Legg til produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
                         <div>
-                          <Label htmlFor="value">Verdi (kr)</Label>
+                          <Label htmlFor="name">Produktnavn *</Label>
                           <Input
-                            id="value"
-                            type="number"
-                            step="0.01"
-                            value={productData.value}
+                            id="name"
+                            value={productData.name}
                             onChange={(e) =>
-                              setProductData({ ...productData, value: e.target.value })
+                              setProductData({ ...productData, name: e.target.value })
                             }
-                            placeholder="999"
+                            placeholder="Premium kaffetrakter"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="quantity">Antall</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            min="1"
-                            value={productData.quantity}
+                          <Label htmlFor="description">Beskrivelse</Label>
+                          <Textarea
+                            id="description"
+                            value={productData.description}
                             onChange={(e) =>
-                              setProductData({ ...productData, quantity: e.target.value })
+                              setProductData({ ...productData, description: e.target.value })
                             }
+                            placeholder="Skriv inn produktbeskrivelse..."
+                            rows={3}
                           />
                         </div>
+                        <div>
+                          <Label htmlFor="imageUrl">Bildelenke</Label>
+                          <Input
+                            id="imageUrl"
+                            value={productData.imageUrl}
+                            onChange={(e) =>
+                              setProductData({ ...productData, imageUrl: e.target.value })
+                            }
+                            placeholder="https://example.com/image.jpg"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="value">Verdi (kr)</Label>
+                            <Input
+                              id="value"
+                              type="number"
+                              step="0.01"
+                              value={productData.value}
+                              onChange={(e) =>
+                                setProductData({ ...productData, value: e.target.value })
+                              }
+                              placeholder="999"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="quantity">Antall</Label>
+                            <Input
+                              id="quantity"
+                              type="number"
+                              min="1"
+                              value={productData.quantity}
+                              onChange={(e) =>
+                                setProductData({ ...productData, quantity: e.target.value })
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2 pt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => setSelectedDoor(null)}
+                            disabled={isSubmitting}
+                          >
+                            Avbryt
+                          </Button>
+                          <Button onClick={handleSaveProduct} disabled={isSubmitting}>
+                            {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex justify-end gap-2 pt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => setSelectedDoor(null)}
-                          disabled={isSubmitting}
-                        >
-                          Avbryt
-                        </Button>
-                        <Button onClick={handleSaveProduct} disabled={isSubmitting}>
-                          {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogContent>
+                  </Dialog>
+                  <Link
+                    href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}
+                  >
+                    <Button variant="outline" size="sm" className="w-full">
+                      <IconQuestionMark className="h-4 w-4 mr-2" />
+                      Quiz
+                    </Button>
+                  </Link>
+                </div>
               )}
             </CardContent>
           </Card>

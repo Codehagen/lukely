@@ -182,6 +182,10 @@ model Calendar {
   favicon              String?
   metaDescription      String?
 
+  // GDPR & Legal
+  termsUrl             String?
+  privacyPolicyUrl     String?
+
   // Dates
   startDate       DateTime
   endDate         DateTime
@@ -191,7 +195,7 @@ model Calendar {
   allowMultipleEntries Boolean    @default(false)
   requireEmail    Boolean         @default(true)
   requireName     Boolean         @default(true)
-  requirePhone    Boolean         @default(false)
+  requirePhone    Boolean         @default(true)
   customFields    Json?
 
   // Relations
@@ -222,6 +226,12 @@ model Door {
   description     String?
   image           String?
 
+  // Quiz Configuration
+  enableQuiz      Boolean         @default(false)
+  quizPassingScore Int            @default(100)
+  showCorrectAnswers Boolean      @default(false)
+  allowRetry      Boolean         @default(false)
+
   // Relations
   calendarId      String
   calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
@@ -229,6 +239,7 @@ model Door {
   entries         DoorEntry[]
   winner          Winner?
   doorViews       DoorView[]
+  questions       Question[]
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -269,6 +280,12 @@ model Lead {
   ipAddress       String?
   userAgent       String?
 
+  // GDPR Consent
+  marketingConsent        Boolean   @default(false)
+  termsAccepted           Boolean   @default(false)
+  privacyPolicyAccepted   Boolean   @default(false)
+  consentTimestamp        DateTime?
+
   // Relations
   calendarId      String
   calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
@@ -291,6 +308,13 @@ model DoorEntry {
   doorId          String
   lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
   door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+
+  // Quiz results
+  quizScore       Float?
+  quizPassed      Boolean         @default(false)
+  eligibleForWinner Boolean       @default(true)
+
+  answers         QuestionAnswer[]
 
   enteredAt       DateTime        @default(now())
 
@@ -406,4 +430,59 @@ model AnalyticsSummary {
   @@index([calendarId])
   @@index([date])
   @@map("analytics_summary")
+}
+
+// Quiz questions for doors
+model Question {
+  id              String          @id @default(cuid())
+  doorId          String
+  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+
+  type            QuestionType
+  questionText    String          // Norwegian text
+  order           Int
+  required        Boolean         @default(true)
+  points          Int             @default(1)
+
+  // For validation
+  correctAnswer   String?
+  acceptableAnswers Json?
+  caseSensitive   Boolean         @default(false)
+
+  // Multiple choice options
+  options         Json?
+
+  // AI metadata
+  generatedByAI   Boolean         @default(false)
+  aiPrompt        String?
+
+  createdAt       DateTime        @default(now())
+  answers         QuestionAnswer[]
+
+  @@index([doorId])
+  @@map("question")
+}
+
+enum QuestionType {
+  TEXT
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  RATING
+}
+
+// Quiz answers from participants
+model QuestionAnswer {
+  id              String          @id @default(cuid())
+  questionId      String
+  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  doorEntryId     String
+  doorEntry       DoorEntry       @relation(fields: [doorEntryId], references: [id], onDelete: Cascade)
+
+  answer          String
+  isCorrect       Boolean         @default(false)
+  answeredAt      DateTime        @default(now())
+
+  @@index([questionId])
+  @@index([doorEntryId])
+  @@map("question_answer")
 }

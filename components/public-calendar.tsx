@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { IconLock, IconGift, IconTrophy } from "@tabler/icons-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { IconLock, IconGift, IconTrophy, IconExternalLink } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 import { AnalyticsTracker, useTrackDoorInteraction } from "@/components/analytics-tracker";
+import { DoorQuizSection } from "@/components/door-quiz-section";
 
 interface Door {
   id: string;
@@ -20,6 +23,10 @@ interface Door {
   title: string | null;
   description: string | null;
   image: string | null;
+  enableQuiz: boolean;
+  quizPassingScore: number;
+  showCorrectAnswers: boolean;
+  allowRetry: boolean;
   product: {
     id: string;
     name: string;
@@ -34,6 +41,13 @@ interface Door {
       email: string;
     };
   } | null;
+  questions: {
+    id: string;
+    type: string;
+    questionText: string;
+    required: boolean;
+    options: string[] | null;
+  }[];
   _count: {
     entries: number;
   };
@@ -56,6 +70,8 @@ interface Calendar {
   requireEmail: boolean;
   requireName: boolean;
   requirePhone: boolean;
+  termsUrl: string | null;
+  privacyPolicyUrl: string | null;
   doors: Door[];
   workspace: {
     name: string;
@@ -71,6 +87,12 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     name: "",
     phone: "",
   });
+  const [consents, setConsents] = useState({
+    terms: false,
+    privacy: false,
+    marketing: false,
+  });
+  const [quizAnswers, setQuizAnswers] = useState<Array<{ questionId: string; answer: string }>>([]);
 
   // Analytics tracking
   const { trackDoorClick, trackDoorEntry } = useTrackDoorInteraction(calendar.id);
@@ -88,6 +110,48 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     // Track door click
     trackDoorClick(door.id);
     setSelectedDoor(door);
+  };
+
+  const triggerConfetti = () => {
+    const end = Date.now() + 3 * 1000; // 3 seconds
+    const colors = [calendar.brandColor || "#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
+
+    const frame = () => {
+      if (Date.now() > end) return;
+
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors: colors,
+      });
+
+      requestAnimationFrame(frame);
+    };
+
+    frame();
+  };
+
+  const handleQuizAnswerChange = (questionId: string, answer: string) => {
+    setQuizAnswers((prev) => {
+      const existing = prev.find((a) => a.questionId === questionId);
+      if (existing) {
+        return prev.map((a) =>
+          a.questionId === questionId ? { ...a, answer } : a
+        );
+      }
+      return [...prev, { questionId, answer }];
+    });
   };
 
   const handleSubmitEntry = async () => {
@@ -108,6 +172,28 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       return;
     }
 
+    // Quiz validation
+    if (selectedDoor.enableQuiz && selectedDoor.questions.length > 0) {
+      const requiredQuestions = selectedDoor.questions.filter((q) => q.required);
+      const answeredQuestions = quizAnswers.filter((a) => a.answer.trim() !== "");
+
+      if (answeredQuestions.length < requiredQuestions.length) {
+        toast.error("Vennligst svar på alle påkrevde spørsmål");
+        return;
+      }
+    }
+
+    // GDPR Consent validation
+    if (!consents.terms) {
+      toast.error("Du må godta vilkårene for å delta");
+      return;
+    }
+
+    if (!consents.privacy) {
+      toast.error("Du må godta personvernerklæringen for å delta");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -118,6 +204,10 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           calendarId: calendar.id,
           doorId: selectedDoor.id,
           ...formData,
+          marketingConsent: consents.marketing,
+          termsAccepted: consents.terms,
+          privacyPolicyAccepted: consents.privacy,
+          quizAnswers: selectedDoor.enableQuiz ? quizAnswers : undefined,
         }),
       });
 
@@ -129,9 +219,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       // Track door entry
       trackDoorEntry(selectedDoor.id);
 
+      // Trigger confetti
+      triggerConfetti();
+
       toast.success(calendar.thankYouMessage || "Deltakelsen er registrert! Lykke til! 🎉");
       setSelectedDoor(null);
       setFormData({ email: "", name: "", phone: "" });
+      setConsents({ terms: false, privacy: false, marketing: false });
+      setQuizAnswers([]);
     } catch (error: any) {
       toast.error(error.message || "Kunne ikke sende inn deltakelse");
     } finally {
@@ -277,6 +372,16 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {/* Quiz Section */}
+                    {selectedDoor.enableQuiz && selectedDoor.questions.length > 0 && (
+                      <DoorQuizSection
+                        questions={selectedDoor.questions}
+                        answers={quizAnswers}
+                        onAnswerChange={handleQuizAnswerChange}
+                      />
+                    )}
+
+                    {/* Contact Form */}
                     <div className="border-t pt-4">
                       <h4 className="font-semibold mb-4">Delta og vinn!</h4>
                       <div className="space-y-4">
@@ -316,6 +421,82 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                           </div>
                         )}
                       </div>
+                    </div>
+
+                    {/* GDPR Consent Section */}
+                    <div className="border-t pt-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="terms"
+                          checked={consents.terms}
+                          onCheckedChange={(checked) => setConsents({ ...consents, terms: checked as boolean })}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
+                            Jeg godtar{" "}
+                            {calendar.termsUrl ? (
+                              <a
+                                href={calendar.termsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                vilkårene for konkurransen
+                                <IconExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span className="font-medium">vilkårene for konkurransen</span>
+                            )}{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="privacy"
+                          checked={consents.privacy}
+                          onCheckedChange={(checked) => setConsents({ ...consents, privacy: checked as boolean })}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="privacy" className="text-sm font-normal cursor-pointer">
+                            Jeg har lest og godtar{" "}
+                            {calendar.privacyPolicyUrl ? (
+                              <a
+                                href={calendar.privacyPolicyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                personvernerklæringen
+                                <IconExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span className="font-medium">personvernerklæringen</span>
+                            )}{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="marketing"
+                          checked={consents.marketing}
+                          onCheckedChange={(checked) => setConsents({ ...consents, marketing: checked as boolean })}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="marketing" className="text-sm font-normal cursor-pointer">
+                            Jeg godtar å motta markedsføring og nyhetsbrev (valgfritt)
+                          </Label>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Dine opplysninger behandles i henhold til personvernreglene. Du kan når som helst trekke tilbake ditt samtykke.
+                      </p>
                     </div>
 
                     <div className="flex justify-between items-center">

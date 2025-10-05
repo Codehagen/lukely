@@ -25,6 +25,11 @@ async function getCalendarBySlug(slug: string) {
               lead: true,
             },
           },
+          questions: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           _count: {
             select: {
               entries: true,
