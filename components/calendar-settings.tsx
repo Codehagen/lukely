@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { IconCheck, IconTrash, IconArchive } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { CalendarStatus } from "@/app/generated/prisma";
@@ -136,40 +136,47 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
           <CardTitle>Basic Information</CardTitle>
           <CardDescription>Update your calendar's basic details</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="title">Calendar Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="slug">URL Slug</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">/c/</span>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="title">Calendar Title</FieldLabel>
               <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Changing the slug will break existing links
-            </p>
-          </div>
+            </Field>
 
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-            />
-          </div>
+            <Field>
+              <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
+              <FieldContent>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">/c/</span>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  />
+                </div>
+                <FieldDescription>
+                  Changing the slug will break existing links
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="description">Description</FieldLabel>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+              />
+              <FieldDescription>
+                Optional description shown on the public calendar page
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
         </CardContent>
       </Card>
 
@@ -179,44 +186,57 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
           <CardTitle>Branding</CardTitle>
           <CardDescription>Customize the look and feel of your calendar</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="brandColor">Brand Color</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="brandColor"
-                type="color"
-                value={formData.brandColor}
-                onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
-                className="w-20 h-10"
-              />
-              <Input
-                value={formData.brandColor}
-                onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
-                placeholder="#3B82F6"
-              />
-            </div>
-          </div>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="brandColor">Brand Color</FieldLabel>
+              <FieldContent>
+                <div className="flex items-center gap-4">
+                  <Input
+                    id="brandColor"
+                    type="color"
+                    value={formData.brandColor}
+                    onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={formData.brandColor}
+                    onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
+                    placeholder="#3B82F6"
+                  />
+                </div>
+                <FieldDescription>
+                  Used for buttons and accents throughout your calendar
+                </FieldDescription>
+              </FieldContent>
+            </Field>
 
-          <div>
-            <Label htmlFor="logo">Logo URL</Label>
-            <Input
-              id="logo"
-              value={formData.logo}
-              onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-              placeholder="https://example.com/logo.png"
-            />
-          </div>
+            <Field>
+              <FieldLabel htmlFor="logo">Logo URL</FieldLabel>
+              <Input
+                id="logo"
+                value={formData.logo}
+                onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                placeholder="https://example.com/logo.png"
+              />
+              <FieldDescription>
+                Display your brand logo on the public calendar page
+              </FieldDescription>
+            </Field>
 
-          <div>
-            <Label htmlFor="bannerImage">Banner Image URL</Label>
-            <Input
-              id="bannerImage"
-              value={formData.bannerImage}
-              onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-              placeholder="https://example.com/banner.jpg"
-            />
-          </div>
+            <Field>
+              <FieldLabel htmlFor="bannerImage">Banner Image URL</FieldLabel>
+              <Input
+                id="bannerImage"
+                value={formData.bannerImage}
+                onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
+                placeholder="https://example.com/banner.jpg"
+              />
+              <FieldDescription>
+                Optional header banner image for your calendar
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
         </CardContent>
       </Card>
 
@@ -226,31 +246,33 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
           <CardTitle>Status & Publishing</CardTitle>
           <CardDescription>Control when your calendar is visible to the public</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="status">Calendar Status</Label>
-            <div className="flex items-center gap-3 mt-2">
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as CalendarStatus })}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                  <SelectItem value="ARCHIVED">Archived</SelectItem>
-                </SelectContent>
-              </Select>
-              <Badge className={getStatusColor(formData.status)}>{formData.status}</Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Only ACTIVE and SCHEDULED calendars are visible to the public
-            </p>
-          </div>
+        <CardContent>
+          <Field>
+            <FieldLabel htmlFor="status">Calendar Status</FieldLabel>
+            <FieldContent>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => setFormData({ ...formData, status: value as CalendarStatus })}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="ARCHIVED">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Badge className={getStatusColor(formData.status)}>{formData.status}</Badge>
+              </div>
+              <FieldDescription>
+                Only ACTIVE and SCHEDULED calendars are visible to the public
+              </FieldDescription>
+            </FieldContent>
+          </Field>
         </CardContent>
       </Card>
 
@@ -260,58 +282,60 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
           <CardTitle>Entry Settings</CardTitle>
           <CardDescription>Configure how users can enter your giveaways</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Require Email</Label>
-              <p className="text-sm text-muted-foreground">Users must provide an email to enter</p>
-            </div>
-            <Switch
-              checked={formData.requireEmail}
-              onCheckedChange={(checked) => setFormData({ ...formData, requireEmail: checked })}
-            />
-          </div>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-4">
+            <Field orientation="horizontal">
+              <div className="flex-1">
+                <FieldLabel>Require Email</FieldLabel>
+                <FieldDescription>Users must provide an email to enter</FieldDescription>
+              </div>
+              <Switch
+                checked={formData.requireEmail}
+                onCheckedChange={(checked) => setFormData({ ...formData, requireEmail: checked })}
+              />
+            </Field>
 
-          <Separator />
+            <Separator />
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Require Name</Label>
-              <p className="text-sm text-muted-foreground">Users must provide their name</p>
-            </div>
-            <Switch
-              checked={formData.requireName}
-              onCheckedChange={(checked) => setFormData({ ...formData, requireName: checked })}
-            />
-          </div>
+            <Field orientation="horizontal">
+              <div className="flex-1">
+                <FieldLabel>Require Name</FieldLabel>
+                <FieldDescription>Users must provide their name</FieldDescription>
+              </div>
+              <Switch
+                checked={formData.requireName}
+                onCheckedChange={(checked) => setFormData({ ...formData, requireName: checked })}
+              />
+            </Field>
 
-          <Separator />
+            <Separator />
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Require Phone</Label>
-              <p className="text-sm text-muted-foreground">Users must provide a phone number</p>
-            </div>
-            <Switch
-              checked={formData.requirePhone}
-              onCheckedChange={(checked) => setFormData({ ...formData, requirePhone: checked })}
-            />
-          </div>
+            <Field orientation="horizontal">
+              <div className="flex-1">
+                <FieldLabel>Require Phone</FieldLabel>
+                <FieldDescription>Users must provide a phone number</FieldDescription>
+              </div>
+              <Switch
+                checked={formData.requirePhone}
+                onCheckedChange={(checked) => setFormData({ ...formData, requirePhone: checked })}
+              />
+            </Field>
 
-          <Separator />
+            <Separator />
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Allow Multiple Entries</Label>
-              <p className="text-sm text-muted-foreground">
-                Users can enter the same door multiple times
-              </p>
-            </div>
-            <Switch
-              checked={formData.allowMultipleEntries}
-              onCheckedChange={(checked) => setFormData({ ...formData, allowMultipleEntries: checked })}
-            />
-          </div>
+            <Field orientation="horizontal">
+              <div className="flex-1">
+                <FieldLabel>Allow Multiple Entries</FieldLabel>
+                <FieldDescription>
+                  Users can enter the same door multiple times
+                </FieldDescription>
+              </div>
+              <Switch
+                checked={formData.allowMultipleEntries}
+                onCheckedChange={(checked) => setFormData({ ...formData, allowMultipleEntries: checked })}
+              />
+            </Field>
+          </FieldGroup>
         </CardContent>
       </Card>
 

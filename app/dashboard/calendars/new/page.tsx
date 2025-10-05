@@ -5,11 +5,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { CALENDAR_TEMPLATES, getDefaultDatesForYear } from "@/lib/calendar-templates";
 import { CalendarType } from "@/app/generated/prisma";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { IconCalendar } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
 
 export default function NewCalendarPage() {
   const router = useRouter();
@@ -19,8 +24,8 @@ export default function NewCalendarPage() {
     title: "",
     description: "",
     slug: "",
-    startDate: "",
-    endDate: "",
+    startDate: new Date(),
+    endDate: new Date(),
     doorCount: 24,
     brandColor: "#3B82F6",
     requireEmail: true,
@@ -41,8 +46,8 @@ export default function NewCalendarPage() {
       description: template.description,
       doorCount: template.doorCount,
       brandColor: template.theme.colors[0],
-      startDate: dates?.startDate.toISOString().split("T")[0] || "",
-      endDate: dates?.endDate.toISOString().split("T")[0] || "",
+      startDate: dates?.startDate || new Date(),
+      endDate: dates?.endDate || new Date(),
     });
 
     setStep(2);
@@ -60,6 +65,8 @@ export default function NewCalendarPage() {
         body: JSON.stringify({
           ...formData,
           type: template.type,
+          startDate: formData.startDate.toISOString(),
+          endDate: formData.endDate.toISOString(),
         }),
       });
 
@@ -130,40 +137,53 @@ export default function NewCalendarPage() {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="title">Calendar Title</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => generateSlug(e.target.value)}
-                  placeholder="My Christmas Giveaway 2024"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="slug">URL Slug</Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">yoursite.com/c/</span>
+            <CardContent>
+              <FieldGroup className="flex flex-col gap-6">
+                <Field>
+                  <FieldLabel htmlFor="title">Calendar Title</FieldLabel>
                   <Input
-                    id="slug"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="christmas-2024"
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => generateSlug(e.target.value)}
+                    placeholder="My Christmas Giveaway 2024"
                   />
-                </div>
-              </div>
+                  <FieldDescription>
+                    This will be displayed as the main heading on your calendar
+                  </FieldDescription>
+                </Field>
 
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter a description for your calendar..."
-                  rows={3}
-                />
-              </div>
+                <Field>
+                  <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
+                  <FieldContent>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">yoursite.com/c/</span>
+                      <Input
+                        id="slug"
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        placeholder="christmas-2024"
+                      />
+                    </div>
+                    <FieldDescription>
+                      This creates your unique calendar URL
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="description">Description</FieldLabel>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Enter a description for your calendar..."
+                    rows={3}
+                  />
+                  <FieldDescription>
+                    Optional description shown on the public calendar page
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
             </CardContent>
           </Card>
 
@@ -171,45 +191,86 @@ export default function NewCalendarPage() {
             <CardHeader>
               <CardTitle>Dates & Doors</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="startDate">Start Date</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  />
-                </div>
-              </div>
+            <CardContent>
+              <FieldGroup className="flex flex-col gap-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel>Start Date</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !formData.startDate && "text-muted-foreground"
+                          )}
+                        >
+                          <IconCalendar className="mr-2 h-4 w-4" />
+                          {formData.startDate ? format(formData.startDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.startDate}
+                          onSelect={(date) => date && setFormData({ ...formData, startDate: date })}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FieldDescription>When the first door opens</FieldDescription>
+                  </Field>
 
-              <div>
-                <Label htmlFor="doorCount">Number of Doors</Label>
-                <Input
-                  id="doorCount"
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={formData.doorCount}
-                  onChange={(e) => setFormData({ ...formData, doorCount: parseInt(e.target.value) })}
-                  disabled={!CALENDAR_TEMPLATES[selectedTemplate].flexible}
-                />
-                {!CALENDAR_TEMPLATES[selectedTemplate].flexible && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    This template has a fixed number of doors
-                  </p>
-                )}
-              </div>
+                  <Field>
+                    <FieldLabel>End Date</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !formData.endDate && "text-muted-foreground"
+                          )}
+                        >
+                          <IconCalendar className="mr-2 h-4 w-4" />
+                          {formData.endDate ? format(formData.endDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.endDate}
+                          onSelect={(date) => date && setFormData({ ...formData, endDate: date })}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FieldDescription>When the last door opens</FieldDescription>
+                  </Field>
+                </div>
+
+                <Field>
+                  <FieldLabel htmlFor="doorCount">Number of Doors</FieldLabel>
+                  <Input
+                    id="doorCount"
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={formData.doorCount}
+                    onChange={(e) => setFormData({ ...formData, doorCount: parseInt(e.target.value) })}
+                    disabled={!CALENDAR_TEMPLATES[selectedTemplate].flexible}
+                  />
+                  {!CALENDAR_TEMPLATES[selectedTemplate].flexible ? (
+                    <FieldDescription>
+                      This template has a fixed number of doors
+                    </FieldDescription>
+                  ) : (
+                    <FieldDescription>
+                      Choose how many doors your calendar will have (1-31)
+                    </FieldDescription>
+                  )}
+                </Field>
+              </FieldGroup>
             </CardContent>
           </Card>
 
@@ -217,9 +278,9 @@ export default function NewCalendarPage() {
             <CardHeader>
               <CardTitle>Branding</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="brandColor">Brand Color</Label>
+            <CardContent>
+              <Field>
+                <FieldLabel htmlFor="brandColor">Brand Color</FieldLabel>
                 <div className="flex items-center gap-4">
                   <Input
                     id="brandColor"
@@ -234,7 +295,10 @@ export default function NewCalendarPage() {
                     placeholder="#3B82F6"
                   />
                 </div>
-              </div>
+                <FieldDescription>
+                  This color will be used for buttons and accents on your calendar
+                </FieldDescription>
+              </Field>
             </CardContent>
           </Card>
 

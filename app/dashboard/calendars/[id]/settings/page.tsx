@@ -39,7 +39,7 @@ export default async function SettingsPage({
   }
 
   return (
-    <div className="container py-8">
+    <div className="container max-w-5xl py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Calendar Settings</h1>
         <p className="text-muted-foreground mt-2">
