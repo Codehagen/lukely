@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Item,
   ItemActions,
@@ -14,7 +20,14 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { IconTrophy, IconDice, IconLock, IconCheck, IconCalendar, IconUsers } from "@tabler/icons-react";
+import {
+  IconTrophy,
+  IconDice,
+  IconLock,
+  IconCheck,
+  IconCalendar,
+  IconUsers,
+} from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -126,75 +139,92 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
               className={`${!isDoorOpen(door) ? "opacity-60" : ""} ${
                 door.winner ? "border-yellow-400" : ""
               }`}
-          >
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Luke {door.doorNumber}</CardTitle>
-                {door.winner ? (
-                  <Badge className="bg-yellow-500">
-                    <IconTrophy className="h-3 w-3 mr-1" />
-                    Vinner
-                  </Badge>
-                ) : isDoorOpen(door) ? (
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Åpen
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="bg-gray-50">
-                    <IconLock className="h-3 w-3 mr-1" />
-                    Låst
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {format(new Date(door.openDate), "d. MMM yyyy", { locale: nb })}
-              </p>
-            </CardHeader>
-            <CardContent>
-              {door.product && (
-                <div className="mb-4">
-                  <p className="font-medium">{door.product.name}</p>
-                  {door.product.value && (
-                    <p className="text-sm text-muted-foreground">kr {door.product.value}</p>
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">
+                    Luke {door.doorNumber}
+                  </CardTitle>
+                  {door.winner ? (
+                    <Badge className="bg-yellow-500">
+                      <IconTrophy className="h-3 w-3 mr-1" />
+                      Vinner
+                    </Badge>
+                  ) : isDoorOpen(door) ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700"
+                    >
+                      Åpen
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-gray-50">
+                      <IconLock className="h-3 w-3 mr-1" />
+                      Låst
+                    </Badge>
                   )}
                 </div>
-              )}
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Totalt antall deltakelser</span>
-                  <span className="font-semibold">{door._count.entries}</span>
-                </div>
-
-                {door.winner ? (
-                  <div className="bg-yellow-50 dark:bg-yellow-950 p-3 rounded-md">
-                    <div className="flex items-center gap-2 mb-1">
-                      <IconTrophy className="h-4 w-4 text-yellow-600" />
-                      <p className="font-semibold text-sm">Vinner valgt</p>
-                    </div>
-                    <p className="text-sm">{door.winner.lead.name || door.winner.lead.email}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(door.winner.selectedAt), "d. MMM yyyy 'kl.' HH:mm", { locale: nb })}
-                    </p>
-                    {door.winner.notified && (
-                      <div className="flex items-center gap-1 mt-2">
-                        <IconCheck className="h-3 w-3 text-green-600" />
-                        <p className="text-xs text-green-600">Varslet</p>
-                      </div>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(door.openDate), "d. MMM yyyy", {
+                    locale: nb,
+                  })}
+                </p>
+              </CardHeader>
+              <CardContent>
+                {door.product && (
+                  <div className="mb-4">
+                    <p className="font-medium">{door.product.name}</p>
+                    {door.product.value && (
+                      <p className="text-sm text-muted-foreground">
+                        kr {door.product.value}
+                      </p>
                     )}
                   </div>
-                ) : (
-                  <Button
-                    className="w-full"
-                    onClick={() => setSelectedDoor(door)}
-                    disabled={!isDoorOpen(door) || door._count.entries === 0}
-                  >
-                    <IconDice className="h-4 w-4 mr-2" />
-                    Velg vinner
-                  </Button>
                 )}
-              </div>
-            </CardContent>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Totalt antall deltakelser
+                    </span>
+                    <span className="font-semibold">{door._count.entries}</span>
+                  </div>
+
+                  {door.winner ? (
+                    <div className="bg-yellow-50 dark:bg-yellow-950 p-3 rounded-md">
+                      <div className="flex items-center gap-2 mb-1">
+                        <IconTrophy className="h-4 w-4 text-yellow-600" />
+                        <p className="font-semibold text-sm">Vinner valgt</p>
+                      </div>
+                      <p className="text-sm">
+                        {door.winner.lead.name || door.winner.lead.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(
+                          new Date(door.winner.selectedAt),
+                          "d. MMM yyyy 'kl.' HH:mm",
+                          { locale: nb }
+                        )}
+                      </p>
+                      {door.winner.notified && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <IconCheck className="h-3 w-3 text-green-600" />
+                          <p className="text-xs text-green-600">Varslet</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      onClick={() => setSelectedDoor(door)}
+                      disabled={!isDoorOpen(door) || door._count.entries === 0}
+                    >
+                      <IconDice className="h-4 w-4 mr-2" />
+                      Velg vinner
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -218,10 +248,13 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
           {selectedDoor && (
             <>
               <DialogHeader>
-                <DialogTitle>Velg vinner for luke {selectedDoor.doorNumber}</DialogTitle>
+                <DialogTitle>
+                  Velg vinner for luke {selectedDoor.doorNumber}
+                </DialogTitle>
                 <DialogDescription>
                   {selectedDoor._count.entries} deltakelser
-                    {selectedDoor.product && ` • Premie: ${selectedDoor.product.name}`}
+                  {selectedDoor.product &&
+                    ` • Premie: ${selectedDoor.product.name}`}
                 </DialogDescription>
               </DialogHeader>
 
@@ -231,17 +264,25 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                   <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg">
                     <h4 className="font-semibold mb-2">Quiz aktivert</h4>
                     <p className="text-sm text-muted-foreground">
-                      Denne luken har quiz med {selectedDoor.quizPassingScore}% krav.
-                      {" "}Kun deltakere med riktige svar er kvalifiserte.
+                      Denne luken har quiz med {selectedDoor.quizPassingScore}%
+                      krav. Kun deltakere med riktige svar er kvalifiserte.
                     </p>
                     <div className="flex gap-4 mt-3 text-sm">
                       <div>
                         <span className="font-medium">Kvalifiserte:</span>{" "}
-                        {selectedDoor.entries.filter((e) => e.eligibleForWinner).length}
+                        {
+                          selectedDoor.entries.filter(
+                            (e) => e.eligibleForWinner
+                          ).length
+                        }
                       </div>
                       <div>
                         <span className="font-medium">Ikke kvalifiserte:</span>{" "}
-                        {selectedDoor.entries.filter((e) => !e.eligibleForWinner).length}
+                        {
+                          selectedDoor.entries.filter(
+                            (e) => !e.eligibleForWinner
+                          ).length
+                        }
                       </div>
                     </div>
                   </div>
@@ -256,7 +297,11 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                   </p>
                   <Button
                     onClick={() => selectRandomWinner(selectedDoor)}
-                    disabled={isSelecting || selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0}
+                    disabled={
+                      isSelecting ||
+                      selectedDoor.entries.filter((e) => e.eligibleForWinner)
+                        .length === 0
+                    }
                     className="w-full"
                   >
                     {isSelecting ? (
@@ -271,7 +316,8 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                       </>
                     )}
                   </Button>
-                  {selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0 && (
+                  {selectedDoor.entries.filter((e) => e.eligibleForWinner)
+                    .length === 0 && (
                     <p className="text-sm text-destructive mt-2">
                       Ingen kvalifiserte deltakere ennå
                     </p>
@@ -288,7 +334,8 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                         </EmptyMedia>
                         <EmptyTitle>Ingen deltakelser ennå</EmptyTitle>
                         <EmptyDescription>
-                          Del kalenderen for å samle deltakerne før du trekker en vinner.
+                          Del kalenderen for å samle deltakerne før du trekker
+                          en vinner.
                         </EmptyDescription>
                       </EmptyHeader>
                     </Empty>
@@ -296,7 +343,8 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                     <div className="border rounded-lg max-h-96 overflow-y-auto">
                       <ItemGroup className="gap-1 p-2">
                         {selectedDoor.entries.map((entry) => {
-                          const participant = entry.lead.name || entry.lead.email;
+                          const participant =
+                            entry.lead.name || entry.lead.email;
                           return (
                             <Item
                               key={entry.id}
@@ -311,12 +359,22 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                                 <ItemTitle className="text-sm flex items-center gap-2">
                                   {participant}
                                   {!entry.eligibleForWinner && (
-                                    <Badge variant="destructive" className="text-xs">
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-xs"
+                                    >
                                       Ikke kvalifisert
                                     </Badge>
                                   )}
                                   {entry.quizScore !== null && (
-                                    <Badge variant={entry.quizPassed ? "default" : "secondary"} className="text-xs">
+                                    <Badge
+                                      variant={
+                                        entry.quizPassed
+                                          ? "default"
+                                          : "secondary"
+                                      }
+                                      className="text-xs"
+                                    >
                                       {Math.round(entry.quizScore)}%
                                     </Badge>
                                   )}
@@ -328,7 +386,11 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                                 )}
                               </ItemContent>
                               <ItemActions className="ml-auto text-xs text-muted-foreground">
-                                {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
+                                {format(
+                                  new Date(entry.enteredAt),
+                                  "d. MMM HH:mm",
+                                  { locale: nb }
+                                )}
                               </ItemActions>
                             </Item>
                           );

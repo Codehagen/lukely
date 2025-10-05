@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   IconCalendar,
   IconCamera,
@@ -18,12 +18,12 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -32,7 +32,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const data = {
   user: {
@@ -60,11 +60,6 @@ const data = {
       title: "Analyser",
       url: "/dashboard/analytics",
       icon: IconChartBar,
-    },
-    {
-      title: "Prosjekter",
-      url: "#",
-      icon: IconFolder,
     },
   ],
   navClouds: [
@@ -149,13 +144,13 @@ const data = {
       icon: IconFileWord,
     },
   ],
-}
+};
 
 export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user: { name: string; email: string; image?: string | null } | null
+  user: { name: string; email: string; image?: string | null } | null;
 }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -179,9 +174,7 @@ export function AppSidebar({
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        {user && <NavUser user={user} />}
-      </SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
-  )
+  );
 }
