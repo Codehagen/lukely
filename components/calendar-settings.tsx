@@ -60,12 +60,12 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error("Failed to update calendar");
+      if (!response.ok) throw new Error("Kunne ikke oppdatere kalender");
 
-      toast.success("Calendar updated successfully!");
+      toast.success("Kalenderen er oppdatert!");
       router.refresh();
     } catch (error) {
-      toast.error("Failed to update calendar");
+      toast.error("Kunne ikke oppdatere kalender");
       console.error(error);
     } finally {
       setIsUpdating(false);
@@ -73,7 +73,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
   };
 
   const handleArchive = async () => {
-    if (!confirm("Are you sure you want to archive this calendar?")) return;
+    if (!confirm("Er du sikker på at du vil arkivere denne kalenderen?")) return;
 
     try {
       const response = await fetch(`/api/calendars/${calendar.id}`, {
@@ -82,31 +82,31 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
         body: JSON.stringify({ status: "ARCHIVED" }),
       });
 
-      if (!response.ok) throw new Error("Failed to archive calendar");
+      if (!response.ok) throw new Error("Kunne ikke arkivere kalender");
 
-      toast.success("Calendar archived successfully!");
+      toast.success("Kalenderen ble arkivert!");
       router.push("/dashboard/calendars");
     } catch (error) {
-      toast.error("Failed to archive calendar");
+      toast.error("Kunne ikke arkivere kalender");
       console.error(error);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this calendar? This action cannot be undone.")) return;
-    if (!confirm("This will permanently delete all doors, products, leads, and entries. Are you absolutely sure?")) return;
+    if (!confirm("Er du sikker på at du vil slette denne kalenderen? Dette kan ikke angres.")) return;
+    if (!confirm("Dette sletter alle luker, produkter, leads og deltakelser permanent. Er du helt sikker?")) return;
 
     try {
       const response = await fetch(`/api/calendars/${calendar.id}`, {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete calendar");
+      if (!response.ok) throw new Error("Kunne ikke slette kalender");
 
-      toast.success("Calendar deleted successfully!");
+      toast.success("Kalenderen ble slettet!");
       router.push("/dashboard/calendars");
     } catch (error) {
-      toast.error("Failed to delete calendar");
+      toast.error("Kunne ikke slette kalender");
       console.error(error);
     }
   };
@@ -133,13 +133,13 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Update your calendar's basic details</CardDescription>
+          <CardTitle>Grunnleggende informasjon</CardTitle>
+          <CardDescription>Oppdater de grunnleggende detaljene for kalenderen</CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup className="flex flex-col gap-6">
             <Field>
-              <FieldLabel htmlFor="title">Calendar Title</FieldLabel>
+              <FieldLabel htmlFor="title">Kalendertittel</FieldLabel>
               <Input
                 id="title"
                 value={formData.title}
@@ -148,7 +148,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
+              <FieldLabel htmlFor="slug">URL-slug</FieldLabel>
               <FieldContent>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">/c/</span>
@@ -159,13 +159,13 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                   />
                 </div>
                 <FieldDescription>
-                  Changing the slug will break existing links
+                  Å endre slug bryter eksisterende lenker
                 </FieldDescription>
               </FieldContent>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="description">Description</FieldLabel>
+              <FieldLabel htmlFor="description">Beskrivelse</FieldLabel>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -173,7 +173,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                 rows={3}
               />
               <FieldDescription>
-                Optional description shown on the public calendar page
+                Valgfri beskrivelse som vises på den offentlige kalendersiden
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -183,13 +183,13 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
       {/* Branding */}
       <Card>
         <CardHeader>
-          <CardTitle>Branding</CardTitle>
-          <CardDescription>Customize the look and feel of your calendar</CardDescription>
+          <CardTitle>Merkevare</CardTitle>
+          <CardDescription>Tilpass utseendet til kalenderen</CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup className="flex flex-col gap-6">
             <Field>
-              <FieldLabel htmlFor="brandColor">Brand Color</FieldLabel>
+              <FieldLabel htmlFor="brandColor">Profilfarge</FieldLabel>
               <FieldContent>
                 <div className="flex items-center gap-4">
                   <Input
@@ -206,13 +206,13 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                   />
                 </div>
                 <FieldDescription>
-                  Used for buttons and accents throughout your calendar
+                  Brukes på knapper og detaljer i kalenderen
                 </FieldDescription>
               </FieldContent>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="logo">Logo URL</FieldLabel>
+              <FieldLabel htmlFor="logo">Logo-URL</FieldLabel>
               <Input
                 id="logo"
                 value={formData.logo}
@@ -220,12 +220,12 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                 placeholder="https://example.com/logo.png"
               />
               <FieldDescription>
-                Display your brand logo on the public calendar page
+                Vis logoen din på den offentlige kalendersiden
               </FieldDescription>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="bannerImage">Banner Image URL</FieldLabel>
+              <FieldLabel htmlFor="bannerImage">Bannerbilde-URL</FieldLabel>
               <Input
                 id="bannerImage"
                 value={formData.bannerImage}
@@ -233,7 +233,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                 placeholder="https://example.com/banner.jpg"
               />
               <FieldDescription>
-                Optional header banner image for your calendar
+                Valgfritt toppbanner for kalenderen
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -243,12 +243,12 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
       {/* Status & Publishing */}
       <Card>
         <CardHeader>
-          <CardTitle>Status & Publishing</CardTitle>
-          <CardDescription>Control when your calendar is visible to the public</CardDescription>
+          <CardTitle>Status og publisering</CardTitle>
+          <CardDescription>Bestem når kalenderen er synlig for publikum</CardDescription>
         </CardHeader>
         <CardContent>
           <Field>
-            <FieldLabel htmlFor="status">Calendar Status</FieldLabel>
+            <FieldLabel htmlFor="status">Kalenderstatus</FieldLabel>
             <FieldContent>
               <div className="flex items-center gap-3">
                 <Select
@@ -259,17 +259,17 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
-                    <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                    <SelectItem value="ACTIVE">Active</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="ARCHIVED">Archived</SelectItem>
+                    <SelectItem value="DRAFT">Kladd</SelectItem>
+                    <SelectItem value="SCHEDULED">Planlagt</SelectItem>
+                    <SelectItem value="ACTIVE">Aktiv</SelectItem>
+                    <SelectItem value="COMPLETED">Fullført</SelectItem>
+                    <SelectItem value="ARCHIVED">Arkivert</SelectItem>
                   </SelectContent>
                 </Select>
                 <Badge className={getStatusColor(formData.status)}>{formData.status}</Badge>
               </div>
               <FieldDescription>
-                Only ACTIVE and SCHEDULED calendars are visible to the public
+                Kun ACTIVE og SCHEDULED kalendere er synlige for publikum
               </FieldDescription>
             </FieldContent>
           </Field>
@@ -279,15 +279,15 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
       {/* Entry Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Entry Settings</CardTitle>
-          <CardDescription>Configure how users can enter your giveaways</CardDescription>
+          <CardTitle>Deltakerinnstillinger</CardTitle>
+          <CardDescription>Bestem hvordan brukerne kan delta i konkurransene</CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup className="flex flex-col gap-4">
             <Field orientation="horizontal">
               <div className="flex-1">
-                <FieldLabel>Require Email</FieldLabel>
-                <FieldDescription>Users must provide an email to enter</FieldDescription>
+                <FieldLabel>Krev e-post</FieldLabel>
+                <FieldDescription>Brukere må oppgi e-post for å delta</FieldDescription>
               </div>
               <Switch
                 checked={formData.requireEmail}
@@ -299,8 +299,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
 
             <Field orientation="horizontal">
               <div className="flex-1">
-                <FieldLabel>Require Name</FieldLabel>
-                <FieldDescription>Users must provide their name</FieldDescription>
+                <FieldLabel>Krev navn</FieldLabel>
+                <FieldDescription>Brukere må oppgi navnet sitt</FieldDescription>
               </div>
               <Switch
                 checked={formData.requireName}
@@ -312,8 +312,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
 
             <Field orientation="horizontal">
               <div className="flex-1">
-                <FieldLabel>Require Phone</FieldLabel>
-                <FieldDescription>Users must provide a phone number</FieldDescription>
+                <FieldLabel>Krev telefonnummer</FieldLabel>
+                <FieldDescription>Brukere må oppgi telefonnummer</FieldDescription>
               </div>
               <Switch
                 checked={formData.requirePhone}
@@ -325,9 +325,9 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
 
             <Field orientation="horizontal">
               <div className="flex-1">
-                <FieldLabel>Allow Multiple Entries</FieldLabel>
+                <FieldLabel>Tillat flere deltakelser</FieldLabel>
                 <FieldDescription>
-                  Users can enter the same door multiple times
+                  Brukere kan delta på samme luke flere ganger
                 </FieldDescription>
               </div>
               <Switch
@@ -344,16 +344,16 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
         <div className="flex gap-2">
           <Button variant="destructive" onClick={handleArchive}>
             <IconArchive className="mr-2 h-4 w-4" />
-            Archive Calendar
+            Arkiver kalender
           </Button>
           <Button variant="outline" className="text-destructive" onClick={handleDelete}>
             <IconTrash className="mr-2 h-4 w-4" />
-            Delete Calendar
+            Slett kalender
           </Button>
         </div>
         <Button onClick={handleUpdate} disabled={isUpdating}>
           <IconCheck className="mr-2 h-4 w-4" />
-          {isUpdating ? "Saving..." : "Save Changes"}
+          {isUpdating ? "Lagrer ..." : "Lagre endringer"}
         </Button>
       </div>
     </div>

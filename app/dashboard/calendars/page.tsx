@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/app/actions/user";
 import { redirect } from "next/navigation";
 import { IconCalendar, IconUsers, IconGift } from "@tabler/icons-react";
 import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 
 async function getCalendars(workspaceId: string) {
   return await prisma.calendar.findMany({
@@ -42,12 +43,27 @@ export default async function CalendarsPage() {
   if (!userWithWorkspace?.defaultWorkspaceId) {
     return (
       <div className="container py-8">
-        <p>No workspace found. Please create a workspace first.</p>
+        <p>Fant ingen arbeidsområde. Opprett et arbeidsområde først.</p>
       </div>
     );
   }
 
   const calendars = await getCalendars(userWithWorkspace.defaultWorkspaceId);
+
+  const statusLabels: Record<string, string> = {
+    DRAFT: "KLADD",
+    SCHEDULED: "PLANLAGT",
+    ACTIVE: "AKTIV",
+    COMPLETED: "FULLFØRT",
+    ARCHIVED: "ARKIVERT",
+  };
+
+  const typeLabels: Record<string, string> = {
+    CHRISTMAS: "Jul",
+    VALENTINE: "Valentin",
+    EASTER: "Påske",
+    CUSTOM: "Tilpasset",
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -67,18 +83,18 @@ export default async function CalendarsPage() {
   };
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
         <div>
-          <h1 className="text-3xl font-bold">Calendars</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your giveaway calendars and track performance
+          <h2 className="text-3xl font-bold tracking-tight">Kalendere</h2>
+          <p className="text-muted-foreground">
+            Administrer konkurransekalenderne dine og følg resultatene
           </p>
         </div>
         <Link href="/dashboard/calendars/new">
           <Button>
             <IconCalendar className="mr-2 h-4 w-4" />
-            Create Calendar
+            Opprett kalender
           </Button>
         </Link>
       </div>
@@ -86,14 +102,14 @@ export default async function CalendarsPage() {
       {calendars.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No calendars yet</CardTitle>
+            <CardTitle>Ingen kalendere ennå</CardTitle>
             <CardDescription>
-              Get started by creating your first giveaway calendar
+              Kom i gang ved å lage din første konkurransekalender
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/dashboard/calendars/new">
-              <Button>Create Your First Calendar</Button>
+              <Button>Lag din første kalender</Button>
             </Link>
           </CardContent>
         </Card>
@@ -107,11 +123,11 @@ export default async function CalendarsPage() {
                     <div className="flex-1">
                       <CardTitle className="line-clamp-1">{calendar.title}</CardTitle>
                       <CardDescription className="line-clamp-2 mt-2">
-                        {calendar.description || "No description"}
+                        {calendar.description || "Ingen beskrivelse"}
                       </CardDescription>
                     </div>
                     <Badge className={getStatusColor(calendar.status)}>
-                      {calendar.status}
+                      {statusLabels[calendar.status] || calendar.status}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -119,13 +135,13 @@ export default async function CalendarsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Type</span>
-                      <span className="font-medium">{calendar.type}</span>
+                      <span className="font-medium">{typeLabels[calendar.type] || calendar.type}</span>
                     </div>
 
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Dates</span>
+                      <span className="text-muted-foreground">Datoer</span>
                       <span className="font-medium">
-                        {format(calendar.startDate, "MMM d")} - {format(calendar.endDate, "MMM d, yyyy")}
+                        {format(calendar.startDate, "d. MMM", { locale: nb })} - {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
                       </span>
                     </div>
 
@@ -134,7 +150,7 @@ export default async function CalendarsPage() {
                         <IconGift className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="text-2xl font-bold">{calendar._count.doors}</p>
-                          <p className="text-xs text-muted-foreground">Doors</p>
+                          <p className="text-xs text-muted-foreground">Luker</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

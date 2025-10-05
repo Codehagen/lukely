@@ -47,16 +47,16 @@ export default async function DashboardPage() {
             <EmptyMedia variant="icon">
               <IconBriefcase className="h-8 w-8" />
             </EmptyMedia>
-            <EmptyTitle>No Workspace Found</EmptyTitle>
+            <EmptyTitle>Fant ingen arbeidsområde</EmptyTitle>
             <EmptyDescription>
-              You need to create a workspace before you can start creating calendars and managing giveaways.
+              Du må opprette et arbeidsområde før du kan lage kalendere og administrere konkurranser.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <Link href="/dashboard/workspace/new">
               <Button size="lg">
                 <IconBriefcase className="mr-2 h-4 w-4" />
-                Create Your Workspace
+                Opprett arbeidsområdet ditt
               </Button>
             </Link>
           </EmptyContent>
@@ -66,6 +66,21 @@ export default async function DashboardPage() {
   }
 
   const workspace = userWithWorkspace.defaultWorkspace;
+
+  const statusLabels: Record<string, string> = {
+    DRAFT: "KLADD",
+    SCHEDULED: "PLANLAGT",
+    ACTIVE: "AKTIV",
+    COMPLETED: "FULLFØRT",
+    ARCHIVED: "ARKIVERT",
+  };
+
+  const typeLabels: Record<string, string> = {
+    CHRISTMAS: "Jul",
+    VALENTINE: "Valentin",
+    EASTER: "Påske",
+    CUSTOM: "Tilpasset",
+  };
 
   // Get total stats
   const totalLeads = await prisma.lead.count({
@@ -87,19 +102,21 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back, {user.name || user.email}!
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashbord</h2>
+          <p className="text-muted-foreground">
+            Velkommen tilbake, {user.name || user.email}!
+          </p>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Calendars</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall kalendere</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -111,7 +128,7 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall leads</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -123,7 +140,7 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Winners</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall vinnere</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -135,7 +152,7 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Campaigns</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Aktive kampanjer</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -153,11 +170,11 @@ export default async function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Recent Calendars</CardTitle>
-              <CardDescription>Your latest calendar campaigns</CardDescription>
+              <CardTitle>Siste kalendere</CardTitle>
+              <CardDescription>Dine nyeste kalenderkampanjer</CardDescription>
             </div>
             <Link href="/dashboard/calendars">
-              <Button variant="outline">View All</Button>
+              <Button variant="outline">Se alle</Button>
             </Link>
           </div>
         </CardHeader>
@@ -168,53 +185,58 @@ export default async function DashboardPage() {
                 <EmptyMedia variant="icon">
                   <IconCalendar className="h-6 w-6" />
                 </EmptyMedia>
-                <EmptyTitle className="text-lg">No Calendars Yet</EmptyTitle>
+                <EmptyTitle className="text-lg">Ingen kalendere ennå</EmptyTitle>
                 <EmptyDescription>
-                  Get started by creating your first giveaway calendar
+                  Kom i gang ved å lage din første konkurransekalender
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
                 <Link href="/dashboard/calendars/new">
                   <Button>
                     <IconCalendar className="mr-2 h-4 w-4" />
-                    Create Calendar
+                    Opprett kalender
                   </Button>
                 </Link>
               </EmptyContent>
             </Empty>
           ) : (
             <div className="space-y-4">
-              {workspace.calendars.map((calendar) => (
-                <Link
-                  key={calendar.id}
-                  href={`/dashboard/calendars/${calendar.id}`}
-                  className="block"
-                >
-                  <div className="flex items-center justify-between p-4 rounded-lg border hover:border-primary transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: calendar.brandColor + "20" }}
-                      >
-                        <IconCalendar
-                          className="h-6 w-6"
-                          style={{ color: calendar.brandColor || undefined }}
-                        />
+              {workspace.calendars.map((calendar) => {
+                const statusLabel = statusLabels[calendar.status] || calendar.status;
+                const typeLabel = typeLabels[calendar.type] || calendar.type;
+
+                return (
+                  <Link
+                    key={calendar.id}
+                    href={`/dashboard/calendars/${calendar.id}`}
+                    className="block"
+                  >
+                    <div className="flex items-center justify-between p-4 rounded-lg border hover:border-primary transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="w-12 h-12 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: calendar.brandColor + "20" }}
+                        >
+                          <IconCalendar
+                            className="h-6 w-6"
+                            style={{ color: calendar.brandColor || undefined }}
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold">{calendar.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {calendar._count.leads} leads • {calendar._count.doors} luker
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold">{calendar.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {calendar._count.leads} leads • {calendar._count.doors} doors
-                        </p>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{statusLabel}</p>
+                        <p className="text-xs text-muted-foreground">{typeLabel}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{calendar.status}</p>
-                      <p className="text-xs text-muted-foreground">{calendar.type}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </CardContent>

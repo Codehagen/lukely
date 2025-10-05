@@ -13,7 +13,7 @@ export async function POST(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Verify door exists and user has access
@@ -41,17 +41,17 @@ export async function POST(
     });
 
     if (!door) {
-      return NextResponse.json({ error: "Door not found" }, { status: 404 });
+      return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
     }
 
     if (door.calendar.workspace.members.length === 0) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 403 });
     }
 
     // Check if winner already exists
     if (door.winner) {
       return NextResponse.json(
-        { error: "Winner already selected for this door" },
+        { error: "Vinner er allerede trukket for denne luken" },
         { status: 400 }
       );
     }
@@ -59,7 +59,7 @@ export async function POST(
     // Check if there are entries
     if (door.entries.length === 0) {
       return NextResponse.json(
-        { error: "No entries for this door" },
+        { error: "Ingen deltakelser for denne luken" },
         { status: 400 }
       );
     }
@@ -83,7 +83,7 @@ export async function POST(
   } catch (error) {
     console.error("Error selecting winner:", error);
     return NextResponse.json(
-      { error: "Failed to select winner" },
+      { error: "Kunne ikke velge vinner" },
       { status: 500 }
     );
   }

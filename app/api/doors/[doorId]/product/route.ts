@@ -13,7 +13,7 @@ export async function POST(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -39,11 +39,11 @@ export async function POST(
     });
 
     if (!door) {
-      return NextResponse.json({ error: "Door not found" }, { status: 404 });
+      return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
     }
 
     if (door.calendar.workspace.members.length === 0) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 403 });
     }
 
     // Create or update product
@@ -75,7 +75,7 @@ export async function POST(
   } catch (error) {
     console.error("Error saving product:", error);
     return NextResponse.json(
-      { error: "Failed to save product" },
+      { error: "Kunne ikke lagre produkt" },
       { status: 500 }
     );
   }

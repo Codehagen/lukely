@@ -103,13 +103,13 @@ export function NavUser({
             <DropdownMenuItem asChild>
               <Link href="/dashboard" className="cursor-pointer">
                 <IconUserCircle className="mr-2 h-4 w-4" />
-                Dashboard
+                Dashbord
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/dashboard/settings" className="cursor-pointer">
                 <IconSettings className="mr-2 h-4 w-4" />
-                Settings
+                Innstillinger
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -118,7 +118,7 @@ export function NavUser({
               onClick={handleSignOut}
             >
               <IconLogout className="mr-2 h-4 w-4" />
-              Sign Out
+              Logg ut
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

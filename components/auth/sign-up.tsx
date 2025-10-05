@@ -45,19 +45,19 @@ export default function SignUpAuth() {
   return (
     <Card className="z-50 rounded-md rounded-t-none max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign Up</CardTitle>
+        <CardTitle className="text-lg md:text-xl">Registrer deg</CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your information to create an account
+          Fyll inn informasjonen din for å opprette en konto
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="first-name">First name</Label>
+              <Label htmlFor="first-name">Fornavn</Label>
               <Input
                 id="first-name"
-                placeholder="Max"
+                placeholder="Ola"
                 required
                 onChange={(e) => {
                   setFirstName(e.target.value);
@@ -66,10 +66,10 @@ export default function SignUpAuth() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="last-name">Last name</Label>
+              <Label htmlFor="last-name">Etternavn</Label>
               <Input
                 id="last-name"
-                placeholder="Robinson"
+                placeholder="Nordmann"
                 required
                 onChange={(e) => {
                   setLastName(e.target.value);
@@ -92,29 +92,29 @@ export default function SignUpAuth() {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Passord</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
-              placeholder="Password"
+              placeholder="Passord"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Confirm Password</Label>
+            <Label htmlFor="password">Bekreft passord</Label>
             <Input
               id="password_confirmation"
               type="password"
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               autoComplete="new-password"
-              placeholder="Confirm Password"
+              placeholder="Bekreft passord"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="image">Profile Image (optional)</Label>
+            <Label htmlFor="image">Profilbilde (valgfritt)</Label>
             <div className="flex items-end gap-4">
               {imagePreview && (
                 <div className="relative w-16 h-16 rounded-sm overflow-hidden">
@@ -177,7 +177,7 @@ export default function SignUpAuth() {
             {loading ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              "Create an account"
+              "Opprett konto"
             )}
           </Button>
 
@@ -193,7 +193,7 @@ export default function SignUpAuth() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  Eller fortsett med
                 </span>
               </div>
             </div>
@@ -242,7 +242,7 @@ export default function SignUpAuth() {
                   d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                 ></path>
               </svg>
-              Sign up with Google
+              Registrer deg med Google
             </Button>
           </div>
         </div>

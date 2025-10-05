@@ -42,22 +42,22 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Dashbord",
       url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Calendars",
+      title: "Kalendere",
       url: "/dashboard/calendars",
       icon: IconCalendar,
     },
     {
-      title: "Analytics",
+      title: "Analyser",
       url: "#",
       icon: IconChartBar,
     },
     {
-      title: "Projects",
+      title: "Prosjekter",
       url: "#",
       icon: IconFolder,
     },
@@ -69,47 +69,47 @@ const data = {
   ],
   navClouds: [
     {
-      title: "Capture",
+      title: "Innsamling",
       icon: IconCamera,
       isActive: true,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Aktive forslag",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Arkivert",
           url: "#",
         },
       ],
     },
     {
-      title: "Proposal",
+      title: "Forslag",
       icon: IconFileDescription,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Aktive forslag",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Arkivert",
           url: "#",
         },
       ],
     },
     {
-      title: "Prompts",
+      title: "Prompt-maler",
       icon: IconFileAi,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Aktive forslag",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Arkivert",
           url: "#",
         },
       ],
@@ -117,34 +117,34 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Innstillinger",
       url: "#",
       icon: IconSettings,
     },
     {
-      title: "Get Help",
+      title: "Få hjelp",
       url: "#",
       icon: IconHelp,
     },
     {
-      title: "Search",
+      title: "Søk",
       url: "#",
       icon: IconSearch,
     },
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "Databibliotek",
       url: "#",
       icon: IconDatabase,
     },
     {
-      name: "Reports",
+      name: "Rapporter",
       url: "#",
       icon: IconReport,
     },
     {
-      name: "Word Assistant",
+      name: "Teksthjelp",
       url: "#",
       icon: IconFileWord,
     },
@@ -168,7 +168,7 @@ export function AppSidebar({
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">Acme AS</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

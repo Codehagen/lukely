@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const { calendarId, doorId, email, name, phone } = body;
 
     if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+      return NextResponse.json({ error: "E-post er påkrevd" }, { status: 400 });
     }
 
     // Check if calendar exists and is active
@@ -16,12 +16,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!calendar) {
-      return NextResponse.json({ error: "Calendar not found" }, { status: 404 });
+      return NextResponse.json({ error: "Kalender ikke funnet" }, { status: 404 });
     }
 
     if (calendar.status !== "ACTIVE" && calendar.status !== "SCHEDULED") {
       return NextResponse.json(
-        { error: "Calendar is not active" },
+        { error: "Kalenderen er ikke aktiv" },
         { status: 400 }
       );
     }
@@ -33,18 +33,18 @@ export async function POST(req: NextRequest) {
     });
 
     if (!door) {
-      return NextResponse.json({ error: "Door not found" }, { status: 404 });
+      return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
     }
 
     // Check if door is open
     if (new Date() < door.openDate) {
-      return NextResponse.json({ error: "Door is not open yet" }, { status: 400 });
+      return NextResponse.json({ error: "Luken er ikke åpnet ennå" }, { status: 400 });
     }
 
     // Check if winner already selected
     if (door.winner) {
       return NextResponse.json(
-        { error: "Winner already selected for this door" },
+        { error: "Vinner er allerede trukket for denne luken" },
         { status: 400 }
       );
     }
@@ -101,10 +101,10 @@ export async function POST(req: NextRequest) {
     if (existingEntry) {
       if (calendar.allowMultipleEntries) {
         // Allow multiple entries - just return success
-        return NextResponse.json({ success: true, message: "Additional entry recorded" });
+        return NextResponse.json({ success: true, message: "Ekstra deltakelse registrert" });
       } else {
         return NextResponse.json(
-          { error: "You have already entered this giveaway" },
+          { error: "Du har allerede deltatt i denne konkurransen" },
           { status: 400 }
         );
       }
@@ -118,11 +118,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Entry submitted successfully" });
+    return NextResponse.json({ success: true, message: "Deltakelsen er registrert" });
   } catch (error) {
     console.error("Error creating entry:", error);
     return NextResponse.json(
-      { error: "Failed to create entry" },
+      { error: "Kunne ikke registrere deltakelse" },
       { status: 500 }
     );
   }

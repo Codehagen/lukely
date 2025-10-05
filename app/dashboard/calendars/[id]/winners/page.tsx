@@ -40,8 +40,9 @@ async function getCalendarWithWinners(calendarId: string, workspaceId: string) {
 export default async function WinnersPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -54,11 +55,11 @@ export default async function WinnersPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>No workspace found</div>;
+    return <div>Fant ingen arbeidsområde</div>;
   }
 
   const calendar = await getCalendarWithWinners(
-    params.id,
+    id,
     userWithWorkspace.defaultWorkspaceId
   );
 
@@ -67,12 +68,14 @@ export default async function WinnersPage({
   }
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Winner Selection</h1>
-        <p className="text-muted-foreground mt-2">
-          Select and manage winners for {calendar.title}
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Vinnervalg</h2>
+          <p className="text-muted-foreground">
+            Velg og administrer vinnere for {calendar.title}
+          </p>
+        </div>
       </div>
 
       <WinnerSelection calendar={calendar} />

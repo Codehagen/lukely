@@ -27,15 +27,15 @@ export default function SignInAuth() {
   return (
     <Card className="max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
+        <CardTitle className="text-lg md:text-xl">Logg inn</CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
+          Skriv inn e-posten din for å logge på kontoen
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-post</Label>
             <Input
               id="email"
               type="email"
@@ -50,16 +50,16 @@ export default function SignInAuth() {
 
           <div className="grid gap-2">
             <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Passord</Label>
               <Link href="#" className="ml-auto inline-block text-sm underline">
-                Forgot your password?
+                Glemt passordet?
               </Link>
             </div>
 
             <Input
               id="password"
               type="password"
-              placeholder="password"
+              placeholder="passord"
               autoComplete="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -73,7 +73,7 @@ export default function SignInAuth() {
                 setRememberMe(!rememberMe);
               }}
             />
-            <Label htmlFor="remember">Remember me</Label>
+            <Label htmlFor="remember">Husk meg</Label>
           </div>
 
           <Button
@@ -100,7 +100,7 @@ export default function SignInAuth() {
             {loading ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
-              <p> Login </p>
+              <p> Logg inn </p>
             )}
           </Button>
 
@@ -154,7 +154,7 @@ export default function SignInAuth() {
                   d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                 ></path>
               </svg>
-              Sign in with Google
+              Logg inn med Google
             </Button>
           </div>
         </div>

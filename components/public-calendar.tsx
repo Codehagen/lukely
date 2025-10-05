@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { IconLock, IconGift, IconTrophy } from "@tabler/icons-react";
-import { format, isPast, isFuture, isToday } from "date-fns";
+import { format, isPast, isToday } from "date-fns";
+import { nb } from "date-fns/locale";
 import { toast } from "sonner";
 
 interface Door {
@@ -74,7 +75,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
   const handleDoorClick = (door: Door) => {
     if (!isDoorOpen(door)) {
-      toast.error("This door is not open yet!");
+      toast.error("Denne luken er ikke åpnet ennå!");
       return;
     }
     setSelectedDoor(door);
@@ -84,17 +85,17 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     if (!selectedDoor) return;
 
     if (calendar.requireEmail && !formData.email) {
-      toast.error("Email is required");
+      toast.error("E-post er påkrevd");
       return;
     }
 
     if (calendar.requireName && !formData.name) {
-      toast.error("Name is required");
+      toast.error("Navn er påkrevd");
       return;
     }
 
     if (calendar.requirePhone && !formData.phone) {
-      toast.error("Phone is required");
+      toast.error("Telefonnummer er påkrevd");
       return;
     }
 
@@ -113,14 +114,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to submit entry");
+        throw new Error(error.error || "Kunne ikke sende inn deltakelse");
       }
 
-      toast.success("Entry submitted successfully! Good luck! 🎉");
+      toast.success("Deltakelsen er registrert! Lykke til! 🎉");
       setSelectedDoor(null);
       setFormData({ email: "", name: "", phone: "" });
     } catch (error: any) {
-      toast.error(error.message || "Failed to submit entry");
+      toast.error(error.message || "Kunne ikke sende inn deltakelse");
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +145,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
               </div>
             </div>
             <Badge variant="outline" style={{ borderColor: calendar.brandColor || undefined }}>
-              {format(calendar.startDate, "MMM d")} - {format(calendar.endDate, "MMM d, yyyy")}
+              {format(calendar.startDate, "d. MMM", { locale: nb })} - {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
             </Badge>
           </div>
           {calendar.description && (
@@ -177,21 +178,21 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                       <IconLock className="h-8 w-8 text-muted-foreground mb-2" />
                       <p className="text-2xl font-bold">{door.doorNumber}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {format(door.openDate, "MMM d")}
+                        {format(door.openDate, "d. MMM", { locale: nb })}
                       </p>
                     </>
                   ) : hasWinner ? (
                     <>
                       <IconTrophy className="h-8 w-8 text-yellow-500 mb-2" />
                       <p className="text-2xl font-bold">{door.doorNumber}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Winner selected</p>
+                      <p className="text-xs text-muted-foreground mt-1">Vinner trukket</p>
                     </>
                   ) : (
                     <>
                       <IconGift className="h-8 w-8 mb-2" style={{ color: calendar.brandColor || undefined }} />
                       <p className="text-2xl font-bold">{door.doorNumber}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {door._count.entries} entries
+                        {door._count.entries} deltakelser
                       </p>
                     </>
                   )}
@@ -209,11 +210,11 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl">
-                  Door {selectedDoor.doorNumber}
+                  Luke {selectedDoor.doorNumber}
                   {selectedDoor.title && ` - ${selectedDoor.title}`}
                 </DialogTitle>
                 <DialogDescription>
-                  {format(selectedDoor.openDate, "MMMM d, yyyy")}
+                  {format(selectedDoor.openDate, "d. MMMM yyyy", { locale: nb })}
                 </DialogDescription>
               </DialogHeader>
 
@@ -233,7 +234,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         <p className="text-muted-foreground mt-2">{selectedDoor.product.description}</p>
                       )}
                       {selectedDoor.product.value && (
-                        <p className="text-sm font-medium mt-2">Value: ${selectedDoor.product.value}</p>
+                        <p className="text-sm font-medium mt-2">Verdi: kr {selectedDoor.product.value}</p>
                       )}
                     </div>
                   </div>
@@ -243,49 +244,49 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                   <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <IconTrophy className="h-5 w-5 text-yellow-600" />
-                      <h4 className="font-semibold">Winner Selected!</h4>
+                      <h4 className="font-semibold">Vinner valgt!</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Congratulations to our winner! This giveaway has ended.
+                      Gratulerer til vinneren! Denne konkurransen er avsluttet.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <div className="border-t pt-4">
-                      <h4 className="font-semibold mb-4">Enter to Win!</h4>
+                      <h4 className="font-semibold mb-4">Delta og vinn!</h4>
                       <div className="space-y-4">
                         {calendar.requireEmail && (
                           <div>
-                            <Label htmlFor="email">Email *</Label>
+                            <Label htmlFor="email">E-post *</Label>
                             <Input
                               id="email"
                               type="email"
                               value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                              placeholder="your@email.com"
+                              placeholder="din@epost.no"
                             />
                           </div>
                         )}
                         {calendar.requireName && (
                           <div>
-                            <Label htmlFor="name">Name *</Label>
+                            <Label htmlFor="name">Navn *</Label>
                             <Input
                               id="name"
                               value={formData.name}
                               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                              placeholder="Your name"
+                              placeholder="Ditt navn"
                             />
                           </div>
                         )}
                         {calendar.requirePhone && (
                           <div>
-                            <Label htmlFor="phone">Phone *</Label>
+                            <Label htmlFor="phone">Telefon *</Label>
                             <Input
                               id="phone"
                               type="tel"
                               value={formData.phone}
                               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                              placeholder="Your phone number"
+                              placeholder="Telefonnummeret ditt"
                             />
                           </div>
                         )}
@@ -294,14 +295,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
                     <div className="flex justify-between items-center">
                       <p className="text-sm text-muted-foreground">
-                        {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "entry" : "entries"} so far
+                        {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "deltakelse" : "deltakelser"} så langt
                       </p>
                       <Button
                         onClick={handleSubmitEntry}
                         disabled={isSubmitting}
                         style={{ backgroundColor: calendar.brandColor || undefined }}
                       >
-                        {isSubmitting ? "Submitting..." : "Submit Entry"}
+                        {isSubmitting ? "Sender ..." : "Send inn deltakelse"}
                       </Button>
                     </div>
                   </div>

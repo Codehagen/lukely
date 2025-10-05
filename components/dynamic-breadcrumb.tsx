@@ -21,11 +21,11 @@ export function DynamicBreadcrumb() {
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
     const breadcrumbs: BreadcrumbItem[] = [
-      { label: "Dashboard", href: "/dashboard" }
+      { label: "Dashbord", href: "/dashboard" }
     ];
 
     if (pathname === "/dashboard") {
-      return [{ label: "Dashboard" }];
+      return [{ label: "Dashbord" }];
     }
 
     // Handle dashboard sub-routes
@@ -35,13 +35,25 @@ export function DynamicBreadcrumb() {
       // Remove 'dashboard' from segments since it's already in breadcrumbs
       const subSegments = pathSegments.slice(1);
 
+      const segmentMap: Record<string, string> = {
+        calendars: "Kalendere",
+        new: "Ny",
+        workspace: "Arbeidsområde",
+        settings: "Innstillinger",
+        leads: "Leads",
+        doors: "Luker",
+        winners: "Vinnere",
+        analytics: "Analyser",
+        dashboard: "Dashbord",
+      };
+
       subSegments.forEach((segment, index) => {
         // Create href for all segments except the last one
         const isLast = index === subSegments.length - 1;
         const href = isLast ? undefined : `/dashboard/${subSegments.slice(0, index + 1).join("/")}`;
 
         // Convert segment to display name
-        const label = segment
+        const label = segmentMap[segment] || segment
           .split("-")
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
@@ -57,7 +69,7 @@ export function DynamicBreadcrumb() {
 
   // Don't show breadcrumbs if there's only one item (just "Dashboard")
   if (breadcrumbs.length <= 1) {
-    return <span className="text-base font-medium">Dashboard</span>;
+    return <span className="text-base font-medium">Dashbord</span>;
   }
 
   return (

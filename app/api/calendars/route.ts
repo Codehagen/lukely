@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Get user's default workspace
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (!user?.defaultWorkspaceId) {
       return NextResponse.json(
-        { error: "No workspace found" },
+        { error: "Ingen arbeidsområde funnet" },
         { status: 400 }
       );
     }
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     if (existingCalendar) {
       return NextResponse.json(
-        { error: "Slug already in use" },
+        { error: "Slugen er allerede i bruk" },
         { status: 400 }
       );
     }
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       calendarId: calendar.id,
       doorNumber: index + 1,
       openDate: date,
-      title: `Door ${index + 1}`,
+      title: `Luke ${index + 1}`,
     }));
 
     await prisma.door.createMany({
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error creating calendar:", error);
     return NextResponse.json(
-      { error: "Failed to create calendar" },
+      { error: "Kunne ikke opprette kalender" },
       { status: 500 }
     );
   }
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Get user's default workspace
@@ -115,7 +115,7 @@ export async function GET(req: NextRequest) {
 
     if (!user?.defaultWorkspaceId) {
       return NextResponse.json(
-        { error: "No workspace found" },
+        { error: "Ingen arbeidsområde funnet" },
         { status: 400 }
       );
     }
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error fetching calendars:", error);
     return NextResponse.json(
-      { error: "Failed to fetch calendars" },
+      { error: "Kunne ikke hente kalendere" },
       { status: 500 }
     );
   }

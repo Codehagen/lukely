@@ -13,7 +13,7 @@ export async function PATCH(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Verify calendar exists and user has access
@@ -31,7 +31,7 @@ export async function PATCH(
     });
 
     if (!calendar) {
-      return NextResponse.json({ error: "Calendar not found" }, { status: 404 });
+      return NextResponse.json({ error: "Kalender ikke funnet" }, { status: 404 });
     }
 
     const body = await req.json();
@@ -58,7 +58,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating calendar:", error);
     return NextResponse.json(
-      { error: "Failed to update calendar" },
+      { error: "Kunne ikke oppdatere kalender" },
       { status: 500 }
     );
   }
@@ -74,7 +74,7 @@ export async function DELETE(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Verify calendar exists and user has access
@@ -92,7 +92,7 @@ export async function DELETE(
     });
 
     if (!calendar) {
-      return NextResponse.json({ error: "Calendar not found" }, { status: 404 });
+      return NextResponse.json({ error: "Kalender ikke funnet" }, { status: 404 });
     }
 
     // Delete calendar (cascade will handle related records)
@@ -104,7 +104,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting calendar:", error);
     return NextResponse.json(
-      { error: "Failed to delete calendar" },
+      { error: "Kunne ikke slette kalender" },
       { status: 500 }
     );
   }

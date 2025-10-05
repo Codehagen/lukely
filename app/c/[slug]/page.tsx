@@ -50,9 +50,9 @@ export default async function PublicCalendarPage({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Calendar Not Available</h1>
+          <h1 className="text-2xl font-bold mb-2">Kalender ikke tilgjengelig</h1>
           <p className="text-muted-foreground">
-            This calendar is not currently active
+            Denne kalenderen er ikke aktiv akkurat nå
           </p>
         </div>
       </div>

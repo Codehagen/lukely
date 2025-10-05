@@ -18,8 +18,15 @@ export default function NewWorkspacePage() {
   });
 
   const generateSlug = (name: string) => {
-    const slug = name
+    const normalized = name
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/æ/g, "ae")
+      .replace(/ø/g, "o")
+      .replace(/å/g, "a");
+
+    const slug = normalized
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     setFormData({ name, slug });
@@ -27,7 +34,7 @@ export default function NewWorkspacePage() {
 
   const handleCreate = async () => {
     if (!formData.name || !formData.slug) {
-      toast.error("Please fill in all fields");
+      toast.error("Fyll inn alle feltene");
       return;
     }
 
@@ -42,14 +49,14 @@ export default function NewWorkspacePage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create workspace");
+        throw new Error(error.error || "Kunne ikke opprette arbeidsområde");
       }
 
-      toast.success("Workspace created successfully!");
+      toast.success("Arbeidsområdet ble opprettet!");
       router.push("/dashboard");
       router.refresh();
     } catch (error: any) {
-      toast.error(error.message || "Failed to create workspace");
+      toast.error(error.message || "Kunne ikke opprette arbeidsområde");
       console.error(error);
     } finally {
       setIsCreating(false);
@@ -63,33 +70,33 @@ export default function NewWorkspacePage() {
           <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
             <IconBriefcase className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Create Your Workspace</CardTitle>
+          <CardTitle className="text-2xl">Opprett arbeidsområdet ditt</CardTitle>
           <CardDescription>
-            Get started by creating your first workspace to manage your calendars
+            Kom i gang ved å opprette ditt første arbeidsområde for å administrere kalendere
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="name">Workspace Name</Label>
+            <Label htmlFor="name">Navn på arbeidsområde</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => generateSlug(e.target.value)}
-              placeholder="My Company"
+              placeholder="Mitt selskap"
               autoFocus
             />
           </div>
 
           <div>
-            <Label htmlFor="slug">Workspace Slug</Label>
+            <Label htmlFor="slug">Slug for arbeidsområde</Label>
             <Input
               id="slug"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              placeholder="my-company"
+              placeholder="mitt-selskap"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Used in URLs and must be unique
+              Brukes i URL-er og må være unik
             </p>
           </div>
 
@@ -98,7 +105,7 @@ export default function NewWorkspacePage() {
             onClick={handleCreate}
             disabled={isCreating || !formData.name || !formData.slug}
           >
-            {isCreating ? "Creating..." : "Create Workspace"}
+            {isCreating ? "Oppretter ..." : "Opprett arbeidsområde"}
           </Button>
         </CardContent>
       </Card>

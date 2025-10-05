@@ -15,8 +15,9 @@ async function getCalendar(calendarId: string, workspaceId: string) {
 export default async function SettingsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -29,22 +30,24 @@ export default async function SettingsPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>No workspace found</div>;
+    return <div>Fant ingen arbeidsområde</div>;
   }
 
-  const calendar = await getCalendar(params.id, userWithWorkspace.defaultWorkspaceId);
+  const calendar = await getCalendar(id, userWithWorkspace.defaultWorkspaceId);
 
   if (!calendar) {
     notFound();
   }
 
   return (
-    <div className="container max-w-5xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Calendar Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage settings for {calendar.title}
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Kalenderinnstillinger</h2>
+          <p className="text-muted-foreground">
+            Administrer innstillinger for {calendar.title}
+          </p>
+        </div>
       </div>
 
       <CalendarSettings calendar={calendar} />

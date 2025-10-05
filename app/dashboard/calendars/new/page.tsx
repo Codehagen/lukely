@@ -13,6 +13,7 @@ import { CALENDAR_TEMPLATES, getDefaultDatesForYear } from "@/lib/calendar-templ
 import { CalendarType } from "@/app/generated/prisma";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 import { IconCalendar } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
@@ -70,37 +71,46 @@ export default function NewCalendarPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to create calendar");
+      if (!response.ok) throw new Error("Kunne ikke opprette kalender");
 
       const calendar = await response.json();
-      toast.success("Calendar created successfully!");
+      toast.success("Kalenderen ble opprettet!");
       router.push(`/dashboard/calendars/${calendar.id}`);
     } catch (error) {
-      toast.error("Failed to create calendar");
+      toast.error("Kunne ikke opprette kalender");
       console.error(error);
     }
   };
 
   const generateSlug = (title: string) => {
-    const slug = title
+    const normalizedTitle = title
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/æ/g, "ae")
+      .replace(/ø/g, "o")
+      .replace(/å/g, "a");
+
+    const slug = normalizedTitle
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     setFormData({ ...formData, title, slug });
   };
 
   return (
-    <div className="container max-w-6xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Create New Calendar</h1>
-        <p className="text-muted-foreground mt-2">
-          Set up a new giveaway calendar for your business
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Opprett ny kalender</h2>
+          <p className="text-muted-foreground">
+            Sett opp en ny konkurransekalender for virksomheten din
+          </p>
+        </div>
       </div>
 
       {step === 1 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>
+          <h2 className="text-xl font-semibold mb-4">Velg en mal</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
               <Card
@@ -115,7 +125,7 @@ export default function NewCalendarPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {template.doorCount} doors
+                    {template.doorCount} luker
                   </p>
                 </CardContent>
               </Card>
@@ -127,33 +137,33 @@ export default function NewCalendarPage() {
       {step === 2 && selectedTemplate && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Configure Calendar</h2>
+            <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
             <Button variant="outline" onClick={() => setStep(1)}>
-              Back to Templates
+              Tilbake til maler
             </Button>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>Grunnleggende informasjon</CardTitle>
             </CardHeader>
             <CardContent>
               <FieldGroup className="flex flex-col gap-6">
                 <Field>
-                  <FieldLabel htmlFor="title">Calendar Title</FieldLabel>
+                  <FieldLabel htmlFor="title">Kalendertittel</FieldLabel>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => generateSlug(e.target.value)}
-                    placeholder="My Christmas Giveaway 2024"
+                    placeholder="Min julekalender 2024"
                   />
                   <FieldDescription>
-                    This will be displayed as the main heading on your calendar
+                    Dette vises som hovedoverskriften på kalenderen din
                   </FieldDescription>
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
+                  <FieldLabel htmlFor="slug">URL-slug</FieldLabel>
                   <FieldContent>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">yoursite.com/c/</span>
@@ -165,22 +175,22 @@ export default function NewCalendarPage() {
                       />
                     </div>
                     <FieldDescription>
-                      This creates your unique calendar URL
+                      Dette lager den unike kalenderadressen din
                     </FieldDescription>
                   </FieldContent>
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="description">Description</FieldLabel>
+                  <FieldLabel htmlFor="description">Beskrivelse</FieldLabel>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Enter a description for your calendar..."
+                    placeholder="Skriv inn en beskrivelse av kalenderen..."
                     rows={3}
                   />
                   <FieldDescription>
-                    Optional description shown on the public calendar page
+                    Valgfri beskrivelse som vises på den offentlige kalendersiden
                   </FieldDescription>
                 </Field>
               </FieldGroup>
@@ -189,13 +199,13 @@ export default function NewCalendarPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Dates & Doors</CardTitle>
+              <CardTitle>Datoer og luker</CardTitle>
             </CardHeader>
             <CardContent>
               <FieldGroup className="flex flex-col gap-6">
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
-                    <FieldLabel>Start Date</FieldLabel>
+                    <FieldLabel>Startdato</FieldLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -206,7 +216,7 @@ export default function NewCalendarPage() {
                           )}
                         >
                           <IconCalendar className="mr-2 h-4 w-4" />
-                          {formData.startDate ? format(formData.startDate, "PPP") : "Pick a date"}
+                          {formData.startDate ? format(formData.startDate, "PPP", { locale: nb }) : "Velg en dato"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -218,11 +228,11 @@ export default function NewCalendarPage() {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FieldDescription>When the first door opens</FieldDescription>
+                    <FieldDescription>Når den første luken åpnes</FieldDescription>
                   </Field>
 
                   <Field>
-                    <FieldLabel>End Date</FieldLabel>
+                    <FieldLabel>Sluttdato</FieldLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -233,7 +243,7 @@ export default function NewCalendarPage() {
                           )}
                         >
                           <IconCalendar className="mr-2 h-4 w-4" />
-                          {formData.endDate ? format(formData.endDate, "PPP") : "Pick a date"}
+                          {formData.endDate ? format(formData.endDate, "PPP", { locale: nb }) : "Velg en dato"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -245,12 +255,12 @@ export default function NewCalendarPage() {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FieldDescription>When the last door opens</FieldDescription>
+                    <FieldDescription>Når den siste luken åpnes</FieldDescription>
                   </Field>
                 </div>
 
                 <Field>
-                  <FieldLabel htmlFor="doorCount">Number of Doors</FieldLabel>
+                  <FieldLabel htmlFor="doorCount">Antall luker</FieldLabel>
                   <Input
                     id="doorCount"
                     type="number"
@@ -262,11 +272,11 @@ export default function NewCalendarPage() {
                   />
                   {!CALENDAR_TEMPLATES[selectedTemplate].flexible ? (
                     <FieldDescription>
-                      This template has a fixed number of doors
+                      Denne malen har et fast antall luker
                     </FieldDescription>
                   ) : (
                     <FieldDescription>
-                      Choose how many doors your calendar will have (1-31)
+                      Velg hvor mange luker kalenderen skal ha (1-31)
                     </FieldDescription>
                   )}
                 </Field>
@@ -276,11 +286,11 @@ export default function NewCalendarPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Branding</CardTitle>
+              <CardTitle>Merkevare</CardTitle>
             </CardHeader>
             <CardContent>
               <Field>
-                <FieldLabel htmlFor="brandColor">Brand Color</FieldLabel>
+                <FieldLabel htmlFor="brandColor">Profilfarge</FieldLabel>
                 <div className="flex items-center gap-4">
                   <Input
                     id="brandColor"
@@ -296,7 +306,7 @@ export default function NewCalendarPage() {
                   />
                 </div>
                 <FieldDescription>
-                  This color will be used for buttons and accents on your calendar
+                  Denne fargen brukes på knapper og detaljer i kalenderen
                 </FieldDescription>
               </Field>
             </CardContent>
@@ -304,10 +314,10 @@ export default function NewCalendarPage() {
 
           <div className="flex justify-end gap-4">
             <Button variant="outline" onClick={() => router.push("/dashboard/calendars")}>
-              Cancel
+              Avbryt
             </Button>
             <Button onClick={handleSubmit}>
-              Create Calendar
+              Opprett kalender
             </Button>
           </div>
         </div>

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     if (!name || !slug) {
       return NextResponse.json(
-        { error: "Name and slug are required" },
+        { error: "Navn og slug er påkrevd" },
         { status: 400 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (existingWorkspace) {
       return NextResponse.json(
-        { error: "Workspace slug already in use" },
+        { error: "Slugen for arbeidsområdet er allerede i bruk" },
         { status: 400 }
       );
     }
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error creating workspace:", error);
     return NextResponse.json(
-      { error: "Failed to create workspace" },
+      { error: "Kunne ikke opprette arbeidsområde" },
       { status: 500 }
     );
   }
@@ -74,7 +74,7 @@ export async function GET() {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     const workspaces = await prisma.workspace.findMany({
@@ -102,7 +102,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching workspaces:", error);
     return NextResponse.json(
-      { error: "Failed to fetch workspaces" },
+      { error: "Kunne ikke hente arbeidsområder" },
       { status: 500 }
     );
   }

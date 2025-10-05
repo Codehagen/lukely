@@ -14,7 +14,7 @@ export async function GET(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
     // Verify calendar exists and user has access
@@ -59,28 +59,28 @@ export async function GET(
     });
 
     if (!calendar) {
-      return NextResponse.json({ error: "Calendar not found" }, { status: 404 });
+      return NextResponse.json({ error: "Kalender ikke funnet" }, { status: 404 });
     }
 
     // Generate CSV
     const csvHeaders = [
-      "Email",
-      "Name",
-      "Phone",
-      "First Entry Date",
-      "Total Entries",
-      "Doors Entered",
-      "Wins",
-      "Won Prizes",
+      "E-post",
+      "Navn",
+      "Telefon",
+      "Dato for første deltakelse",
+      "Totalt antall deltakelser",
+      "Luker deltatt",
+      "Seire",
+      "Vunnede premier",
     ];
 
     const csvRows = calendar.leads.map((lead) => {
       const doorsEntered = lead.entries
-        .map((e) => `Door ${e.door.doorNumber}`)
+        .map((e) => `Luke ${e.door.doorNumber}`)
         .join("; ");
 
       const wonPrizes = lead.wins
-        .map((w) => w.door.product?.name || `Door ${w.door.doorNumber}`)
+        .map((w) => w.door.product?.name || `Luke ${w.door.doorNumber}`)
         .join("; ");
 
       return [
@@ -113,7 +113,7 @@ export async function GET(
   } catch (error) {
     console.error("Error exporting leads:", error);
     return NextResponse.json(
-      { error: "Failed to export leads" },
+      { error: "Kunne ikke eksportere leads" },
       { status: 500 }
     );
   }

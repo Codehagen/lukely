@@ -30,8 +30,9 @@ async function getCalendarWithDoors(calendarId: string, workspaceId: string) {
 export default async function DoorsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -44,11 +45,11 @@ export default async function DoorsPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>No workspace found</div>;
+    return <div>Fant ingen arbeidsområde</div>;
   }
 
   const calendar = await getCalendarWithDoors(
-    params.id,
+    id,
     userWithWorkspace.defaultWorkspaceId
   );
 
@@ -57,12 +58,14 @@ export default async function DoorsPage({
   }
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Manage Doors & Products</h1>
-        <p className="text-muted-foreground mt-2">
-          Configure products for each door in {calendar.title}
-        </p>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Administrer luker og produkter</h2>
+          <p className="text-muted-foreground">
+            Konfigurer produkter for hver luke i {calendar.title}
+          </p>
+        </div>
       </div>
 
       <DoorManagement calendar={calendar} />

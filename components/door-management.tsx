@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { IconEdit, IconGift, IconLock } from "@tabler/icons-react";
 import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -79,7 +80,7 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
     if (!selectedDoor) return;
 
     if (!productData.name) {
-      toast.error("Product name is required");
+      toast.error("Produktnavn er påkrevd");
       return;
     }
 
@@ -98,13 +99,13 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to save product");
+      if (!response.ok) throw new Error("Kunne ikke lagre produkt");
 
-      toast.success("Product saved successfully!");
+      toast.success("Produktet er lagret!");
       setSelectedDoor(null);
       router.refresh();
     } catch (error) {
-      toast.error("Failed to save product");
+      toast.error("Kunne ikke lagre produkt");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -122,20 +123,20 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
           <Card key={door.id} className={isDoorOpen(door) ? "" : "opacity-60"}>
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Door {door.doorNumber}</CardTitle>
+                <CardTitle className="text-lg">Luke {door.doorNumber}</CardTitle>
                 {isDoorOpen(door) ? (
                   <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Open
+                    Åpen
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="bg-gray-50">
                     <IconLock className="h-3 w-3 mr-1" />
-                    Locked
+                    Låst
                   </Badge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(door.openDate), "MMM d, yyyy")}
+                {format(new Date(door.openDate), "d. MMM yyyy", { locale: nb })}
               </p>
             </CardHeader>
             <CardContent>
@@ -157,10 +158,10 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                     )}
                     <div className="flex items-center justify-between mt-2">
                       {door.product.value && (
-                        <p className="text-sm font-medium">${door.product.value}</p>
+                        <p className="text-sm font-medium">kr {door.product.value}</p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        {door._count.entries} entries
+                        {door._count.entries} deltakelser
                       </p>
                     </div>
                   </div>
@@ -173,39 +174,39 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                         onClick={() => handleEditDoor(door)}
                       >
                         <IconEdit className="h-4 w-4 mr-2" />
-                        Edit Product
+                        Rediger produkt
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle>Edit Product for Door {selectedDoor?.doorNumber}</DialogTitle>
+                        <DialogTitle>Rediger produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 mt-4">
                         <div>
-                          <Label htmlFor="name">Product Name *</Label>
+                          <Label htmlFor="name">Produktnavn *</Label>
                           <Input
                             id="name"
                             value={productData.name}
                             onChange={(e) =>
                               setProductData({ ...productData, name: e.target.value })
                             }
-                            placeholder="Premium Coffee Maker"
+                            placeholder="Premium kaffetrakter"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="description">Description</Label>
+                          <Label htmlFor="description">Beskrivelse</Label>
                           <Textarea
                             id="description"
                             value={productData.description}
                             onChange={(e) =>
                               setProductData({ ...productData, description: e.target.value })
                             }
-                            placeholder="Enter product description..."
+                            placeholder="Skriv inn produktbeskrivelse..."
                             rows={3}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="imageUrl">Image URL</Label>
+                          <Label htmlFor="imageUrl">Bildelenke</Label>
                           <Input
                             id="imageUrl"
                             value={productData.imageUrl}
@@ -217,7 +218,7 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="value">Value ($)</Label>
+                            <Label htmlFor="value">Verdi (kr)</Label>
                             <Input
                               id="value"
                               type="number"
@@ -226,11 +227,11 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                               onChange={(e) =>
                                 setProductData({ ...productData, value: e.target.value })
                               }
-                              placeholder="99.99"
+                              placeholder="999"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="quantity">Quantity</Label>
+                            <Label htmlFor="quantity">Antall</Label>
                             <Input
                               id="quantity"
                               type="number"
@@ -248,10 +249,10 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             onClick={() => setSelectedDoor(null)}
                             disabled={isSubmitting}
                           >
-                            Cancel
+                            Avbryt
                           </Button>
                           <Button onClick={handleSaveProduct} disabled={isSubmitting}>
-                            {isSubmitting ? "Saving..." : "Save Product"}
+                            {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
                           </Button>
                         </div>
                       </div>
@@ -267,39 +268,39 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                       onClick={() => handleEditDoor(door)}
                     >
                       <IconGift className="h-4 w-4 mr-2" />
-                      Add Product
+                      Legg til produkt
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>Add Product for Door {selectedDoor?.doorNumber}</DialogTitle>
+                      <DialogTitle>Legg til produkt for luke {selectedDoor?.doorNumber}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 mt-4">
                       <div>
-                        <Label htmlFor="name">Product Name *</Label>
+                        <Label htmlFor="name">Produktnavn *</Label>
                         <Input
                           id="name"
                           value={productData.name}
                           onChange={(e) =>
                             setProductData({ ...productData, name: e.target.value })
                           }
-                          placeholder="Premium Coffee Maker"
+                          placeholder="Premium kaffetrakter"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Beskrivelse</Label>
                         <Textarea
                           id="description"
                           value={productData.description}
                           onChange={(e) =>
                             setProductData({ ...productData, description: e.target.value })
                           }
-                          placeholder="Enter product description..."
+                          placeholder="Skriv inn produktbeskrivelse..."
                           rows={3}
                         />
                       </div>
                       <div>
-                        <Label htmlFor="imageUrl">Image URL</Label>
+                        <Label htmlFor="imageUrl">Bildelenke</Label>
                         <Input
                           id="imageUrl"
                           value={productData.imageUrl}
@@ -311,7 +312,7 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="value">Value ($)</Label>
+                          <Label htmlFor="value">Verdi (kr)</Label>
                           <Input
                             id="value"
                             type="number"
@@ -320,11 +321,11 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             onChange={(e) =>
                               setProductData({ ...productData, value: e.target.value })
                             }
-                            placeholder="99.99"
+                            placeholder="999"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="quantity">Quantity</Label>
+                          <Label htmlFor="quantity">Antall</Label>
                           <Input
                             id="quantity"
                             type="number"
@@ -342,10 +343,10 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                           onClick={() => setSelectedDoor(null)}
                           disabled={isSubmitting}
                         >
-                          Cancel
+                          Avbryt
                         </Button>
                         <Button onClick={handleSaveProduct} disabled={isSubmitting}>
-                          {isSubmitting ? "Saving..." : "Save Product"}
+                          {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
                         </Button>
                       </div>
                     </div>

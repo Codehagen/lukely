@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconUsers, IconGift, IconTrophy, IconCalendar, IconExternalLink, IconSettings } from "@tabler/icons-react";
 import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 
 async function getCalendar(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findFirst({
@@ -44,8 +45,9 @@ async function getCalendar(calendarId: string, workspaceId: string) {
 export default async function CalendarOverviewPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -58,10 +60,10 @@ export default async function CalendarOverviewPage({
   });
 
   if (!userWithWorkspace?.defaultWorkspaceId) {
-    return <div>No workspace found</div>;
+    return <div>Fant ingen arbeidsområde</div>;
   }
 
-  const calendar = await getCalendar(params.id, userWithWorkspace.defaultWorkspaceId);
+  const calendar = await getCalendar(id, userWithWorkspace.defaultWorkspaceId);
 
   if (!calendar) {
     notFound();
@@ -70,6 +72,21 @@ export default async function CalendarOverviewPage({
   const totalEntries = calendar.doors.reduce((sum, door) => sum + door._count.entries, 0);
   const winnersSelected = calendar.doors.filter((door) => door.winner).length;
   const doorsWithProducts = calendar.doors.filter((door) => door.product).length;
+
+  const statusLabels: Record<string, string> = {
+    DRAFT: "KLADD",
+    SCHEDULED: "PLANLAGT",
+    ACTIVE: "AKTIV",
+    COMPLETED: "FULLFØRT",
+    ARCHIVED: "ARKIVERT",
+  };
+
+  const typeLabels: Record<string, string> = {
+    CHRISTMAS: "Jul",
+    VALENTINE: "Valentin",
+    EASTER: "Påske",
+    CUSTOM: "Tilpasset",
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -89,38 +106,40 @@ export default async function CalendarOverviewPage({
   };
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold">{calendar.title}</h1>
-            <Badge className={getStatusColor(calendar.status)}>{calendar.status}</Badge>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-bold tracking-tight">{calendar.title}</h2>
+            <Badge className={getStatusColor(calendar.status)}>
+              {statusLabels[calendar.status] || calendar.status}
+            </Badge>
           </div>
           <p className="text-muted-foreground">
-            {format(calendar.startDate, "MMM d, yyyy")} - {format(calendar.endDate, "MMM d, yyyy")}
+            {format(calendar.startDate, "d. MMM yyyy", { locale: nb })} - {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
           </p>
         </div>
         <div className="flex gap-2">
           <Link href={`/c/${calendar.slug}`} target="_blank">
             <Button variant="outline">
               <IconExternalLink className="mr-2 h-4 w-4" />
-              View Public Page
+              Vis offentlig side
             </Button>
           </Link>
           <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
             <Button variant="outline">
               <IconSettings className="mr-2 h-4 w-4" />
-              Settings
+              Innstillinger
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall leads</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -132,7 +151,7 @@ export default async function CalendarOverviewPage({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Entries</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall deltakelser</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -144,7 +163,7 @@ export default async function CalendarOverviewPage({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Products Added</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Produkter lagt til</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -158,7 +177,7 @@ export default async function CalendarOverviewPage({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Winners Selected</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Valgte vinnere</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -174,27 +193,27 @@ export default async function CalendarOverviewPage({
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
+          <TabsTrigger value="overview">Oversikt</TabsTrigger>
+          <TabsTrigger value="quick-actions">Hurtighandlinger</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Calendar Details</CardTitle>
+              <CardTitle>Kalenderdetaljer</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Type</p>
-                  <p className="text-lg font-semibold">{calendar.type}</p>
+                  <p className="text-lg font-semibold">{typeLabels[calendar.type] || calendar.type}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Number of Doors</p>
+                  <p className="text-sm font-medium text-muted-foreground">Antall luker</p>
                   <p className="text-lg font-semibold">{calendar.doorCount}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Public URL</p>
+                  <p className="text-sm font-medium text-muted-foreground">Offentlig URL</p>
                   <Link
                     href={`/c/${calendar.slug}`}
                     target="_blank"
@@ -205,7 +224,7 @@ export default async function CalendarOverviewPage({
                   </Link>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Brand Color</p>
+                  <p className="text-sm font-medium text-muted-foreground">Profilfarge</p>
                   <div className="flex items-center gap-2">
                     <div
                       className="w-6 h-6 rounded border"
@@ -218,7 +237,7 @@ export default async function CalendarOverviewPage({
 
               {calendar.description && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Description</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Beskrivelse</p>
                   <p className="text-muted-foreground">{calendar.description}</p>
                 </div>
               )}
@@ -227,11 +246,11 @@ export default async function CalendarOverviewPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest entries and winner selections</CardDescription>
+              <CardTitle>Siste aktivitet</CardTitle>
+              <CardDescription>Nyeste deltakelser og vinnervalg</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Activity feed coming soon...</p>
+              <p className="text-sm text-muted-foreground">Aktivitetslogg kommer snart ...</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -240,14 +259,14 @@ export default async function CalendarOverviewPage({
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Manage Products</CardTitle>
-                <CardDescription>Add and edit products for each door</CardDescription>
+                <CardTitle>Administrer produkter</CardTitle>
+                <CardDescription>Legg til og rediger produkter for hver luke</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
                   <Button className="w-full">
                     <IconGift className="mr-2 h-4 w-4" />
-                    Go to Doors
+                    Gå til luker
                   </Button>
                 </Link>
               </CardContent>
@@ -255,14 +274,14 @@ export default async function CalendarOverviewPage({
 
             <Card>
               <CardHeader>
-                <CardTitle>Select Winners</CardTitle>
-                <CardDescription>Pick winners for open doors</CardDescription>
+                <CardTitle>Velg vinnere</CardTitle>
+                <CardDescription>Trekk vinnere for åpne luker</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
                   <Button className="w-full">
                     <IconTrophy className="mr-2 h-4 w-4" />
-                    Manage Winners
+                    Administrer vinnere
                   </Button>
                 </Link>
               </CardContent>
@@ -270,14 +289,14 @@ export default async function CalendarOverviewPage({
 
             <Card>
               <CardHeader>
-                <CardTitle>View Leads</CardTitle>
-                <CardDescription>See all captured leads and export data</CardDescription>
+                <CardTitle>Vis leads</CardTitle>
+                <CardDescription>Se alle innsamlede leads og eksporter data</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href={`/dashboard/calendars/${calendar.id}/leads`}>
                   <Button className="w-full">
                     <IconUsers className="mr-2 h-4 w-4" />
-                    View Leads
+                    Vis leads
                   </Button>
                 </Link>
               </CardContent>
@@ -285,14 +304,14 @@ export default async function CalendarOverviewPage({
 
             <Card>
               <CardHeader>
-                <CardTitle>Public Page</CardTitle>
-                <CardDescription>View your calendar as users see it</CardDescription>
+                <CardTitle>Offentlig side</CardTitle>
+                <CardDescription>Se kalenderen slik brukerne opplever den</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href={`/c/${calendar.slug}`} target="_blank">
                   <Button className="w-full" variant="outline">
                     <IconExternalLink className="mr-2 h-4 w-4" />
-                    Open Public Page
+                    Åpne offentlig side
                   </Button>
                 </Link>
               </CardContent>

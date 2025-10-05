@@ -22,8 +22,8 @@ export interface CalendarTemplate {
 export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   christmas: {
     type: "CHRISTMAS",
-    title: "Christmas Advent Calendar",
-    description: "24 days of holiday surprises leading up to Christmas",
+    title: "Julekalender",
+    description: "24 dager med høytidsoverraskelser frem mot jul",
     doorCount: 24,
     defaultDates: {
       startMonth: 11, // December (0-indexed)
@@ -40,8 +40,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   valentine: {
     type: "VALENTINE",
-    title: "Valentine's Countdown",
-    description: "14 days of love leading up to Valentine's Day",
+    title: "Valentinsnedtelling",
+    description: "14 dager med kjærlighet frem mot Valentinsdagen",
     doorCount: 14,
     defaultDates: {
       startMonth: 1, // February (0-indexed)
@@ -58,8 +58,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   easter: {
     type: "EASTER",
-    title: "Easter Egg Hunt Calendar",
-    description: "Customizable Easter celebration calendar",
+    title: "Påskekalender",
+    description: "Tilpassbar kalender for påskefeiring",
     doorCount: 7,
     flexible: true,
     theme: {
@@ -70,8 +70,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   custom: {
     type: "CUSTOM",
-    title: "Custom Calendar",
-    description: "Create your own calendar with custom dates and door count",
+    title: "Egen kalender",
+    description: "Lag din egen kalender med valgte datoer og antall luker",
     doorCount: 12,
     flexible: true,
     theme: {

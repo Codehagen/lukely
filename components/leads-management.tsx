@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IconDownload, IconSearch, IconTrophy, IconMail, IconPhone, IconUser } from "@tabler/icons-react";
 import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 import { toast } from "sonner";
 
 interface DoorEntry {
@@ -71,7 +72,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
     try {
       const response = await fetch(`/api/calendars/${calendar.id}/export-leads`);
 
-      if (!response.ok) throw new Error("Failed to export leads");
+      if (!response.ok) throw new Error("Kunne ikke eksportere leads");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -83,9 +84,9 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success("Leads exported successfully!");
+      toast.success("Leads eksportert!");
     } catch (error) {
-      toast.error("Failed to export leads");
+      toast.error("Kunne ikke eksportere leads");
       console.error(error);
     } finally {
       setIsExporting(false);
@@ -98,7 +99,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall leads</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{calendar.leads.length}</p>
@@ -107,7 +108,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Entries</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Totalt antall deltakelser</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
@@ -118,7 +119,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Winners</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Vinnere</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
@@ -133,14 +134,14 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>All Leads</CardTitle>
+              <CardTitle>Alle leads</CardTitle>
               <CardDescription>
                 {filteredLeads.length} {filteredLeads.length === 1 ? "lead" : "leads"}
               </CardDescription>
             </div>
             <Button onClick={handleExportCSV} disabled={isExporting || calendar.leads.length === 0}>
               <IconDownload className="mr-2 h-4 w-4" />
-              {isExporting ? "Exporting..." : "Export CSV"}
+              {isExporting ? "Eksporterer ..." : "Eksporter CSV"}
             </Button>
           </div>
         </CardHeader>
@@ -149,7 +150,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
             <div className="relative">
               <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by email, name, or phone..."
+                placeholder="Søk etter e-post, navn eller telefon ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -160,7 +161,7 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
           {filteredLeads.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
-                {calendar.leads.length === 0 ? "No leads captured yet" : "No leads match your search"}
+                {calendar.leads.length === 0 ? "Ingen leads registrert ennå" : "Ingen leads matcher søket"}
               </p>
             </div>
           ) : (
@@ -168,11 +169,11 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Contact Info</TableHead>
-                    <TableHead>Entries</TableHead>
-                    <TableHead>Wins</TableHead>
-                    <TableHead>First Entry</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Kontaktinfo</TableHead>
+                    <TableHead>Deltakelser</TableHead>
+                    <TableHead>Seire</TableHead>
+                    <TableHead>Første deltakelse</TableHead>
+                    <TableHead>Handlinger</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -201,11 +202,11 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           <Badge variant="outline" className="w-fit">
-                            {lead.entries.length} {lead.entries.length === 1 ? "entry" : "entries"}
+                            {lead.entries.length} {lead.entries.length === 1 ? "deltakelse" : "deltakelser"}
                           </Badge>
                           {lead.entries.length > 0 && (
                             <div className="text-xs text-muted-foreground">
-                              Doors: {lead.entries.map(e => e.door.doorNumber).join(", ")}
+                              Luker: {lead.entries.map(e => e.door.doorNumber).join(", ")}
                             </div>
                           )}
                         </div>
@@ -222,15 +223,15 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {format(new Date(lead.createdAt), "MMM d, yyyy")}
+                          {format(new Date(lead.createdAt), "d. MMM yyyy", { locale: nb })}
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(lead.createdAt), "h:mm a")}
+                            {format(new Date(lead.createdAt), "HH:mm")}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm">
-                          View Details
+                          Vis detaljer
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -245,8 +246,8 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
       {/* Entry Activity */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest entries across all doors</CardDescription>
+          <CardTitle>Siste aktivitet</CardTitle>
+          <CardDescription>Nyeste deltakelser på tvers av alle luker</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -268,12 +269,12 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
                     <div>
                       <p className="font-medium">{entry.lead.name || entry.lead.email}</p>
                       <p className="text-sm text-muted-foreground">
-                        Entered {entry.door.product?.name || `Door ${entry.door.doorNumber}`}
+                        Deltok på {entry.door.product?.name || `Luke ${entry.door.doorNumber}`}
                       </p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {format(new Date(entry.enteredAt), "MMM d, h:mm a")}
+                    {format(new Date(entry.enteredAt), "d. MMM HH:mm", { locale: nb })}
                   </p>
                 </div>
               ))}
