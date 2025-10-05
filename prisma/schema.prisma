@@ -173,9 +173,14 @@ model Calendar {
   status          CalendarStatus  @default(DRAFT)
 
   // Branding
-  brandColor      String?
-  logo            String?
-  bannerImage     String?
+  brandColor           String?
+  logo                 String?
+  bannerImage          String?
+  buttonText           String?   @default("Delta nå")
+  thankYouMessage      String?   @default("Takk for din deltakelse!")
+  footerText           String?
+  favicon              String?
+  metaDescription      String?
 
   // Dates
   startDate       DateTime
@@ -194,6 +199,8 @@ model Calendar {
   workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   doors           Door[]
   leads           Lead[]
+  views           CalendarView[]
+  analyticsSummaries AnalyticsSummary[]
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -221,6 +228,7 @@ model Door {
   product         Product?
   entries         DoorEntry[]
   winner          Winner?
+  doorViews       DoorView[]
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -308,4 +316,94 @@ model Winner {
 
   @@index([leadId])
   @@map("winner")
+}
+
+// Analytics: Track calendar page views
+model CalendarView {
+  id           String   @id @default(cuid())
+  calendarId   String
+  calendar     Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  // Visitor tracking
+  visitorHash  String   // Hash of IP + UserAgent for unique visitor count
+  ipAddress    String?
+  userAgent    String?
+  referrer     String?
+
+  // Device/Browser info
+  deviceType   String?  // mobile, desktop, tablet
+  browser      String?  // chrome, safari, firefox, etc
+  os           String?  // windows, macos, ios, android
+
+  // Session tracking
+  sessionId    String?
+  duration     Int?     // seconds spent on page
+
+  createdAt    DateTime @default(now())
+
+  @@index([calendarId])
+  @@index([visitorHash])
+  @@index([createdAt])
+  @@map("calendar_view")
+}
+
+// Analytics: Track individual door interactions
+model DoorView {
+  id           String     @id @default(cuid())
+  doorId       String
+  door         Door       @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  calendarId   String
+
+  // Visitor tracking
+  visitorHash  String
+  sessionId    String?
+
+  // Interaction type
+  action       DoorAction
+
+  createdAt    DateTime   @default(now())
+
+  @@index([doorId])
+  @@index([calendarId])
+  @@index([visitorHash])
+  @@index([createdAt])
+  @@map("door_view")
+}
+
+enum DoorAction {
+  VIEWED   // Door was visible in viewport
+  CLICKED  // Door was clicked/opened
+  ENTERED  // Entry was submitted
+}
+
+// Analytics: Daily aggregated summary (for performance)
+model AnalyticsSummary {
+  id              String   @id @default(cuid())
+  calendarId      String
+  calendar        Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  date            DateTime @db.Date
+
+  // Aggregated metrics
+  totalViews      Int      @default(0)
+  uniqueVisitors  Int      @default(0)
+  totalEntries    Int      @default(0)
+
+  // Device breakdown
+  mobileViews     Int      @default(0)
+  desktopViews    Int      @default(0)
+  tabletViews     Int      @default(0)
+
+  // Traffic sources
+  directTraffic   Int      @default(0)
+  socialTraffic   Int      @default(0)
+  emailTraffic    Int      @default(0)
+  otherTraffic    Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([calendarId, date])
+  @@index([calendarId])
+  @@index([date])
+  @@map("analytics_summary")
 }

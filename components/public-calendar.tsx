@@ -11,6 +11,7 @@ import { IconLock, IconGift, IconTrophy } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
+import { AnalyticsTracker, useTrackDoorInteraction } from "@/components/analytics-tracker";
 
 interface Door {
   id: string;
@@ -47,6 +48,9 @@ interface Calendar {
   brandColor: string | null;
   logo: string | null;
   bannerImage: string | null;
+  buttonText: string | null;
+  thankYouMessage: string | null;
+  footerText: string | null;
   startDate: Date;
   endDate: Date;
   requireEmail: boolean;
@@ -68,6 +72,9 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     phone: "",
   });
 
+  // Analytics tracking
+  const { trackDoorClick, trackDoorEntry } = useTrackDoorInteraction(calendar.id);
+
   const isDoorOpen = (door: Door) => {
     const now = new Date();
     return isPast(door.openDate) || isToday(door.openDate);
@@ -78,6 +85,8 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       toast.error("Denne luken er ikke åpnet ennå!");
       return;
     }
+    // Track door click
+    trackDoorClick(door.id);
     setSelectedDoor(door);
   };
 
@@ -117,7 +126,10 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
         throw new Error(error.error || "Kunne ikke sende inn deltakelse");
       }
 
-      toast.success("Deltakelsen er registrert! Lykke til! 🎉");
+      // Track door entry
+      trackDoorEntry(selectedDoor.id);
+
+      toast.success(calendar.thankYouMessage || "Deltakelsen er registrert! Lykke til! 🎉");
       setSelectedDoor(null);
       setFormData({ email: "", name: "", phone: "" });
     } catch (error: any) {
@@ -128,10 +140,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
   };
 
   return (
-    <div className="min-h-screen" style={{
-      background: `linear-gradient(to bottom, ${calendar.brandColor || "#3B82F6"}15, transparent)`
-    }}>
-      {/* Header */}
+    <>
+      {/* Analytics Tracker */}
+      <AnalyticsTracker calendarId={calendar.id} />
+
+      <div className="min-h-screen" style={{
+        background: `linear-gradient(to bottom, ${calendar.brandColor || "#3B82F6"}15, transparent)`
+      }}>
+        {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -202,6 +218,15 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           })}
         </div>
       </div>
+
+      {/* Footer */}
+      {calendar.footerText && (
+        <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-12">
+          <div className="container max-w-7xl mx-auto px-4 md:px-8 py-6 text-center text-sm text-muted-foreground">
+            {calendar.footerText}
+          </div>
+        </footer>
+      )}
 
       {/* Door Modal */}
       <Dialog open={!!selectedDoor} onOpenChange={() => setSelectedDoor(null)}>
@@ -302,7 +327,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         disabled={isSubmitting}
                         style={{ backgroundColor: calendar.brandColor || undefined }}
                       >
-                        {isSubmitting ? "Sender ..." : "Send inn deltakelse"}
+                        {isSubmitting ? "Sender ..." : (calendar.buttonText || "Send inn deltakelse")}
                       </Button>
                     </div>
                   </div>
@@ -312,6 +337,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 }

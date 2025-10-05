@@ -25,6 +25,11 @@ interface Calendar {
   brandColor: string | null;
   logo: string | null;
   bannerImage: string | null;
+  buttonText: string | null;
+  thankYouMessage: string | null;
+  footerText: string | null;
+  favicon: string | null;
+  metaDescription: string | null;
   startDate: Date;
   endDate: Date;
   doorCount: number;
@@ -44,6 +49,11 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     brandColor: calendar.brandColor || "#3B82F6",
     logo: calendar.logo || "",
     bannerImage: calendar.bannerImage || "",
+    buttonText: calendar.buttonText || "Delta nå",
+    thankYouMessage: calendar.thankYouMessage || "Takk for din deltakelse!",
+    footerText: calendar.footerText || "",
+    favicon: calendar.favicon || "",
+    metaDescription: calendar.metaDescription || "",
     status: calendar.status,
     requireEmail: calendar.requireEmail,
     requireName: calendar.requireName,
@@ -234,6 +244,72 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
               />
               <FieldDescription>
                 Valgfritt toppbanner for kalenderen
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="buttonText">Knappetekst</FieldLabel>
+              <Input
+                id="buttonText"
+                value={formData.buttonText}
+                onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })}
+                placeholder="Delta nå"
+              />
+              <FieldDescription>
+                Teksten som vises på deltakelsesknappen
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="thankYouMessage">Takkemelding</FieldLabel>
+              <Input
+                id="thankYouMessage"
+                value={formData.thankYouMessage}
+                onChange={(e) => setFormData({ ...formData, thankYouMessage: e.target.value })}
+                placeholder="Takk for din deltakelse!"
+              />
+              <FieldDescription>
+                Meldingen som vises etter en vellykket deltakelse
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="footerText">Bunntekst</FieldLabel>
+              <Input
+                id="footerText"
+                value={formData.footerText}
+                onChange={(e) => setFormData({ ...formData, footerText: e.target.value })}
+                placeholder="© 2024 Bedriftsnavn"
+              />
+              <FieldDescription>
+                Valgfri bunntekst for kalenderen
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="favicon">Favicon-URL</FieldLabel>
+              <Input
+                id="favicon"
+                value={formData.favicon}
+                onChange={(e) => setFormData({ ...formData, favicon: e.target.value })}
+                placeholder="https://example.com/favicon.ico"
+              />
+              <FieldDescription>
+                Ikonfil som vises i nettleserens fane
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="metaDescription">Meta-beskrivelse</FieldLabel>
+              <Textarea
+                id="metaDescription"
+                value={formData.metaDescription}
+                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                placeholder="Beskrivelse for søkemotorer..."
+                rows={2}
+              />
+              <FieldDescription>
+                SEO-beskrivelse for kalenderen
               </FieldDescription>
             </Field>
           </FieldGroup>

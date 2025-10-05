@@ -6,9 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconUsers, IconGift, IconTrophy, IconCalendar, IconExternalLink, IconSettings } from "@tabler/icons-react";
+import { IconUsers, IconGift, IconTrophy, IconCalendar, IconExternalLink, IconSettings, IconCopy } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import { CalendarStatusSwitcher } from "@/components/calendar-status-switcher";
+import { CalendarQuickBranding } from "@/components/calendar-quick-branding";
+import { CalendarAnalytics } from "@/components/calendar-analytics";
 
 async function getCalendar(calendarId: string, workspaceId: string) {
   return await prisma.calendar.findFirst({
@@ -107,27 +110,40 @@ export default async function CalendarOverviewPage({
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-3xl font-bold tracking-tight">{calendar.title}</h2>
-            <Badge className={getStatusColor(calendar.status)}>
-              {statusLabels[calendar.status] || calendar.status}
-            </Badge>
+            <CalendarStatusSwitcher
+              calendarId={calendar.id}
+              currentStatus={calendar.status}
+            />
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {format(calendar.startDate, "d. MMM yyyy", { locale: nb })} - {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/c/${calendar.slug}`);
+              const toast = (await import("sonner")).toast;
+              toast.success("URL kopiert!");
+            }}
+          >
+            <IconCopy className="mr-2 h-4 w-4" />
+            Kopier URL
+          </Button>
           <Link href={`/c/${calendar.slug}`} target="_blank">
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <IconExternalLink className="mr-2 h-4 w-4" />
-              Vis offentlig side
+              Forhåndsvis
             </Button>
           </Link>
           <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <IconSettings className="mr-2 h-4 w-4" />
               Innstillinger
             </Button>
@@ -190,10 +206,21 @@ export default async function CalendarOverviewPage({
         </Card>
       </div>
 
+      {/* Quick Branding Card */}
+      <CalendarQuickBranding calendar={{
+        id: calendar.id,
+        brandColor: calendar.brandColor,
+        logo: calendar.logo,
+        bannerImage: calendar.bannerImage,
+        buttonText: calendar.buttonText || null,
+        thankYouMessage: calendar.thankYouMessage || null,
+      }} />
+
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Oversikt</TabsTrigger>
+          <TabsTrigger value="analytics">Analyser</TabsTrigger>
           <TabsTrigger value="quick-actions">Hurtighandlinger</TabsTrigger>
         </TabsList>
 
@@ -253,6 +280,10 @@ export default async function CalendarOverviewPage({
               <p className="text-sm text-muted-foreground">Aktivitetslogg kommer snart ...</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <CalendarAnalytics calendarId={calendar.id} />
         </TabsContent>
 
         <TabsContent value="quick-actions" className="space-y-4">

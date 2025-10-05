@@ -52,6 +52,11 @@ const data = {
       icon: IconCalendar,
     },
     {
+      title: "Leads",
+      url: "/dashboard/leads",
+      icon: IconUsers,
+    },
+    {
       title: "Analyser",
       url: "#",
       icon: IconChartBar,
@@ -60,11 +65,6 @@ const data = {
       title: "Prosjekter",
       url: "#",
       icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
     },
   ],
   navClouds: [
