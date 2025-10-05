@@ -40,6 +40,11 @@ export async function POST(req: NextRequest) {
       requireEmail,
       requireName,
       requirePhone,
+      enableQuiz,
+      defaultQuizPassingScore,
+      defaultShowCorrectAnswers,
+      defaultAllowRetry,
+      aiQuizInstructions,
     } = body;
 
     // Check if slug is unique
@@ -68,6 +73,11 @@ export async function POST(req: NextRequest) {
         requireEmail: requireEmail ?? true,
         requireName: requireName ?? true,
         requirePhone: requirePhone ?? false,
+        enableQuiz: enableQuiz ?? false,
+        defaultQuizPassingScore: defaultQuizPassingScore ?? 80,
+        defaultShowCorrectAnswers: defaultShowCorrectAnswers ?? false,
+        defaultAllowRetry: defaultAllowRetry ?? false,
+        aiQuizInstructions: aiQuizInstructions || null,
         workspaceId: user.defaultWorkspaceId,
         status: "DRAFT",
       },
@@ -81,6 +91,10 @@ export async function POST(req: NextRequest) {
       doorNumber: index + 1,
       openDate: date,
       title: `Luke ${index + 1}`,
+      enableQuiz: enableQuiz ?? false,
+      quizPassingScore: defaultQuizPassingScore ?? 80,
+      showCorrectAnswers: defaultShowCorrectAnswers ?? false,
+      allowRetry: defaultAllowRetry ?? false,
     }));
 
     await prisma.door.createMany({

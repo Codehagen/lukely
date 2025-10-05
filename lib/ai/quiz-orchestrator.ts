@@ -80,6 +80,42 @@ EKSEMPLER PÅ GODE SPØRSMÅL:
   }
 }
 
+export interface BulkDoorInfo {
+  doorId: string;
+  doorNumber: number;
+  productName?: string | null;
+  productDescription?: string | null;
+}
+
+export async function generateAllDoorQuizzes(
+  calendarType: "CHRISTMAS" | "VALENTINE" | "EASTER" | "CUSTOM",
+  doors: BulkDoorInfo[],
+  instructions?: string,
+  questionCount: number = 3
+): Promise<Map<string, GeneratedQuestion[]>> {
+  const results = new Map<string, GeneratedQuestion[]>();
+
+  for (const door of doors) {
+    try {
+      const doorInfo: DoorInfo = {
+        doorNumber: door.doorNumber,
+        productName: door.productName || undefined,
+        productDescription: door.productDescription || undefined,
+        theme: calendarType,
+      };
+
+      const questions = await generateDoorQuiz(doorInfo, instructions, questionCount);
+      results.set(door.doorId, questions);
+    } catch (error) {
+      console.error(`Failed to generate quiz for door ${door.doorNumber}:`, error);
+      // Continue with other doors even if one fails
+      results.set(door.doorId, []);
+    }
+  }
+
+  return results;
+}
+
 export async function validateQuizAnswers(
   questions: Array<{
     id: string;

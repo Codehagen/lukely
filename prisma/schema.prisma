@@ -198,6 +198,13 @@ model Calendar {
   requirePhone    Boolean         @default(true)
   customFields    Json?
 
+  // Quiz Configuration (calendar-level defaults)
+  enableQuiz               Boolean  @default(false)
+  defaultQuizPassingScore  Int      @default(80)
+  defaultShowCorrectAnswers Boolean @default(false)
+  defaultAllowRetry        Boolean  @default(false)
+  aiQuizInstructions       String?
+
   // Relations
   workspaceId     String
   workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)

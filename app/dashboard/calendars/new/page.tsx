@@ -14,8 +14,10 @@ import { CalendarType } from "@/app/generated/prisma";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
-import { IconCalendar } from "@tabler/icons-react";
+import { IconCalendar, IconSparkles } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function NewCalendarPage() {
   const router = useRouter();
@@ -32,6 +34,12 @@ export default function NewCalendarPage() {
     requireEmail: true,
     requireName: true,
     requirePhone: false,
+    enableQuiz: false,
+    defaultQuizPassingScore: 80,
+    defaultShowCorrectAnswers: false,
+    defaultAllowRetry: false,
+    aiQuizInstructions: "",
+    generateAllQuizzes: false,
   });
 
   const handleTemplateSelect = (templateKey: string) => {
@@ -60,6 +68,7 @@ export default function NewCalendarPage() {
     try {
       const template = CALENDAR_TEMPLATES[selectedTemplate];
 
+      // Step 1: Create calendar
       const response = await fetch("/api/calendars", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +83,30 @@ export default function NewCalendarPage() {
       if (!response.ok) throw new Error("Kunne ikke opprette kalender");
 
       const calendar = await response.json();
-      toast.success("Kalenderen ble opprettet!");
+
+      // Step 2: Generate all quizzes if requested
+      if (formData.enableQuiz && formData.generateAllQuizzes) {
+        toast.loading("Genererer quizer med AI...", { id: "quiz-gen" });
+
+        const quizResponse = await fetch(
+          `/api/calendars/${calendar.id}/generate-all-quizzes`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questionCount: 3 }),
+          }
+        );
+
+        if (quizResponse.ok) {
+          const quizResult = await quizResponse.json();
+          toast.success(quizResult.message, { id: "quiz-gen" });
+        } else {
+          toast.error("Noen quizer kunne ikke genereres", { id: "quiz-gen" });
+        }
+      } else {
+        toast.success("Kalenderen ble opprettet!");
+      }
+
       router.push(`/dashboard/calendars/${calendar.id}`);
     } catch (error) {
       toast.error("Kunne ikke opprette kalender");
@@ -280,6 +312,144 @@ export default function NewCalendarPage() {
                     </FieldDescription>
                   )}
                 </Field>
+              </FieldGroup>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quiz-innstillinger</CardTitle>
+              <CardDescription>
+                Legg til quiz for å engasjere deltakere og velge vinnere basert på riktige svar
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup className="flex flex-col gap-6">
+                <Field>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FieldLabel>Aktiver quiz for denne kalenderen</FieldLabel>
+                      <FieldDescription>
+                        Deltakere må svare på spørsmål for å delta i trekningen
+                      </FieldDescription>
+                    </div>
+                    <Switch
+                      checked={formData.enableQuiz}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, enableQuiz: checked })
+                      }
+                    />
+                  </div>
+                </Field>
+
+                {formData.enableQuiz && (
+                  <>
+                    <Field>
+                      <FieldLabel htmlFor="defaultQuizPassingScore">
+                        Poengkrav for å vinne (%)
+                      </FieldLabel>
+                      <Input
+                        id="defaultQuizPassingScore"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.defaultQuizPassingScore}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            defaultQuizPassingScore: parseInt(e.target.value),
+                          })
+                        }
+                      />
+                      <FieldDescription>
+                        Deltakere må ha minst denne prosentandelen riktige svar for å være kvalifisert
+                      </FieldDescription>
+                    </Field>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="defaultShowCorrectAnswers"
+                          checked={formData.defaultShowCorrectAnswers}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              defaultShowCorrectAnswers: checked as boolean,
+                            })
+                          }
+                        />
+                        <label
+                          htmlFor="defaultShowCorrectAnswers"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Vis riktige svar etter innsending
+                        </label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="defaultAllowRetry"
+                          checked={formData.defaultAllowRetry}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              defaultAllowRetry: checked as boolean,
+                            })
+                          }
+                        />
+                        <label
+                          htmlFor="defaultAllowRetry"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Tillat nye forsøk
+                        </label>
+                      </div>
+                    </div>
+
+                    <Field>
+                      <FieldLabel htmlFor="aiQuizInstructions">
+                        AI-instruksjoner (valgfritt)
+                      </FieldLabel>
+                      <Textarea
+                        id="aiQuizInstructions"
+                        value={formData.aiQuizInstructions}
+                        onChange={(e) =>
+                          setFormData({ ...formData, aiQuizInstructions: e.target.value })
+                        }
+                        placeholder="F.eks. 'Lag spørsmål om norske juletradisjoner og nisser' eller la det stå tomt for generelle spørsmål"
+                        rows={3}
+                      />
+                      <FieldDescription>
+                        Tilpass AI-genererte spørsmål med egne instruksjoner
+                      </FieldDescription>
+                    </Field>
+
+                    <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/50">
+                      <Checkbox
+                        id="generateAllQuizzes"
+                        checked={formData.generateAllQuizzes}
+                        onCheckedChange={(checked) =>
+                          setFormData({
+                            ...formData,
+                            generateAllQuizzes: checked as boolean,
+                          })
+                        }
+                      />
+                      <label
+                        htmlFor="generateAllQuizzes"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                      >
+                        <IconSparkles className="h-4 w-4 text-primary" />
+                        Generer alle quizer automatisk med AI
+                      </label>
+                    </div>
+                    {formData.generateAllQuizzes && (
+                      <p className="text-sm text-muted-foreground -mt-2">
+                        ✨ AI vil generere 3 spørsmål for hver luke automatisk når kalenderen opprettes. Du kan redigere dem senere.
+                      </p>
+                    )}
+                  </>
+                )}
               </FieldGroup>
             </CardContent>
           </Card>
