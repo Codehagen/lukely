@@ -133,8 +133,8 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     }}>
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container py-6">
-          <div className="flex items-center justify-between">
+        <div className="container max-w-7xl mx-auto px-4 md:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               {calendar.logo && (
                 <img src={calendar.logo} alt={calendar.title} className="h-12 w-12 rounded-lg" />
@@ -155,7 +155,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       </header>
 
       {/* Calendar Grid */}
-      <div className="container py-12">
+      <div className="container max-w-7xl mx-auto px-4 md:px-8 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {calendar.doors.map((door) => {
             const isOpen = isDoorOpen(door);

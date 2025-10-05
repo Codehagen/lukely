@@ -30,7 +30,6 @@ import {
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconLoader,
   IconPlus,
   IconTrendingUp,
 } from "@tabler/icons-react"
@@ -105,6 +104,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Spinner } from "@/components/ui/spinner"
 
 export const schema = z.object({
   id: z.number(),
@@ -195,7 +195,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         {row.original.status === "Done" ? (
           <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
         ) : (
-          <IconLoader />
+          <Spinner className="mr-1 size-3" />
         )}
         {row.original.status}
       </Badge>

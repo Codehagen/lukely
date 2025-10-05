@@ -13,11 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Image from "next/image";
-import { Loader2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { signUp, signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SignUpAuth() {
   const [firstName, setFirstName] = useState("");
@@ -174,11 +175,7 @@ export default function SignUpAuth() {
               });
             }}
           >
-            {loading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              "Opprett konto"
-            )}
+            {loading ? <Spinner className="size-4" /> : "Opprett konto"}
           </Button>
 
           <div

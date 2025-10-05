@@ -37,9 +37,10 @@ async function getCalendarBySlug(slug: string) {
 export default async function PublicCalendarPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const calendar = await getCalendarBySlug(params.slug);
+  const { slug } = await params;
+  const calendar = await getCalendarBySlug(slug);
 
   if (!calendar) {
     notFound();
