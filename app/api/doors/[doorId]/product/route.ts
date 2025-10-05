@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { doorId: string } }
+  { params }: { params: Promise<{ doorId: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -16,12 +16,13 @@ export async function POST(
       return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
+    const { doorId } = await params;
     const body = await req.json();
     const { name, description, imageUrl, value, quantity } = body;
 
     // Verify door exists and user has access
     const door = await prisma.door.findUnique({
-      where: { id: params.doorId },
+      where: { id: doorId },
       include: {
         calendar: {
           include: {
@@ -67,7 +68,7 @@ export async function POST(
           imageUrl,
           value,
           quantity,
-          doorId: params.doorId,
+          doorId: doorId,
         },
       });
       return NextResponse.json(product);

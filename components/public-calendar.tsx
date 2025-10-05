@@ -16,6 +16,8 @@ import confetti from "canvas-confetti";
 import { AnalyticsTracker, useTrackDoorInteraction } from "@/components/analytics-tracker";
 import { DoorQuizSection } from "@/components/door-quiz-section";
 import { Spinner } from "@/components/ui/spinner";
+import { useGoogleFont } from "@/hooks/use-google-font";
+import { getFontFamilyValue } from "@/lib/google-fonts";
 
 interface Door {
   id: string;
@@ -61,6 +63,7 @@ interface Calendar {
   type: string;
   status: string;
   brandColor: string | null;
+  brandFont: string | null;
   logo: string | null;
   bannerImage: string | null;
   buttonText: string | null;
@@ -94,6 +97,9 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     marketing: false,
   });
   const [quizAnswers, setQuizAnswers] = useState<Array<{ questionId: string; answer: string }>>([]);
+
+  // Load brand font dynamically
+  useGoogleFont(calendar.brandFont);
 
   // Analytics tracking
   const { trackDoorClick, trackDoorEntry } = useTrackDoorInteraction(calendar.id);
@@ -252,7 +258,12 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 <img src={calendar.logo} alt={calendar.title} className="h-12 w-12 rounded-lg" />
               )}
               <div>
-                <h1 className="text-2xl font-bold">{calendar.title}</h1>
+                <h1
+                  className="text-2xl font-bold"
+                  style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                >
+                  {calendar.title}
+                </h1>
                 <p className="text-sm text-muted-foreground">{calendar.workspace.name}</p>
               </div>
             </div>
@@ -330,7 +341,10 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           {selectedDoor && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl">
+                <DialogTitle
+                  className="text-2xl"
+                  style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                >
                   Luke {selectedDoor.doorNumber}
                   {selectedDoor.title && ` - ${selectedDoor.title}`}
                 </DialogTitle>
@@ -350,7 +364,12 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                       />
                     )}
                     <div>
-                      <h3 className="text-xl font-semibold">{selectedDoor.product.name}</h3>
+                      <h3
+                        className="text-xl font-semibold"
+                        style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                      >
+                        {selectedDoor.product.name}
+                      </h3>
                       {selectedDoor.product.description && (
                         <p className="text-muted-foreground mt-2">{selectedDoor.product.description}</p>
                       )}

@@ -36,6 +36,7 @@ export default function NewCalendarPage() {
     endDate: new Date(),
     doorCount: 24,
     brandColor: "#3B82F6",
+    brandFont: "Inter",
     requireEmail: true,
     requireName: true,
     requirePhone: false,
@@ -265,6 +266,9 @@ export default function NewCalendarPage() {
               formData={formData}
               onBrandColorChange={(brandColor) =>
                 setFormData({ ...formData, brandColor })
+              }
+              onBrandFontChange={(brandFont) =>
+                setFormData({ ...formData, brandFont })
               }
             />
           )}
