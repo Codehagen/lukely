@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { AnalyticsTracker, useTrackDoorInteraction } from "@/components/analytics-tracker";
 import { DoorQuizSection } from "@/components/door-quiz-section";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Door {
   id: string;
@@ -508,7 +509,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         disabled={isSubmitting}
                         style={{ backgroundColor: calendar.brandColor || undefined }}
                       >
-                        {isSubmitting ? "Sender ..." : (calendar.buttonText || "Send inn deltakelse")}
+                        {isSubmitting ? (
+                          <>
+                            <Spinner className="mr-2 h-4 w-4" />
+                            Sender ...
+                          </>
+                        ) : (
+                          calendar.buttonText || "Send inn deltakelse"
+                        )}
                       </Button>
                     </div>
                   </div>

@@ -9,6 +9,7 @@ import {
   Item,
   ItemActions,
   ItemContent,
+  ItemDescription,
   ItemGroup,
   ItemMedia,
   ItemTitle,
@@ -25,6 +26,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Lead {
   id: string;
@@ -257,8 +259,17 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                     disabled={isSelecting || selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0}
                     className="w-full"
                   >
-                    <IconDice className="h-4 w-4 mr-2" />
-                    {isSelecting ? "Velger ..." : "Trekk tilfeldig vinner"}
+                    {isSelecting ? (
+                      <>
+                        <Spinner className="mr-2 h-4 w-4" />
+                        Velger ...
+                      </>
+                    ) : (
+                      <>
+                        <IconDice className="h-4 w-4 mr-2" />
+                        Trekk tilfeldig vinner
+                      </>
+                    )}
                   </Button>
                   {selectedDoor.entries.filter((e) => e.eligibleForWinner).length === 0 && (
                     <p className="text-sm text-destructive mt-2">

@@ -30,6 +30,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Product {
   id: string;
@@ -294,7 +295,14 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             Avbryt
                           </Button>
                           <Button onClick={handleSaveProduct} disabled={isSubmitting}>
-                            {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
+                            {isSubmitting ? (
+                              <>
+                                <Spinner className="mr-2 h-4 w-4" />
+                                Lagrer ...
+                              </>
+                            ) : (
+                              "Lagre produkt"
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -403,7 +411,14 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             Avbryt
                           </Button>
                           <Button onClick={handleSaveProduct} disabled={isSubmitting}>
-                            {isSubmitting ? "Lagrer ..." : "Lagre produkt"}
+                            {isSubmitting ? (
+                              <>
+                                <Spinner className="mr-2 h-4 w-4" />
+                                Lagrer ...
+                              </>
+                            ) : (
+                              "Lagre produkt"
+                            )}
                           </Button>
                         </div>
                       </div>

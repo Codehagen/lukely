@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
-import { IconCheck, IconLoader2, IconPalette } from "@tabler/icons-react";
+import { IconCheck, IconPalette } from "@tabler/icons-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CalendarQuickBrandingProps {
   calendar: {
@@ -80,7 +81,7 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
           >
             {isUpdating ? (
               <>
-                <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner className="mr-2 h-4 w-4" />
                 Lagrer ...
               </>
             ) : (

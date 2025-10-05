@@ -4,25 +4,30 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { CALENDAR_TEMPLATES, getDefaultDatesForYear } from "@/lib/calendar-templates";
-import { CalendarType } from "@/app/generated/prisma";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { nb } from "date-fns/locale";
-import { IconCalendar, IconSparkles } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Stepper, Step } from "@/components/ui/stepper";
+import { StepNavigation } from "@/components/calendar-form-steps/step-navigation";
+import { StepGrunnleggende } from "@/components/calendar-form-steps/step-grunnleggende";
+import { StepDatoer } from "@/components/calendar-form-steps/step-datoer";
+import { StepQuiz } from "@/components/calendar-form-steps/step-quiz";
+import { StepMerkevare } from "@/components/calendar-form-steps/step-merkevare";
+import { StepOppsummering } from "@/components/calendar-form-steps/step-oppsummering";
+
+const FORM_STEPS: Step[] = [
+  { id: 1, title: "Grunnleggende" },
+  { id: 2, title: "Datoer" },
+  { id: 3, title: "Quiz", optional: true },
+  { id: 4, title: "Merkevare", optional: true },
+  { id: 5, title: "Oppsummering" },
+];
 
 export default function NewCalendarPage() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [templateStep, setTemplateStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [currentFormStep, setCurrentFormStep] = useState(1);
+  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -59,12 +64,50 @@ export default function NewCalendarPage() {
       endDate: dates?.endDate || new Date(),
     });
 
-    setStep(2);
+    setTemplateStep(2);
+  };
+
+  const generateSlug = (title: string) => {
+    const normalizedTitle = title
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/æ/g, "ae")
+      .replace(/ø/g, "o")
+      .replace(/å/g, "a");
+
+    const slug = normalizedTitle
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    setFormData({ ...formData, title, slug });
+  };
+
+  const nextStep = () => {
+    if (currentFormStep < FORM_STEPS.length) {
+      setCurrentFormStep(currentFormStep + 1);
+    }
+  };
+
+  const previousStep = () => {
+    if (currentFormStep > 1) {
+      setCurrentFormStep(currentFormStep - 1);
+    }
+  };
+
+  const goToStep = (step: number) => {
+    if (step <= currentFormStep) {
+      setCurrentFormStep(step);
+    }
+  };
+
+  const skipToSummary = () => {
+    setCurrentFormStep(5);
   };
 
   const handleSubmit = async () => {
     if (!selectedTemplate) return;
 
+    setIsCreating(true);
     try {
       const template = CALENDAR_TEMPLATES[selectedTemplate];
 
@@ -111,22 +154,9 @@ export default function NewCalendarPage() {
     } catch (error) {
       toast.error("Kunne ikke opprette kalender");
       console.error(error);
+    } finally {
+      setIsCreating(false);
     }
-  };
-
-  const generateSlug = (title: string) => {
-    const normalizedTitle = title
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/æ/g, "ae")
-      .replace(/ø/g, "o")
-      .replace(/å/g, "a");
-
-    const slug = normalizedTitle
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    setFormData({ ...formData, title, slug });
   };
 
   return (
@@ -140,7 +170,7 @@ export default function NewCalendarPage() {
         </div>
       </div>
 
-      {step === 1 && (
+      {templateStep === 1 && (
         <div>
           <h2 className="text-xl font-semibold mb-4">Velg en mal</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -166,330 +196,93 @@ export default function NewCalendarPage() {
         </div>
       )}
 
-      {step === 2 && selectedTemplate && (
+      {templateStep === 2 && selectedTemplate && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
-            <Button variant="outline" onClick={() => setStep(1)}>
+            <Button variant="outline" onClick={() => setTemplateStep(1)}>
               Tilbake til maler
             </Button>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Grunnleggende informasjon</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FieldGroup className="flex flex-col gap-6">
-                <Field>
-                  <FieldLabel htmlFor="title">Kalendertittel</FieldLabel>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => generateSlug(e.target.value)}
-                    placeholder="Min julekalender 2024"
-                  />
-                  <FieldDescription>
-                    Dette vises som hovedoverskriften på kalenderen din
-                  </FieldDescription>
-                </Field>
+          <Stepper
+            currentStep={currentFormStep}
+            steps={FORM_STEPS}
+            onStepClick={goToStep}
+          />
 
-                <Field>
-                  <FieldLabel htmlFor="slug">URL-slug</FieldLabel>
-                  <FieldContent>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">yoursite.com/c/</span>
-                      <Input
-                        id="slug"
-                        value={formData.slug}
-                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                        placeholder="christmas-2024"
-                      />
-                    </div>
-                    <FieldDescription>
-                      Dette lager den unike kalenderadressen din
-                    </FieldDescription>
-                  </FieldContent>
-                </Field>
+          {currentFormStep === 1 && (
+            <StepGrunnleggende
+              formData={formData}
+              onTitleChange={(title) => generateSlug(title)}
+              onSlugChange={(slug) => setFormData({ ...formData, slug })}
+              onDescriptionChange={(description) =>
+                setFormData({ ...formData, description })
+              }
+            />
+          )}
 
-                <Field>
-                  <FieldLabel htmlFor="description">Beskrivelse</FieldLabel>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Skriv inn en beskrivelse av kalenderen..."
-                    rows={3}
-                  />
-                  <FieldDescription>
-                    Valgfri beskrivelse som vises på den offentlige kalendersiden
-                  </FieldDescription>
-                </Field>
-              </FieldGroup>
-            </CardContent>
-          </Card>
+          {currentFormStep === 2 && (
+            <StepDatoer
+              formData={formData}
+              onStartDateChange={(startDate) =>
+                setFormData({ ...formData, startDate })
+              }
+              onEndDateChange={(endDate) => setFormData({ ...formData, endDate })}
+              onDoorCountChange={(doorCount) =>
+                setFormData({ ...formData, doorCount })
+              }
+              templateFlexible={CALENDAR_TEMPLATES[selectedTemplate].flexible}
+            />
+          )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Datoer og luker</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FieldGroup className="flex flex-col gap-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel>Startdato</FieldLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !formData.startDate && "text-muted-foreground"
-                          )}
-                        >
-                          <IconCalendar className="mr-2 h-4 w-4" />
-                          {formData.startDate ? format(formData.startDate, "PPP", { locale: nb }) : "Velg en dato"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={formData.startDate}
-                          onSelect={(date) => date && setFormData({ ...formData, startDate: date })}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FieldDescription>Når den første luken åpnes</FieldDescription>
-                  </Field>
+          {currentFormStep === 3 && (
+            <StepQuiz
+              formData={formData}
+              onEnableQuizChange={(enableQuiz) =>
+                setFormData({ ...formData, enableQuiz })
+              }
+              onPassingScoreChange={(defaultQuizPassingScore) =>
+                setFormData({ ...formData, defaultQuizPassingScore })
+              }
+              onShowAnswersChange={(defaultShowCorrectAnswers) =>
+                setFormData({ ...formData, defaultShowCorrectAnswers })
+              }
+              onAllowRetryChange={(defaultAllowRetry) =>
+                setFormData({ ...formData, defaultAllowRetry })
+              }
+              onInstructionsChange={(aiQuizInstructions) =>
+                setFormData({ ...formData, aiQuizInstructions })
+              }
+              onGenerateAllChange={(generateAllQuizzes) =>
+                setFormData({ ...formData, generateAllQuizzes })
+              }
+            />
+          )}
 
-                  <Field>
-                    <FieldLabel>Sluttdato</FieldLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !formData.endDate && "text-muted-foreground"
-                          )}
-                        >
-                          <IconCalendar className="mr-2 h-4 w-4" />
-                          {formData.endDate ? format(formData.endDate, "PPP", { locale: nb }) : "Velg en dato"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={formData.endDate}
-                          onSelect={(date) => date && setFormData({ ...formData, endDate: date })}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FieldDescription>Når den siste luken åpnes</FieldDescription>
-                  </Field>
-                </div>
+          {currentFormStep === 4 && (
+            <StepMerkevare
+              formData={formData}
+              onBrandColorChange={(brandColor) =>
+                setFormData({ ...formData, brandColor })
+              }
+            />
+          )}
 
-                <Field>
-                  <FieldLabel htmlFor="doorCount">Antall luker</FieldLabel>
-                  <Input
-                    id="doorCount"
-                    type="number"
-                    min="1"
-                    max="31"
-                    value={formData.doorCount}
-                    onChange={(e) => setFormData({ ...formData, doorCount: parseInt(e.target.value) })}
-                    disabled={!CALENDAR_TEMPLATES[selectedTemplate].flexible}
-                  />
-                  {!CALENDAR_TEMPLATES[selectedTemplate].flexible ? (
-                    <FieldDescription>
-                      Denne malen har et fast antall luker
-                    </FieldDescription>
-                  ) : (
-                    <FieldDescription>
-                      Velg hvor mange luker kalenderen skal ha (1-31)
-                    </FieldDescription>
-                  )}
-                </Field>
-              </FieldGroup>
-            </CardContent>
-          </Card>
+          {currentFormStep === 5 && (
+            <StepOppsummering formData={formData} onEdit={goToStep} />
+          )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Quiz-innstillinger</CardTitle>
-              <CardDescription>
-                Legg til quiz for å engasjere deltakere og velge vinnere basert på riktige svar
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FieldGroup className="flex flex-col gap-6">
-                <Field>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <FieldLabel>Aktiver quiz for denne kalenderen</FieldLabel>
-                      <FieldDescription>
-                        Deltakere må svare på spørsmål for å delta i trekningen
-                      </FieldDescription>
-                    </div>
-                    <Switch
-                      checked={formData.enableQuiz}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, enableQuiz: checked })
-                      }
-                    />
-                  </div>
-                </Field>
-
-                {formData.enableQuiz && (
-                  <>
-                    <Field>
-                      <FieldLabel htmlFor="defaultQuizPassingScore">
-                        Poengkrav for å vinne (%)
-                      </FieldLabel>
-                      <Input
-                        id="defaultQuizPassingScore"
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.defaultQuizPassingScore}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            defaultQuizPassingScore: parseInt(e.target.value),
-                          })
-                        }
-                      />
-                      <FieldDescription>
-                        Deltakere må ha minst denne prosentandelen riktige svar for å være kvalifisert
-                      </FieldDescription>
-                    </Field>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="defaultShowCorrectAnswers"
-                          checked={formData.defaultShowCorrectAnswers}
-                          onCheckedChange={(checked) =>
-                            setFormData({
-                              ...formData,
-                              defaultShowCorrectAnswers: checked as boolean,
-                            })
-                          }
-                        />
-                        <label
-                          htmlFor="defaultShowCorrectAnswers"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Vis riktige svar etter innsending
-                        </label>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="defaultAllowRetry"
-                          checked={formData.defaultAllowRetry}
-                          onCheckedChange={(checked) =>
-                            setFormData({
-                              ...formData,
-                              defaultAllowRetry: checked as boolean,
-                            })
-                          }
-                        />
-                        <label
-                          htmlFor="defaultAllowRetry"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Tillat nye forsøk
-                        </label>
-                      </div>
-                    </div>
-
-                    <Field>
-                      <FieldLabel htmlFor="aiQuizInstructions">
-                        AI-instruksjoner (valgfritt)
-                      </FieldLabel>
-                      <Textarea
-                        id="aiQuizInstructions"
-                        value={formData.aiQuizInstructions}
-                        onChange={(e) =>
-                          setFormData({ ...formData, aiQuizInstructions: e.target.value })
-                        }
-                        placeholder="F.eks. 'Lag spørsmål om norske juletradisjoner og nisser' eller la det stå tomt for generelle spørsmål"
-                        rows={3}
-                      />
-                      <FieldDescription>
-                        Tilpass AI-genererte spørsmål med egne instruksjoner
-                      </FieldDescription>
-                    </Field>
-
-                    <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/50">
-                      <Checkbox
-                        id="generateAllQuizzes"
-                        checked={formData.generateAllQuizzes}
-                        onCheckedChange={(checked) =>
-                          setFormData({
-                            ...formData,
-                            generateAllQuizzes: checked as boolean,
-                          })
-                        }
-                      />
-                      <label
-                        htmlFor="generateAllQuizzes"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-                      >
-                        <IconSparkles className="h-4 w-4 text-primary" />
-                        Generer alle quizer automatisk med AI
-                      </label>
-                    </div>
-                    {formData.generateAllQuizzes && (
-                      <p className="text-sm text-muted-foreground -mt-2">
-                        ✨ AI vil generere 3 spørsmål for hver luke automatisk når kalenderen opprettes. Du kan redigere dem senere.
-                      </p>
-                    )}
-                  </>
-                )}
-              </FieldGroup>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Merkevare</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Field>
-                <FieldLabel htmlFor="brandColor">Profilfarge</FieldLabel>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="brandColor"
-                    type="color"
-                    value={formData.brandColor}
-                    onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
-                    className="w-20 h-10"
-                  />
-                  <Input
-                    value={formData.brandColor}
-                    onChange={(e) => setFormData({ ...formData, brandColor: e.target.value })}
-                    placeholder="#3B82F6"
-                  />
-                </div>
-                <FieldDescription>
-                  Denne fargen brukes på knapper og detaljer i kalenderen
-                </FieldDescription>
-              </Field>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard/calendars")}>
-              Avbryt
-            </Button>
-            <Button onClick={handleSubmit}>
-              Opprett kalender
-            </Button>
-          </div>
+          <StepNavigation
+            currentStep={currentFormStep}
+            totalSteps={FORM_STEPS.length}
+            onPrevious={previousStep}
+            onNext={nextStep}
+            onSkip={skipToSummary}
+            onSubmit={handleSubmit}
+            isSubmitting={isCreating}
+            canSkip={currentFormStep === 3 || currentFormStep === 4}
+          />
         </div>
       )}
     </div>

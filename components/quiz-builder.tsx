@@ -31,6 +31,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Question {
   id?: string;
@@ -235,8 +236,17 @@ export function QuizBuilder({
           </Field>
 
           <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
-            <IconSparkles className="mr-2 h-4 w-4" />
-            {isGenerating ? "Genererer..." : "Generer Quiz med AI"}
+            {isGenerating ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Genererer...
+              </>
+            ) : (
+              <>
+                <IconSparkles className="mr-2 h-4 w-4" />
+                Generer Quiz med AI
+              </>
+            )}
           </Button>
         </CardContent>
       </Card>
@@ -359,8 +369,17 @@ export function QuizBuilder({
       {/* Save Button */}
       <div className="flex justify-end gap-2">
         <Button onClick={handleSave} disabled={isSaving || questions.length === 0}>
-          <IconCheck className="mr-2 h-4 w-4" />
-          {isSaving ? "Lagrer..." : "Lagre Quiz"}
+          {isSaving ? (
+            <>
+              <Spinner className="mr-2 h-4 w-4" />
+              Lagrer...
+            </>
+          ) : (
+            <>
+              <IconCheck className="mr-2 h-4 w-4" />
+              Lagre Quiz
+            </>
+          )}
         </Button>
       </div>
     </div>

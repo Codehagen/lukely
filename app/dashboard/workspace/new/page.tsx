@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconBriefcase } from "@tabler/icons-react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function NewWorkspacePage() {
   const router = useRouter();
@@ -105,7 +106,14 @@ export default function NewWorkspacePage() {
             onClick={handleCreate}
             disabled={isCreating || !formData.name || !formData.slug}
           >
-            {isCreating ? "Oppretter ..." : "Opprett arbeidsområde"}
+            {isCreating ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Oppretter ...
+              </>
+            ) : (
+              "Opprett arbeidsområde"
+            )}
           </Button>
         </CardContent>
       </Card>

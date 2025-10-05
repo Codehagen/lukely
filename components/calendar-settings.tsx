@@ -14,6 +14,7 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@
 import { IconCheck, IconTrash, IconArchive } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { CalendarStatus } from "@/app/generated/prisma";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Calendar {
   id: string;
@@ -44,6 +45,8 @@ interface Calendar {
 export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     title: calendar.title,
     slug: calendar.slug,
@@ -89,6 +92,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
   const handleArchive = async () => {
     if (!confirm("Er du sikker på at du vil arkivere denne kalenderen?")) return;
 
+    setIsArchiving(true);
     try {
       const response = await fetch(`/api/calendars/${calendar.id}`, {
         method: "PATCH",
@@ -103,6 +107,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     } catch (error) {
       toast.error("Kunne ikke arkivere kalender");
       console.error(error);
+    } finally {
+      setIsArchiving(false);
     }
   };
 
@@ -110,6 +116,7 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     if (!confirm("Er du sikker på at du vil slette denne kalenderen? Dette kan ikke angres.")) return;
     if (!confirm("Dette sletter alle luker, produkter, leads og deltakelser permanent. Er du helt sikker?")) return;
 
+    setIsDeleting(true);
     try {
       const response = await fetch(`/api/calendars/${calendar.id}`, {
         method: "DELETE",
@@ -122,6 +129,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     } catch (error) {
       toast.error("Kunne ikke slette kalender");
       console.error(error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -459,18 +468,57 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
       {/* Actions */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <Button variant="destructive" onClick={handleArchive}>
-            <IconArchive className="mr-2 h-4 w-4" />
-            Arkiver kalender
+          <Button
+            variant="destructive"
+            onClick={handleArchive}
+            disabled={isArchiving || isDeleting}
+          >
+            {isArchiving ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Arkiverer ...
+              </>
+            ) : (
+              <>
+                <IconArchive className="mr-2 h-4 w-4" />
+                Arkiver kalender
+              </>
+            )}
           </Button>
-          <Button variant="outline" className="text-destructive" onClick={handleDelete}>
-            <IconTrash className="mr-2 h-4 w-4" />
-            Slett kalender
+          <Button
+            variant="outline"
+            className="text-destructive"
+            onClick={handleDelete}
+            disabled={isDeleting || isArchiving}
+          >
+            {isDeleting ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Sletter ...
+              </>
+            ) : (
+              <>
+                <IconTrash className="mr-2 h-4 w-4" />
+                Slett kalender
+              </>
+            )}
           </Button>
         </div>
-        <Button onClick={handleUpdate} disabled={isUpdating}>
-          <IconCheck className="mr-2 h-4 w-4" />
-          {isUpdating ? "Lagrer ..." : "Lagre endringer"}
+        <Button
+          onClick={handleUpdate}
+          disabled={isUpdating || isArchiving || isDeleting}
+        >
+          {isUpdating ? (
+            <>
+              <Spinner className="mr-2 h-4 w-4" />
+              Lagrer ...
+            </>
+          ) : (
+            <>
+              <IconCheck className="mr-2 h-4 w-4" />
+              Lagre endringer
+            </>
+          )}
         </Button>
       </div>
     </div>

@@ -28,6 +28,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DoorEntry {
   id: string;
@@ -169,8 +170,17 @@ export default function LeadsManagement({ calendar }: { calendar: Calendar }) {
               </CardDescription>
             </div>
             <Button onClick={handleExportCSV} disabled={isExporting || calendar.leads.length === 0}>
-              <IconDownload className="mr-2 h-4 w-4" />
-              {isExporting ? "Eksporterer ..." : "Eksporter CSV"}
+              {isExporting ? (
+                <>
+                  <Spinner className="mr-2 h-4 w-4" />
+                  Eksporterer ...
+                </>
+              ) : (
+                <>
+                  <IconDownload className="mr-2 h-4 w-4" />
+                  Eksporter CSV
+                </>
+              )}
             </Button>
           </div>
         </CardHeader>
