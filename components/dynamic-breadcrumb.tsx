@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,6 +19,27 @@ interface BreadcrumbItem {
 
 export function DynamicBreadcrumb() {
   const pathname = usePathname();
+  const [calendarName, setCalendarName] = useState<string | null>(null);
+
+  // Extract calendar ID from pathname
+  const calendarIdMatch = pathname.match(/\/calendars\/([^\/]+)/);
+  const calendarId = calendarIdMatch ? calendarIdMatch[1] : null;
+
+  // Fetch calendar name if we have an ID
+  useEffect(() => {
+    if (calendarId && calendarId !== "new") {
+      fetch(`/api/calendars/${calendarId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.title) {
+            setCalendarName(data.title);
+          }
+        })
+        .catch(() => {
+          // Silently fail, will show ID instead
+        });
+    }
+  }, [calendarId]);
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -53,10 +75,19 @@ export function DynamicBreadcrumb() {
         const href = isLast ? undefined : `/dashboard/${subSegments.slice(0, index + 1).join("/")}`;
 
         // Convert segment to display name
-        const label = segmentMap[segment] || segment
-          .split("-")
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
+        let label: string;
+
+        // Check if this segment is a calendar ID (previous segment was "calendars")
+        if (index > 0 && subSegments[index - 1] === "calendars" && segment !== "new") {
+          // This is a calendar ID - use the fetched name or show loading
+          label = calendarName || "...";
+        } else {
+          // Use the segment map or format the segment
+          label = segmentMap[segment] || segment
+            .split("-")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+        }
 
         breadcrumbs.push({ label, href });
       });

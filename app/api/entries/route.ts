@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
         data: questionAnswers.map((qa) => ({
           doorEntryId: doorEntry.id,
           questionId: qa.questionId,
-          answer: qa.answer,
+          answer: qa.userAnswer || qa.answer || "", // Support both field names
           isCorrect: qa.isCorrect,
         })),
       });

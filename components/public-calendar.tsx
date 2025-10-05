@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -335,49 +335,69 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
         </footer>
       )}
 
-      {/* Door Modal */}
-      <Dialog open={!!selectedDoor} onOpenChange={() => setSelectedDoor(null)}>
-        <DialogContent className="max-w-2xl">
+      {/* Door Sheet - Bottom on mobile, Right on desktop */}
+      <Sheet open={!!selectedDoor} onOpenChange={() => setSelectedDoor(null)}>
+        <SheetContent
+          side="right"
+          className="w-full md:max-w-2xl lg:max-w-3xl overflow-y-auto p-0
+            md:inset-y-0 md:right-0 md:h-full md:border-l
+            max-md:inset-x-0 max-md:bottom-0 max-md:h-[90vh] max-md:border-t max-md:rounded-t-2xl
+            max-md:data-[state=closed]:slide-out-to-bottom max-md:data-[state=open]:slide-in-from-bottom"
+        >
           {selectedDoor && (
             <>
-              <DialogHeader>
-                <DialogTitle
+              {/* Mobile drag handle */}
+              <div className="md:hidden flex justify-center pt-2 pb-1">
+                <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+              </div>
+
+              <SheetHeader className="px-6 pt-4 md:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+                <SheetTitle
                   className="text-2xl"
                   style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
                 >
                   Luke {selectedDoor.doorNumber}
                   {selectedDoor.title && ` - ${selectedDoor.title}`}
-                </DialogTitle>
-                <DialogDescription>
+                </SheetTitle>
+                <SheetDescription>
                   {format(selectedDoor.openDate, "d. MMMM yyyy", { locale: nb })}
-                </DialogDescription>
-              </DialogHeader>
+                </SheetDescription>
+              </SheetHeader>
 
-              <div className="space-y-6">
+              <div className="px-6 py-6 space-y-8 pb-32">
+                {/* Product Section */}
                 {selectedDoor.product && (
-                  <div className="space-y-4">
+                  <section className="space-y-4">
                     {selectedDoor.product.imageUrl && (
-                      <img
-                        src={selectedDoor.product.imageUrl}
-                        alt={selectedDoor.product.name}
-                        className="w-full h-64 object-cover rounded-lg"
-                      />
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted">
+                        <img
+                          src={selectedDoor.product.imageUrl}
+                          alt={selectedDoor.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
-                    <div>
-                      <h3
-                        className="text-xl font-semibold"
-                        style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
-                      >
-                        {selectedDoor.product.name}
-                      </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-4">
+                        <h3
+                          className="text-2xl font-bold"
+                          style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                        >
+                          {selectedDoor.product.name}
+                        </h3>
+                        {selectedDoor.product.value && (
+                          <Badge variant="secondary" className="text-lg font-semibold px-3 py-1">
+                            kr {selectedDoor.product.value}
+                          </Badge>
+                        )}
+                      </div>
                       {selectedDoor.product.description && (
-                        <p className="text-muted-foreground mt-2">{selectedDoor.product.description}</p>
-                      )}
-                      {selectedDoor.product.value && (
-                        <p className="text-sm font-medium mt-2">Verdi: kr {selectedDoor.product.value}</p>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {selectedDoor.product.description}
+                        </p>
                       )}
                     </div>
-                  </div>
+                  </section>
                 )}
 
                 {selectedDoor.winner ? (
@@ -391,19 +411,26 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-8">
                     {/* Quiz Section */}
                     {selectedDoor.enableQuiz && selectedDoor.questions.length > 0 && (
-                      <DoorQuizSection
-                        questions={selectedDoor.questions}
-                        answers={quizAnswers}
-                        onAnswerChange={handleQuizAnswerChange}
-                      />
+                      <section className="bg-muted/50 rounded-xl p-6 border">
+                        <DoorQuizSection
+                          questions={selectedDoor.questions}
+                          answers={quizAnswers}
+                          onAnswerChange={handleQuizAnswerChange}
+                        />
+                      </section>
                     )}
 
                     {/* Contact Form */}
-                    <div className="border-t pt-4">
-                      <h4 className="font-semibold mb-4">Delta og vinn!</h4>
+                    <section>
+                      <h4
+                        className="text-xl font-bold mb-4"
+                        style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                      >
+                        Delta og vinn!
+                      </h4>
                       <div className="space-y-4">
                         {calendar.requireEmail && (
                           <div>
@@ -441,10 +468,10 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </section>
 
                     {/* GDPR Consent Section */}
-                    <div className="border-t pt-4 space-y-3">
+                    <section className="border-t pt-6 space-y-4">
                       <div className="flex items-start gap-3">
                         <Checkbox
                           id="terms"
@@ -514,37 +541,42 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         </div>
                       </div>
 
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border">
                         Dine opplysninger behandles i henhold til personvernreglene. Du kan når som helst trekke tilbake ditt samtykke.
                       </p>
-                    </div>
+                    </section>
 
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-muted-foreground">
-                        {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "deltakelse" : "deltakelser"} så langt
-                      </p>
-                      <Button
-                        onClick={handleSubmitEntry}
-                        disabled={isSubmitting}
-                        style={{ backgroundColor: calendar.brandColor || undefined }}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Spinner className="mr-2 h-4 w-4" />
-                            Sender ...
-                          </>
-                        ) : (
-                          calendar.buttonText || "Send inn deltakelse"
-                        )}
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
+
+              {/* Sticky Footer with Submit Button */}
+              {!selectedDoor.winner && (
+                <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 mt-auto flex-row justify-between items-center">
+                  <p className="text-sm text-muted-foreground">
+                    {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "deltakelse" : "deltakelser"}
+                  </p>
+                  <Button
+                    onClick={handleSubmitEntry}
+                    disabled={isSubmitting}
+                    style={{ backgroundColor: calendar.brandColor || undefined }}
+                    className="min-w-[160px]"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner className="mr-2 h-4 w-4" />
+                        Sender...
+                      </>
+                    ) : (
+                      calendar.buttonText || "Send inn"
+                    )}
+                  </Button>
+                </SheetFooter>
+              )}
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
       </div>
     </>
   );

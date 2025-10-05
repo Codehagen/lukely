@@ -3,9 +3,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
-export async function PATCH(
+export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -16,10 +16,55 @@ export async function PATCH(
       return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
+    const { id } = await params;
+
+    // Fetch calendar and verify user has access
+    const calendar = await prisma.calendar.findFirst({
+      where: {
+        id: id,
+        workspace: {
+          members: {
+            some: {
+              userId: session.user.id,
+            },
+          },
+        },
+      },
+    });
+
+    if (!calendar) {
+      return NextResponse.json({ error: "Kalender ikke funnet" }, { status: 404 });
+    }
+
+    return NextResponse.json(calendar);
+  } catch (error) {
+    console.error("Error fetching calendar:", error);
+    return NextResponse.json(
+      { error: "Kunne ikke hente kalender" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
     // Verify calendar exists and user has access
     const calendar = await prisma.calendar.findFirst({
       where: {
-        id: params.id,
+        id: id,
         workspace: {
           members: {
             some: {
@@ -38,7 +83,7 @@ export async function PATCH(
 
     // Update calendar
     const updatedCalendar = await prisma.calendar.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         title: body.title,
         slug: body.slug,
@@ -73,7 +118,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -84,10 +129,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Verify calendar exists and user has access
     const calendar = await prisma.calendar.findFirst({
       where: {
-        id: params.id,
+        id: id,
         workspace: {
           members: {
             some: {
@@ -104,7 +151,7 @@ export async function DELETE(
 
     // Delete calendar (cascade will handle related records)
     await prisma.calendar.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ success: true });
