@@ -165,7 +165,10 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
             const shareDescription = door.product?.description ?? door.description ?? "";
 
             return (
-              <Card key={door.id} className={isDoorOpen(door) ? "" : "opacity-60"}>
+              <Card
+                key={door.id}
+                className={`flex h-full flex-col ${isDoorOpen(door) ? "" : "opacity-60"}`}
+              >
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">Luke {door.doorNumber}</CardTitle>
@@ -184,44 +187,50 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                     {format(new Date(door.openDate), "d. MMM yyyy", { locale: nb })}
                   </p>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-1 flex-col">
                   {door.product ? (
-                    <div className="space-y-3">
-                      <Item variant="outline" className="w-full">
+                    <div className="flex flex-1 flex-col space-y-3">
+                      <Item
+                        variant="outline"
+                        className="flex h-full w-full flex-1 flex-col items-center justify-center gap-6 rounded-lg p-6 text-center md:p-12 min-h-[20rem]"
+                      >
                         {door.product.imageUrl ? (
-                          <ItemMedia variant="image" className="relative h-16 w-16 overflow-hidden rounded-md">
+                          <ItemMedia
+                            variant="image"
+                            className="relative h-24 w-24 overflow-hidden rounded-md md:h-28 md:w-28"
+                          >
                             <Image
                               src={door.product.imageUrl}
                               alt={door.product.name}
                               fill
-                              sizes="64px"
+                              sizes="112px"
                               className="object-cover"
                               unoptimized
                             />
                           </ItemMedia>
                         ) : (
-                          <ItemMedia className="h-12 w-12 rounded-md bg-muted">
+                          <ItemMedia className="flex h-24 w-24 items-center justify-center rounded-md bg-muted md:h-28 md:w-28">
                             <IconGift className="h-6 w-6 text-muted-foreground" />
                           </ItemMedia>
                         )}
-                        <ItemContent>
-                          <ItemTitle className="text-base font-medium">
+                        <ItemContent className="flex flex-col items-center gap-3 text-center">
+                          <ItemTitle className="text-lg font-semibold">
                             {door.product.name}
                           </ItemTitle>
                           {door.product.description && (
-                            <ItemDescription className="line-clamp-2">
+                            <ItemDescription className="line-clamp-3 text-center">
                               {door.product.description}
                             </ItemDescription>
                           )}
+                          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+                            {door.product.value && (
+                              <span className="text-sm font-medium text-foreground">
+                                kr {door.product.value}
+                              </span>
+                            )}
+                            <span>{door._count.entries} deltakelser</span>
+                          </div>
                         </ItemContent>
-                        <ItemFooter className="gap-2 text-xs text-muted-foreground">
-                          {door.product.value && (
-                            <span className="text-sm font-medium text-foreground">
-                              kr {door.product.value}
-                            </span>
-                          )}
-                          <span className="ml-auto">{door._count.entries} deltakelser</span>
-                        </ItemFooter>
                       </Item>
 
                       {door.questions.length > 0 && (
@@ -368,9 +377,9 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="flex flex-1 flex-col space-y-3">
                       <Dialog>
-                        <Empty className="py-8 border border-dashed rounded-lg">
+                        <Empty className="flex-1 rounded-lg border border-dashed min-h-[20rem]">
                           <EmptyHeader>
                             <EmptyMedia variant="icon">
                               <IconGift className="h-6 w-6" />
