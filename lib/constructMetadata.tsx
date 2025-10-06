@@ -1,6 +1,22 @@
 import type { Metadata } from "next";
 import { siteConfig, HOME_DOMAIN } from "@/lib/config";
 
+const metadataBaseUrl = (() => {
+  try {
+    return HOME_DOMAIN ? new URL(HOME_DOMAIN) : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+
+function toAbsoluteUrl(pathOrUrl?: string | null) {
+  if (!pathOrUrl) return undefined;
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  if (!metadataBaseUrl) return pathOrUrl;
+  const normalized = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+  return new URL(normalized, metadataBaseUrl).toString();
+}
+
 export function constructMetadata({
   title = siteConfig.name,
   description = siteConfig.description,
@@ -16,6 +32,9 @@ export function constructMetadata({
   canonical?: string;
   noIndex?: boolean;
 } = {}): Metadata {
+  const ogImage = toAbsoluteUrl(image ?? siteConfig.ogImage) ?? siteConfig.ogImage;
+  const canonicalUrl = toAbsoluteUrl(canonical);
+
   return {
     title,
     description,
@@ -33,7 +52,7 @@ export function constructMetadata({
       siteName: siteConfig.name,
       images: [
         {
-          url: image,
+          url: ogImage,
         },
       ],
     },
@@ -41,13 +60,13 @@ export function constructMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [ogImage],
       creator: siteConfig.creator,
     },
     icons,
-    metadataBase: new URL(HOME_DOMAIN),
+    ...(metadataBaseUrl ? { metadataBase: metadataBaseUrl } : {}),
     alternates: {
-      canonical: canonical,
+      canonical: canonicalUrl,
     },
     ...(noIndex && {
       robots: {
