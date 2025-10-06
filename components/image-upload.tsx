@@ -11,9 +11,20 @@ interface ImageUploadProps {
   onUploadComplete: (url: string) => void;
   currentImageUrl?: string;
   onRemove?: () => void;
+  aspectRatio?: "video" | "square";
 }
 
-export function ImageUpload({ onUploadComplete, currentImageUrl, onRemove }: ImageUploadProps) {
+const aspectRatioClassMap: Record<NonNullable<ImageUploadProps["aspectRatio"]>, string> = {
+  video: "aspect-video",
+  square: "aspect-square",
+};
+
+export function ImageUpload({
+  onUploadComplete,
+  currentImageUrl,
+  onRemove,
+  aspectRatio = "video",
+}: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
 
@@ -80,9 +91,10 @@ export function ImageUpload({ onUploadComplete, currentImageUrl, onRemove }: Ima
   };
 
   if (preview) {
+    const aspectClass = aspectRatioClassMap[aspectRatio] ?? aspectRatioClassMap.video;
     return (
       <div className="relative w-full">
-        <div className="relative aspect-video w-full rounded-lg overflow-hidden border bg-muted">
+        <div className={`relative ${aspectClass} w-full rounded-lg overflow-hidden border bg-muted`}>
           <Image
             src={preview}
             alt="Uploaded image"

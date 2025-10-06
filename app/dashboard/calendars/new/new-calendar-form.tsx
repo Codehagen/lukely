@@ -37,6 +37,7 @@ export default function NewCalendarForm() {
     doorCount: 24,
     brandColor: "#3B82F6",
     brandFont: "Inter",
+    logo: "",
     requireEmail: true,
     requireName: true,
     requirePhone: false,
@@ -269,6 +270,9 @@ export default function NewCalendarForm() {
               }
               onBrandFontChange={(brandFont) =>
                 setFormData({ ...formData, brandFont })
+              }
+              onLogoChange={(logo) =>
+                setFormData({ ...formData, logo: logo ?? "" })
               }
             />
           )}

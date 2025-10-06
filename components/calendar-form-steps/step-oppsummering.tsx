@@ -1,8 +1,11 @@
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IconEdit, IconCheck, IconX } from "@tabler/icons-react";
+import { IconEdit, IconCheck, IconX, IconPhoto } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import { HOME_DOMAIN } from "@/lib/config";
+import { getFontFamilyValue } from "@/lib/google-fonts";
 
 interface StepOppsummeringProps {
   formData: {
@@ -19,11 +22,15 @@ interface StepOppsummeringProps {
     aiQuizInstructions: string;
     generateAllQuizzes: boolean;
     brandColor: string;
+    brandFont?: string;
+    logo?: string;
   };
   onEdit: (step: number) => void;
 }
 
 export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
+  const calendarUrlPrefix = `${HOME_DOMAIN.replace(/\/$/, "")}/c/`;
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -57,7 +64,8 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
             <div>
               <dt className="text-sm text-muted-foreground">URL-slug</dt>
               <dd className="font-mono text-sm">
-                yoursite.com/c/{formData.slug || "–"}
+                {calendarUrlPrefix}
+                {formData.slug || "–"}
               </dd>
             </div>
             {formData.description && (
@@ -188,15 +196,58 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div>
-            <dt className="text-sm text-muted-foreground mb-2">Profilfarge</dt>
-            <dd className="flex items-center gap-3">
-              <div
-                className="h-10 w-10 rounded border"
-                style={{ backgroundColor: formData.brandColor }}
-              />
-              <span className="font-mono text-sm">{formData.brandColor}</span>
-            </dd>
+          <div className="space-y-4">
+            <div>
+              <dt className="text-sm text-muted-foreground mb-2">Profilfarge</dt>
+              <dd className="flex items-center gap-3">
+                <div
+                  className="h-10 w-10 rounded border"
+                  style={{ backgroundColor: formData.brandColor }}
+                />
+                <span className="font-mono text-sm">{formData.brandColor}</span>
+              </dd>
+            </div>
+
+            {formData.brandFont && (
+              <div>
+                <dt className="text-sm text-muted-foreground mb-2">Skrifttype</dt>
+                <dd className="rounded-md border bg-muted/40 p-3">
+                  <p
+                    className="text-base font-semibold"
+                    style={{ fontFamily: getFontFamilyValue(formData.brandFont) }}
+                  >
+                    {formData.brandFont}
+                  </p>
+                  <p
+                    className="text-xs text-muted-foreground mt-1"
+                    style={{ fontFamily: getFontFamilyValue(formData.brandFont) }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                  </p>
+                </dd>
+              </div>
+            )}
+
+            {formData.logo ? (
+              <div>
+                <dt className="text-sm text-muted-foreground mb-2">Logo</dt>
+                <dd>
+                  <div className="relative h-16 w-16 overflow-hidden rounded-lg border bg-white shadow-sm">
+                    <Image
+                      src={formData.logo}
+                      alt="Forhåndsvisning av logo"
+                      fill
+                      className="object-contain p-2"
+                    />
+                  </div>
+                </dd>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+                <IconPhoto className="h-4 w-4" />
+                Ingen logo lastet opp
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

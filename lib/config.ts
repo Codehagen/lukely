@@ -15,12 +15,20 @@ export const siteConfig = {
   ],
 };
 
-export const HOME_DOMAIN =
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
+const rawPublicUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_URL ||
+  (process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
     ? siteConfig.url
-    : process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
+    : process.env.NEXT_PUBLIC_VERCEL_ENV === "preview" &&
+      process.env.NEXT_PUBLIC_VERCEL_URL
     ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : "http://localhost:3000";
+    : undefined);
+
+const normalizedPublicUrl = rawPublicUrl?.replace(/\/$/, "");
+
+export const HOME_DOMAIN = normalizedPublicUrl ?? "http://localhost:3000";
 
 export const APP_HOSTNAMES = new Set([
   "lukely.no", // Update with your production domain

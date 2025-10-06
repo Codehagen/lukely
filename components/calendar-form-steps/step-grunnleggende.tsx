@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { HOME_DOMAIN } from "@/lib/config";
 
 interface StepGrunnleggendeProps {
   formData: {
@@ -20,6 +21,8 @@ export function StepGrunnleggende({
   onSlugChange,
   onDescriptionChange,
 }: StepGrunnleggendeProps) {
+  const calendarUrlPrefix = `${HOME_DOMAIN.replace(/\/$/, "")}/c/`;
+
   return (
     <Card>
       <CardHeader>
@@ -48,7 +51,7 @@ export function StepGrunnleggende({
               <FieldLabel htmlFor="slug">URL-slug</FieldLabel>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
-                  yoursite.com/c/
+                  {calendarUrlPrefix}
                 </span>
                 <Input
                   id="slug"
