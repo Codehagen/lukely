@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { IconSparkles, IconPlus, IconTrash, IconCheck } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { QuestionEditor } from "@/components/question-editor";
@@ -32,6 +33,47 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+
+const EXAMPLE_PROMPTS = {
+  CHRISTMAS: [
+    "Lag spørsmål om norske juletradisjoner og juleskikker",
+    "Lag spørsmål om produktet og dets egenskaper",
+    "Lag enkle juletrivia som alle kan svare på",
+    "Kombiner spørsmål om jul og produktet",
+  ],
+  VALENTINE: [
+    "Lag romantiske spørsmål om kjærlighet og valentinsdagen",
+    "Lag spørsmål om produktet og dets egenskaper",
+    "Lag morsomme spørsmål om forhold og dating",
+  ],
+  EASTER: [
+    "Lag spørsmål om norske påsketradisjoner",
+    "Lag spørsmål om produktet og dets egenskaper",
+    "Lag påsketrivia om mat, tradisjoner og skikker",
+  ],
+  CUSTOM: [
+    "Lag engasjerende spørsmål relatert til produktet",
+    "Lag enkle triviaspørsmål som passer anledningen",
+    "Lag morsomme spørsmål som er lette å svare på",
+  ],
+};
 
 interface Question {
   id?: string;
@@ -64,6 +106,7 @@ interface QuizBuilderProps {
     allowRetry: boolean;
   };
   existingQuestions: Question[];
+  onRenderTrigger?: (trigger: React.ReactNode) => void;
 }
 
 export function QuizBuilder({
@@ -71,18 +114,33 @@ export function QuizBuilder({
   calendarId,
   door,
   existingQuestions,
+  onRenderTrigger,
 }: QuizBuilderProps) {
   const router = useRouter();
   const [aiPrompt, setAiPrompt] = useState("");
-  const [questionCount, setQuestionCount] = useState(3);
+  const [questionCount, setQuestionCount] = useState(1);
+  const [selectedExample, setSelectedExample] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [enableQuiz, setEnableQuiz] = useState(door.enableQuiz);
   const [quizPassingScore, setQuizPassingScore] = useState(door.quizPassingScore);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(door.showCorrectAnswers);
   const [allowRetry, setAllowRetry] = useState(door.allowRetry);
   const [questions, setQuestions] = useState<Question[]>(existingQuestions);
+
+  const examplePrompts = EXAMPLE_PROMPTS[door.theme as keyof typeof EXAMPLE_PROMPTS] || EXAMPLE_PROMPTS.CUSTOM;
+
+  const handleExampleSelect = (value: string) => {
+    setSelectedExample(value);
+    if (value === "random") {
+      const randomPrompt = examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
+      setAiPrompt(randomPrompt);
+    } else {
+      setAiPrompt(value);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -125,6 +183,7 @@ export function QuizBuilder({
       setQuestions([...questions, ...generatedQuestions]);
       toast.success(`${data.questions.length} spørsmål generert!`);
       setAiPrompt("");
+      setIsDialogOpen(false);
     } catch (error) {
       toast.error("Kunne ikke generere quiz");
       console.error(error);
@@ -204,19 +263,36 @@ export function QuizBuilder({
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* AI Generator */}
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Quiz Generator 🤖</CardTitle>
-          <CardDescription>
+  const aiGeneratorDialog = (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>AI Quiz Generator 🤖</DialogTitle>
+          <DialogDescription>
             Generer quiz automatisk med AI - spørsmålene lages på norsk
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="examplePrompt">Velg et eksempel (valgfritt)</Label>
+            <Select value={selectedExample} onValueChange={handleExampleSelect}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Velg et eksempel..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="random">Random spørsmål</SelectItem>
+                {examplePrompts.map((prompt, index) => (
+                  <SelectItem key={index} value={prompt}>
+                    {prompt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <Field>
-            <FieldLabel>Beskriv hva du vil ha quiz om (valgfritt)</FieldLabel>
+            <FieldLabel>Egendefinert beskrivelse (valgfritt)</FieldLabel>
             <Textarea
               placeholder={`Eksempel: "Lag spørsmål om ${door.productName || "produktet"} og norske ${door.theme.toLowerCase()}-tradisjoner"`}
               value={aiPrompt}
@@ -238,7 +314,9 @@ export function QuizBuilder({
               onChange={(e) => setQuestionCount(parseInt(e.target.value))}
             />
           </Field>
+        </div>
 
+        <DialogFooter>
           <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
             {isGenerating ? (
               <>
@@ -252,8 +330,28 @@ export function QuizBuilder({
               </>
             )}
           </Button>
-        </CardContent>
-      </Card>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  const aiGeneratorTrigger = (
+    <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+      <IconSparkles className="mr-2 h-4 w-4" />
+      Generer Quiz med AI
+    </Button>
+  );
+
+  useEffect(() => {
+    if (onRenderTrigger) {
+      onRenderTrigger(aiGeneratorTrigger);
+    }
+  }, [onRenderTrigger]);
+
+  return (
+    <div className="space-y-6">
+      {/* AI Generator Dialog */}
+      {aiGeneratorDialog}
 
       {/* Quiz Settings */}
       <Card>
@@ -263,57 +361,76 @@ export function QuizBuilder({
         </CardHeader>
         <CardContent>
           <FieldGroup className="flex flex-col gap-6">
-            <Field>
-              <div className="flex items-center justify-between">
-                <div>
-                  <FieldLabel>Aktiver quiz for denne luken</FieldLabel>
-                  <FieldDescription>
-                    Brukere må svare på spørsmål for å delta
-                  </FieldDescription>
-                </div>
-                <Switch checked={enableQuiz} onCheckedChange={setEnableQuiz} />
-              </div>
+            <Field orientation="horizontal">
+              <Switch id="enable-quiz" checked={enableQuiz} onCheckedChange={setEnableQuiz} />
+              <FieldContent>
+                <FieldLabel htmlFor="enable-quiz">Aktiver quiz for denne luken</FieldLabel>
+                <FieldDescription>
+                  Brukere må svare på spørsmål for å delta
+                </FieldDescription>
+              </FieldContent>
             </Field>
 
-            <Field>
-              <FieldLabel>Passing Score (%)</FieldLabel>
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                value={quizPassingScore}
-                onChange={(e) => setQuizPassingScore(parseInt(e.target.value))}
-              />
+            <FieldSeparator />
+
+            <FieldSet>
+              <FieldLabel>Hvem kan vinne?</FieldLabel>
               <FieldDescription>
-                Hvor mange prosent riktige svar kreves for å være med i trekningen?
+                Velg hvem som skal være med i trekningen
               </FieldDescription>
+              <RadioGroup
+                value={quizPassingScore.toString()}
+                onValueChange={(value) => setQuizPassingScore(parseInt(value))}
+              >
+                <FieldLabel>
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>Kun riktige svar vinner</FieldTitle>
+                      <FieldDescription>
+                        Bare brukere som svarer riktig er med i trekningen
+                      </FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem value="100" />
+                  </Field>
+                </FieldLabel>
+                <FieldLabel>
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>Alle kan vinne</FieldTitle>
+                      <FieldDescription>
+                        Alle som deltar er med i trekningen uavhengig av svar
+                      </FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem value="0" />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </FieldSet>
+
+            <FieldSeparator />
+
+            <Field orientation="horizontal">
+              <Switch
+                id="show-correct-answers"
+                checked={showCorrectAnswers}
+                onCheckedChange={setShowCorrectAnswers}
+              />
+              <FieldContent>
+                <FieldLabel htmlFor="show-correct-answers">Vis riktige svar etter innsending</FieldLabel>
+                <FieldDescription>
+                  Brukere ser hvilke svar som var riktige
+                </FieldDescription>
+              </FieldContent>
             </Field>
 
-            <Field>
-              <div className="flex items-center justify-between">
-                <div>
-                  <FieldLabel>Vis riktige svar etter innsending</FieldLabel>
-                  <FieldDescription>
-                    Brukere ser hvilke svar som var riktige
-                  </FieldDescription>
-                </div>
-                <Switch
-                  checked={showCorrectAnswers}
-                  onCheckedChange={setShowCorrectAnswers}
-                />
-              </div>
-            </Field>
-
-            <Field>
-              <div className="flex items-center justify-between">
-                <div>
-                  <FieldLabel>Tillat flere forsøk</FieldLabel>
-                  <FieldDescription>
-                    Brukere kan prøve på nytt hvis de ikke består
-                  </FieldDescription>
-                </div>
-                <Switch checked={allowRetry} onCheckedChange={setAllowRetry} />
-              </div>
+            <Field orientation="horizontal">
+              <Switch id="allow-retry" checked={allowRetry} onCheckedChange={setAllowRetry} />
+              <FieldContent>
+                <FieldLabel htmlFor="allow-retry">Tillat flere forsøk</FieldLabel>
+                <FieldDescription>
+                  Brukere kan prøve på nytt hvis de ikke består
+                </FieldDescription>
+              </FieldContent>
             </Field>
           </FieldGroup>
         </CardContent>
