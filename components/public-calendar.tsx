@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,11 @@ import confetti from "canvas-confetti";
 import { AnalyticsTracker, useTrackDoorInteraction } from "@/components/analytics-tracker";
 import { DoorQuizSection } from "@/components/door-quiz-section";
 import { Spinner } from "@/components/ui/spinner";
+import { ShareUrlCopyButton } from "@/components/share-url-copy";
+import { ShareTargetButtons } from "@/components/share-target-buttons";
 import { useGoogleFont } from "@/hooks/use-google-font";
 import { getFontFamilyValue } from "@/lib/google-fonts";
+import { HOME_DOMAIN } from "@/lib/config";
 
 interface Door {
   id: string;
@@ -58,6 +62,7 @@ interface Door {
 
 interface Calendar {
   id: string;
+  slug: string;
   title: string;
   description: string | null;
   type: string;
@@ -103,6 +108,23 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
   // Analytics tracking
   const { trackDoorClick, trackDoorEntry } = useTrackDoorInteraction(calendar.id);
+
+  const baseShareUrl = useMemo(() => {
+    const configured = (HOME_DOMAIN || "").replace(/\/$/, "");
+    if (configured) return configured;
+    if (typeof window !== "undefined") {
+      return window.location.origin.replace(/\/$/, "");
+    }
+    return "";
+  }, []);
+
+  const shareUrl = selectedDoor ? `${baseShareUrl}/c/${calendar.slug}/doors/${selectedDoor.doorNumber}` : "";
+  const shareTitle = selectedDoor
+    ? selectedDoor.product?.name ?? selectedDoor.title ?? `Luke ${selectedDoor.doorNumber}`
+    : "";
+  const shareDescription = selectedDoor
+    ? selectedDoor.product?.description ?? selectedDoor.description ?? calendar.description ?? ""
+    : "";
 
   const isDoorOpen = (door: Door) => {
     const now = new Date();
@@ -255,7 +277,16 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               {calendar.logo && (
-                <img src={calendar.logo} alt={calendar.title} className="h-12 w-12 rounded-lg" />
+                <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+                  <Image
+                    src={calendar.logo}
+                    alt={calendar.title}
+                    fill
+                    sizes="48px"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
               )}
               <div>
                 <h1
@@ -369,11 +400,14 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 {selectedDoor.product && (
                   <section className="space-y-4">
                     {selectedDoor.product.imageUrl && (
-                      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted">
-                        <img
+                      <div className="relative w-full overflow-hidden rounded-xl bg-muted" style={{ aspectRatio: "16 / 9" }}>
+                        <Image
                           src={selectedDoor.product.imageUrl}
                           alt={selectedDoor.product.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 640px"
+                          className="object-cover"
+                          unoptimized
                         />
                       </div>
                     )}
@@ -397,6 +431,21 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         </p>
                       )}
                     </div>
+                  </section>
+                )}
+
+                {shareUrl && (
+                  <section className="space-y-3 rounded-xl border bg-muted/30 p-4 text-left">
+                    <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                      Del denne kampanjen
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="truncate" title={shareUrl}>
+                        {shareUrl}
+                      </span>
+                      <ShareUrlCopyButton url={shareUrl} />
+                    </div>
+                    <ShareTargetButtons url={shareUrl} title={shareTitle} description={shareDescription} size="default" />
                   </section>
                 )}
 
