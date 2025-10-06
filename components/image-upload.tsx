@@ -14,9 +14,9 @@ interface ImageUploadProps {
   aspectRatio?: "video" | "square";
 }
 
-const aspectRatioClassMap: Record<NonNullable<ImageUploadProps["aspectRatio"]>, string> = {
-  video: "aspect-video",
-  square: "aspect-square",
+const aspectRatioConfig: Record<NonNullable<ImageUploadProps["aspectRatio"]>, { aspectClass: string; maxHeight: string }> = {
+  video: { aspectClass: "aspect-video", maxHeight: "max-h-48" },
+  square: { aspectClass: "aspect-square", maxHeight: "max-h-64" },
 };
 
 export function ImageUpload({
@@ -26,6 +26,7 @@ export function ImageUpload({
   aspectRatio = "video",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
 
   const onDrop = useCallback(
@@ -83,7 +84,34 @@ export function ImageUpload({
     disabled: uploading,
   });
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
+    // If there's a current image URL (not a local preview), delete it from R2
+    if (currentImageUrl && currentImageUrl.startsWith("http")) {
+      setDeleting(true);
+      try {
+        const response = await fetch("/api/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: currentImageUrl }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to delete image");
+        }
+
+        toast.success("Bilde slettet!");
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error(error instanceof Error ? error.message : "Kunne ikke slette bilde");
+        setDeleting(false);
+        return; // Don't proceed with removal if deletion failed
+      } finally {
+        setDeleting(false);
+      }
+    }
+
+    // Clear local state
     setPreview(null);
     if (onRemove) {
       onRemove();
@@ -91,10 +119,10 @@ export function ImageUpload({
   };
 
   if (preview) {
-    const aspectClass = aspectRatioClassMap[aspectRatio] ?? aspectRatioClassMap.video;
+    const config = aspectRatioConfig[aspectRatio] ?? aspectRatioConfig.video;
     return (
       <div className="relative w-full">
-        <div className={`relative ${aspectClass} w-full rounded-lg overflow-hidden border bg-muted`}>
+        <div className={`relative ${config.aspectClass} ${config.maxHeight} w-full rounded-lg overflow-hidden border bg-muted`}>
           <Image
             src={preview}
             alt="Uploaded image"
@@ -108,25 +136,37 @@ export function ImageUpload({
           size="sm"
           className="absolute top-2 right-2"
           onClick={handleRemove}
+          disabled={deleting}
         >
-          <IconX className="h-4 w-4 mr-1" />
-          Fjern
+          {deleting ? (
+            <>
+              <IconUpload className="h-4 w-4 mr-1 animate-spin" />
+              Sletter...
+            </>
+          ) : (
+            <>
+              <IconX className="h-4 w-4 mr-1" />
+              Fjern
+            </>
+          )}
         </Button>
       </div>
     );
   }
 
+  const config = aspectRatioConfig[aspectRatio] ?? aspectRatioConfig.video;
+
   return (
     <div
       {...getRootProps()}
       className={`
-        border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+        ${config.aspectClass} ${config.maxHeight} w-full border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors flex items-center justify-center
         ${isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"}
         ${uploading ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"}
       `}
     >
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 p-4">
         {uploading ? (
           <>
             <IconUpload className="h-10 w-10 text-muted-foreground animate-bounce" />

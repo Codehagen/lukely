@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 // Cloudflare R2 configuration
 const r2Client = new S3Client({
@@ -60,4 +60,39 @@ export function isValidImageType(contentType: string): boolean {
 export function isValidImageSize(size: number): boolean {
   const MAX_SIZE = 5 * 1024 * 1024; // 5MB
   return size <= MAX_SIZE;
+}
+
+/**
+ * Delete a file from Cloudflare R2
+ * @param keyOrUrl - File key or full URL to delete
+ */
+export async function deleteFromR2(keyOrUrl: string): Promise<void> {
+  // Extract key from URL if full URL is provided
+  let key = keyOrUrl;
+  if (keyOrUrl.startsWith("http")) {
+    const url = new URL(keyOrUrl);
+    key = url.pathname.substring(1); // Remove leading slash
+  }
+
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  await r2Client.send(command);
+}
+
+/**
+ * Extract the R2 key from a full URL
+ */
+export function extractKeyFromUrl(url: string): string | null {
+  try {
+    if (!url.startsWith("http")) {
+      return url; // Already a key
+    }
+    const urlObj = new URL(url);
+    return urlObj.pathname.substring(1); // Remove leading slash
+  } catch {
+    return null;
+  }
 }

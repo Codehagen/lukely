@@ -10,6 +10,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { IconCheck, IconPalette, IconPhoto } from "@tabler/icons-react";
 import { Spinner } from "@/components/ui/spinner";
+import { ImageUpload } from "@/components/image-upload";
 
 interface CalendarQuickBrandingProps {
   calendar: {
@@ -180,54 +181,26 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
               <h3 className="text-sm font-semibold text-foreground">Bilder</h3>
 
               <Field>
-                <FieldLabel htmlFor="logo">Logo-URL</FieldLabel>
-                <Input
-                  id="logo"
-                  value={formData.logo}
-                  onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                  placeholder="https://example.com/logo.png"
+                <FieldLabel htmlFor="logo">Logo</FieldLabel>
+                <ImageUpload
+                  currentImageUrl={formData.logo}
+                  onUploadComplete={(url) => setFormData({ ...formData, logo: url })}
+                  onRemove={() => setFormData({ ...formData, logo: "" })}
+                  aspectRatio="square"
                 />
-                {formData.logo && (
-                  <div className="mt-3 border rounded-lg p-4 bg-muted/50">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Forhåndsvisning</p>
-                    <div className="relative h-16 flex items-center justify-center">
-                      <img
-                        src={formData.logo}
-                        alt="Logo preview"
-                        className="max-h-16 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
                 <FieldDescription>
-                  Vis logoen din på den offentlige kalendersiden
+                  Last opp din logo (helst kvadratisk PNG med transparent bakgrunn)
                 </FieldDescription>
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="bannerImage">Bannerbilde-URL</FieldLabel>
-                <Input
-                  id="bannerImage"
-                  value={formData.bannerImage}
-                  onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                  placeholder="https://example.com/banner.jpg"
+                <FieldLabel htmlFor="bannerImage">Bannerbilde</FieldLabel>
+                <ImageUpload
+                  currentImageUrl={formData.bannerImage}
+                  onUploadComplete={(url) => setFormData({ ...formData, bannerImage: url })}
+                  onRemove={() => setFormData({ ...formData, bannerImage: "" })}
+                  aspectRatio="video"
                 />
-                {formData.bannerImage && (
-                  <div className="mt-3 border rounded-lg overflow-hidden bg-muted/50">
-                    <p className="text-xs font-medium text-muted-foreground px-4 pt-3 pb-2">Forhåndsvisning</p>
-                    <img
-                      src={formData.bannerImage}
-                      alt="Banner preview"
-                      className="w-full h-40 object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                )}
                 <FieldDescription>
                   Valgfritt toppbanner for kalenderen
                 </FieldDescription>

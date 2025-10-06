@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 interface Calendar {
   id: string;
@@ -401,25 +402,25 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="logo">Logo-URL</FieldLabel>
-              <Input
-                id="logo"
-                value={formData.logo}
-                onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                placeholder="https://example.com/logo.png"
+              <FieldLabel htmlFor="logo">Logo</FieldLabel>
+              <ImageUpload
+                currentImageUrl={formData.logo}
+                onUploadComplete={(url) => setFormData({ ...formData, logo: url })}
+                onRemove={() => setFormData({ ...formData, logo: "" })}
+                aspectRatio="square"
               />
               <FieldDescription>
-                Vis logoen din på den offentlige kalendersiden
+                Last opp din logo (helst kvadratisk PNG med transparent bakgrunn)
               </FieldDescription>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="bannerImage">Bannerbilde-URL</FieldLabel>
-              <Input
-                id="bannerImage"
-                value={formData.bannerImage}
-                onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                placeholder="https://example.com/banner.jpg"
+              <FieldLabel htmlFor="bannerImage">Bannerbilde</FieldLabel>
+              <ImageUpload
+                currentImageUrl={formData.bannerImage}
+                onUploadComplete={(url) => setFormData({ ...formData, bannerImage: url })}
+                onRemove={() => setFormData({ ...formData, bannerImage: "" })}
+                aspectRatio="video"
               />
               <FieldDescription>
                 Valgfritt toppbanner for kalenderen
