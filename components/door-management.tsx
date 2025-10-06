@@ -35,6 +35,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ShareUrlCopyButton } from "@/components/share-url-copy";
 import { ShareTargetButtons } from "@/components/share-target-buttons";
 import { HOME_DOMAIN } from "@/lib/config";
+import { ImageUpload } from "@/components/image-upload";
 
 interface Product {
   id: string;
@@ -272,17 +273,15 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="imageUrl">Bildelenke</Label>
-                                <Input
-                                  id="imageUrl"
-                                  value={productData.imageUrl}
-                                  onChange={(e) =>
-                                    setProductData({
-                                      ...productData,
-                                      imageUrl: e.target.value,
-                                    })
+                                <Label>Produktbilde</Label>
+                                <ImageUpload
+                                  currentImageUrl={productData.imageUrl}
+                                  onUploadComplete={(url) =>
+                                    setProductData({ ...productData, imageUrl: url })
                                   }
-                                  placeholder="https://example.com/image.jpg"
+                                  onRemove={() =>
+                                    setProductData({ ...productData, imageUrl: "" })
+                                  }
                                 />
                               </div>
                               <div className="grid grid-cols-2 gap-4">
@@ -402,17 +401,15 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                               />
                             </div>
                             <div>
-                              <Label htmlFor="imageUrl">Bildelenke</Label>
-                              <Input
-                                id="imageUrl"
-                                value={productData.imageUrl}
-                                onChange={(e) =>
-                                  setProductData({
-                                    ...productData,
-                                    imageUrl: e.target.value,
-                                  })
+                              <Label>Produktbilde</Label>
+                              <ImageUpload
+                                currentImageUrl={productData.imageUrl}
+                                onUploadComplete={(url) =>
+                                  setProductData({ ...productData, imageUrl: url })
                                 }
-                                placeholder="https://example.com/image.jpg"
+                                onRemove={() =>
+                                  setProductData({ ...productData, imageUrl: "" })
+                                }
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-4">

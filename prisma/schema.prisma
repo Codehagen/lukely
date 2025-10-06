@@ -461,6 +461,10 @@ model Question {
   // Multiple choice options
   options         Json?
 
+  // Media support (images/videos)
+  mediaType       String?         // "IMAGE" | "YOUTUBE" | null
+  mediaUrl        String?         // Cloudflare R2 URL or YouTube URL
+
   // AI metadata
   generatedByAI   Boolean         @default(false)
   aiPrompt        String?

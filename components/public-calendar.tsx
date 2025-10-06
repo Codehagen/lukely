@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
+import BlurImage from "@/lib/blur-image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -490,13 +491,12 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                   <section className="space-y-4">
                     {selectedDoor.product.imageUrl && (
                       <div className="relative w-full overflow-hidden rounded-xl bg-muted" style={{ aspectRatio: "16 / 9" }}>
-                        <Image
+                        <BlurImage
                           src={selectedDoor.product.imageUrl}
                           alt={selectedDoor.product.name}
                           fill
                           sizes="(max-width: 768px) 100vw, 640px"
                           className="object-cover"
-                          unoptimized
                         />
                       </div>
                     )}
@@ -520,21 +520,6 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         </p>
                       )}
                     </div>
-                  </section>
-                )}
-
-                {shareUrl && (
-                  <section className="space-y-3 rounded-xl border bg-muted/30 p-4 text-left">
-                    <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                      Del denne kampanjen
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="truncate" title={shareUrl}>
-                        {shareUrl}
-                      </span>
-                      <ShareUrlCopyButton url={shareUrl} />
-                    </div>
-                    <ShareTargetButtons url={shareUrl} title={shareTitle} description={shareDescription} size="default" />
                   </section>
                 )}
 
@@ -683,6 +668,30 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         Dine opplysninger behandles i henhold til personvernreglene. Du kan når som helst trekke tilbake ditt samtykke.
                       </p>
                     </section>
+
+                    {/* Share Section */}
+                    {shareUrl && (
+                      <section className="space-y-4 rounded-xl border-2 border-dashed bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl" role="img" aria-label="share">
+                            🎉
+                          </span>
+                          <h3 className="text-lg font-bold">
+                            Del med venner!
+                          </h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Spre gleden! Jo flere som deltar, jo morsommere blir det.
+                        </p>
+                        <div className="flex items-center gap-2 rounded-lg bg-background p-3 border">
+                          <span className="truncate text-sm" title={shareUrl}>
+                            {shareUrl}
+                          </span>
+                          <ShareUrlCopyButton url={shareUrl} />
+                        </div>
+                        <ShareTargetButtons url={shareUrl} title={shareTitle} description={shareDescription} size="default" />
+                      </section>
+                    )}
 
                   </div>
                 )}

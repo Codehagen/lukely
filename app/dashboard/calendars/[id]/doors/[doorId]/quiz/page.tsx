@@ -105,6 +105,8 @@ export default async function DoorQuizPage({
           options: q.options as string[] | null,
           generatedByAI: q.generatedByAI,
           aiPrompt: q.aiPrompt,
+          mediaType: q.mediaType,
+          mediaUrl: q.mediaUrl,
         }))}
       />
     </div>

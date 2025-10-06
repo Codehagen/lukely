@@ -10,6 +10,7 @@ import { HOME_DOMAIN, siteConfig } from "@/lib/config";
 import { constructMetadata, truncate } from "@/lib/constructMetadata";
 import { cn } from "@/lib/utils";
 import { ShareUrlCopyButton } from "@/components/share-url-copy";
+import BlurImage from "@/lib/blur-image";
 
 async function getDoorShareData(slug: string, doorNumber: number) {
   const door = await prisma.door.findFirst({
@@ -203,14 +204,13 @@ export default async function DoorSharePage({
 
           {imageUrl ? (
             <div className="relative overflow-hidden rounded-2xl border bg-muted/20" style={{ aspectRatio: "16 / 9" }}>
-              <Image
+              <BlurImage
                 src={imageUrl}
                 alt={doorTitle}
                 fill
                 sizes="(max-width: 768px) 100vw, 800px"
                 className="object-cover"
                 priority
-                unoptimized
               />
             </div>
           ) : null}

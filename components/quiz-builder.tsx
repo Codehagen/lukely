@@ -46,6 +46,8 @@ interface Question {
   options: string[] | null;
   generatedByAI: boolean;
   aiPrompt: string | null;
+  mediaType?: string | null;
+  mediaUrl?: string | null;
 }
 
 interface QuizBuilderProps {
@@ -144,6 +146,8 @@ export function QuizBuilder({
       options: ["Alternativ 1", "Alternativ 2", "Alternativ 3", "Alternativ 4"],
       generatedByAI: false,
       aiPrompt: null,
+      mediaType: null,
+      mediaUrl: null,
     };
     setQuestions([...questions, newQuestion]);
   };

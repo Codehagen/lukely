@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "pub-*.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
   eslint: { ignoreDuringBuilds: true },

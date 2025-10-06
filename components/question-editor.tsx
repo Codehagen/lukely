@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { IconGripVertical, IconTrash, IconSparkles, IconPlus, IconX } from "@tabler/icons-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { ImageUpload } from "@/components/image-upload";
 
 interface Question {
   id?: string;
@@ -29,6 +30,8 @@ interface Question {
   options: string[] | null;
   generatedByAI: boolean;
   aiPrompt: string | null;
+  mediaType?: string | null;
+  mediaUrl?: string | null;
 }
 
 interface QuestionEditorProps {
@@ -145,6 +148,62 @@ export function QuestionEditor({
               placeholder="Skriv spørsmålet her..."
               rows={2}
             />
+          </div>
+
+          {/* Media Section */}
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Media (valgfritt)</label>
+              <Select
+                value={question.mediaType || "NONE"}
+                onValueChange={(value) => {
+                  if (value === "NONE") {
+                    onUpdate({ mediaType: null, mediaUrl: null });
+                  } else {
+                    onUpdate({ mediaType: value, mediaUrl: question.mediaUrl });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">Ingen media</SelectItem>
+                  <SelectItem value="IMAGE">Bilde</SelectItem>
+                  <SelectItem value="YOUTUBE">YouTube-video</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {question.mediaType === "IMAGE" && (
+              <ImageUpload
+                currentImageUrl={question.mediaUrl || undefined}
+                onUploadComplete={(url) => onUpdate({ mediaUrl: url })}
+                onRemove={() => onUpdate({ mediaUrl: null })}
+              />
+            )}
+
+            {question.mediaType === "YOUTUBE" && (
+              <div>
+                <Input
+                  value={question.mediaUrl || ""}
+                  onChange={(e) => onUpdate({ mediaUrl: e.target.value })}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Lim inn YouTube-lenke
+                </p>
+                {question.mediaUrl && (
+                  <div className="mt-3 aspect-video rounded-lg overflow-hidden border">
+                    <iframe
+                      src={question.mediaUrl.replace("watch?v=", "embed/")}
+                      className="w-full h-full"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Multiple Choice Options */}
