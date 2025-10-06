@@ -15,6 +15,11 @@ async function getCalendarWithDoors(calendarId: string, workspaceId: string) {
       doors: {
         include: {
           product: true,
+          questions: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           _count: {
             select: {
               entries: true,

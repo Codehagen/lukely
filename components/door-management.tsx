@@ -32,10 +32,9 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { ShareUrlCopyButton } from "@/components/share-url-copy";
-import { ShareTargetButtons } from "@/components/share-target-buttons";
 import { HOME_DOMAIN } from "@/lib/config";
 import { ImageUpload } from "@/components/image-upload";
+import { ShareDoorDialog } from "@/components/share-door-dialog";
 
 interface Product {
   id: string;
@@ -46,6 +45,12 @@ interface Product {
   quantity: number;
 }
 
+interface Question {
+  id: string;
+  questionText: string;
+  type: string;
+}
+
 interface Door {
   id: string;
   doorNumber: number;
@@ -54,6 +59,7 @@ interface Door {
   description: string | null;
   image: string | null;
   product: Product | null;
+  questions: Question[];
   _count: {
     entries: number;
   };
@@ -217,28 +223,41 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                           <span className="ml-auto">{door._count.entries} deltakelser</span>
                         </ItemFooter>
                       </Item>
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}
-                          className="flex-1"
-                        >
-                          <Button variant="outline" size="sm" className="w-full">
-                            <IconQuestionMark className="h-4 w-4 mr-2" />
-                            Quiz
-                          </Button>
-                        </Link>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => handleEditDoor(door)}
-                            >
-                              <IconEdit className="h-4 w-4 mr-2" />
-                              Produkt
+
+                      {door.questions.length > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
+                          <IconQuestionMark className="h-4 w-4" />
+                          <span>
+                            {door.questions.length} {door.questions.length === 1 ? "spørsmål" : "spørsmål"}
+                          </span>
+                          <Badge variant="secondary" className="ml-auto text-xs">
+                            Quiz aktivert
+                          </Badge>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link
+                            href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}
+                          >
+                            <Button variant="outline" size="sm" className="w-full">
+                              <IconQuestionMark className="h-4 w-4 mr-2" />
+                              Quiz
                             </Button>
-                          </DialogTrigger>
+                          </Link>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => handleEditDoor(door)}
+                              >
+                                <IconEdit className="h-4 w-4 mr-2" />
+                                Produkt
+                              </Button>
+                            </DialogTrigger>
                           <DialogContent className="max-w-2xl">
                             <DialogHeader>
                               <DialogTitle>
@@ -339,6 +358,13 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             </div>
                           </DialogContent>
                         </Dialog>
+                        </div>
+                        <ShareDoorDialog
+                          url={shareUrl}
+                          title={shareTitle}
+                          description={shareDescription}
+                          doorNumber={door.doorNumber}
+                        />
                       </div>
                     </div>
                   ) : (
@@ -358,7 +384,6 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                             <DialogTrigger asChild>
                               <Button
                                 variant="outline"
-                                className="w-full"
                                 onClick={() => handleEditDoor(door)}
                               >
                                 <IconGift className="h-4 w-4 mr-2" />
@@ -467,29 +492,37 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                           </div>
                         </DialogContent>
                       </Dialog>
-                      <Link href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}>
-                        <Button variant="outline" size="sm" className="w-full">
-                          <IconQuestionMark className="h-4 w-4 mr-2" />
-                          Quiz
-                        </Button>
-                      </Link>
+
+                      {door.questions.length > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
+                          <IconQuestionMark className="h-4 w-4" />
+                          <span>
+                            {door.questions.length} {door.questions.length === 1 ? "spørsmål" : "spørsmål"}
+                          </span>
+                          <Badge variant="secondary" className="ml-auto text-xs">
+                            Quiz aktivert
+                          </Badge>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link href={`/dashboard/calendars/${calendar.id}/doors/${door.id}/quiz`}>
+                            <Button variant="outline" size="sm" className="w-full">
+                              <IconQuestionMark className="h-4 w-4 mr-2" />
+                              Quiz
+                            </Button>
+                          </Link>
+                          <ShareDoorDialog
+                            url={shareUrl}
+                            title={shareTitle}
+                            description={shareDescription}
+                            doorNumber={door.doorNumber}
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
-
-                  <div className="mt-4 space-y-3 rounded-lg border bg-muted/20 p-3">
-                    <div className="flex flex-col gap-2 text-left">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Del kampanjen
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="truncate" title={shareUrl}>
-                          {shareUrl}
-                        </span>
-                        <ShareUrlCopyButton url={shareUrl} />
-                      </div>
-                    </div>
-                    <ShareTargetButtons url={shareUrl} title={shareTitle} description={shareDescription} />
-                  </div>
                 </CardContent>
               </Card>
             );

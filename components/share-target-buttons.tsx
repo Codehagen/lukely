@@ -48,7 +48,7 @@ export function ShareTargetButtons({ url, title, description = "", size = "sm" }
   ];
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {targets.map((target) => {
         const Icon = target.icon;
         return (
