@@ -55,12 +55,9 @@ export async function POST(
       return NextResponse.json({ error: "Ingen tilgang" }, { status: 403 });
     }
 
-    // Filter doors with products
-    const doorsWithProducts = calendar.doors.filter((door) => door.product);
-
-    if (doorsWithProducts.length === 0) {
+    if (calendar.doors.length === 0) {
       return NextResponse.json(
-        { error: "Ingen luker med produkter funnet" },
+        { error: "Ingen luker funnet" },
         { status: 400 }
       );
     }
@@ -74,8 +71,8 @@ export async function POST(
         };
 
         try {
-          // Prepare door info for bulk generation
-          const bulkDoorInfo: BulkDoorInfo[] = doorsWithProducts.map((door) => ({
+          // Prepare door info for bulk generation (all doors)
+          const bulkDoorInfo: BulkDoorInfo[] = calendar.doors.map((door) => ({
             doorId: door.id,
             doorNumber: door.doorNumber,
             productName: door.product?.name || null,

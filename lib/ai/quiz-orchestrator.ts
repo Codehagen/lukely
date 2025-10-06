@@ -7,7 +7,7 @@ const QuizSchema = z.object({
     z.object({
       type: z.enum(["MULTIPLE_CHOICE", "TRUE_FALSE", "TEXT", "RATING"]),
       questionText: z.string().describe("Question in Norwegian (Bokmål)"),
-      correctAnswer: z.string().describe("The correct answer"),
+      correctAnswer: z.union([z.string(), z.number()]).optional().describe("The correct answer (not needed for RATING questions)"),
       options: z
         .array(z.string())
         .optional()
@@ -56,7 +56,7 @@ VIKTIGE REGLER:
   * For MULTIPLE_CHOICE: indeks (0-3) av riktig alternativ
   * For TRUE_FALSE: "true" eller "false"
   * For TEXT: det nøyaktige svaret (lowercase, uten punktum)
-  * For RATING: tallet (1-5)
+  * For RATING: ikke nødvendig (subjektivt spørsmål uten riktig svar)
 
 EKSEMPLER PÅ GODE SPØRSMÅL:
 - "Hva er den mest populære juletradisjonen i Norge?"
@@ -73,7 +73,13 @@ EKSEMPLER PÅ GODE SPØRSMÅL:
       schema: QuizSchema,
     });
 
-    return result.object.questions.slice(0, questionCount);
+    // Convert correctAnswer to string for consistency (use "3" for RATING if not provided)
+    const questions = result.object.questions.slice(0, questionCount).map(q => ({
+      ...q,
+      correctAnswer: q.correctAnswer !== undefined ? String(q.correctAnswer) : (q.type === "RATING" ? "3" : ""),
+    }));
+
+    return questions;
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Kunne ikke generere quiz. Prøv igjen.");
