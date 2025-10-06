@@ -18,5 +18,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@lukely": "https://lukely.com/r/{name}.json"
+  }
 }
