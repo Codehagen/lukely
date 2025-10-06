@@ -24,6 +24,7 @@ model User {
   accounts      Account[]
   workspaces    WorkspaceMember[]
   invitationsSent WorkspaceInvitation[]
+  notificationPreferences UserNotificationPreferences?
 
   // Default workspace
   defaultWorkspaceId String?
@@ -493,4 +494,22 @@ model QuestionAnswer {
   @@index([questionId])
   @@index([doorEntryId])
   @@map("question_answer")
+}
+
+// User notification preferences
+model UserNotificationPreferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Email notification toggles
+  emailCalendarActivity Boolean  @default(true)
+  emailWinnerSelected   Boolean  @default(true)
+  emailNewLeads         Boolean  @default(true)
+  emailWeeklySummary    Boolean  @default(true)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("user_notification_preferences")
 }
