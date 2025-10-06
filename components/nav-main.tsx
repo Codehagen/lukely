@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
-import { usePathname } from "next/navigation"
+import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
+    title: string;
+    url: string;
+    icon?: Icon;
+  }[];
 }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <SidebarGroup>
@@ -35,14 +35,14 @@ export function NavMain({
               <IconCirclePlusFilled />
               <span>Hurtigopprett</span>
             </SidebarMenuButton>
-            <Button
+            {/* <Button
               size="icon"
               className="size-8 group-data-[collapsible=icon]:opacity-0"
               variant="outline"
             >
               <IconMail />
               <span className="sr-only">Innboks</span>
-            </Button>
+            </Button> */}
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
@@ -50,23 +50,27 @@ export function NavMain({
             // For exact /dashboard match, only highlight if pathname is exactly /dashboard
             // For other items, check if pathname starts with the URL + /
             const isActive =
-              item.url === '/dashboard'
-                ? pathname === '/dashboard'
-                : pathname === item.url || pathname.startsWith(item.url + '/')
+              item.url === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname === item.url || pathname.startsWith(item.url + "/");
 
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title} asChild isActive={isActive}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  asChild
+                  isActive={isActive}
+                >
                   <a href={item.url}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            )
+            );
           })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

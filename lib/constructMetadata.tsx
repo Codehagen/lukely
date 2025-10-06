@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/lib/config";
+import { siteConfig, HOME_DOMAIN } from "@/lib/config";
 
 export function constructMetadata({
   title = siteConfig.name,
   description = siteConfig.description,
-  image = "https://prismui.tech/_static/static_og.png",
+  image = siteConfig.ogImage,
   icons = "/favicon.ico",
   canonical,
   noIndex = false,
@@ -19,6 +19,13 @@ export function constructMetadata({
   return {
     title,
     description,
+    keywords: siteConfig.keywords,
+    authors: [
+      {
+        name: siteConfig.name,
+      },
+    ],
+    creator: siteConfig.creator,
     openGraph: {
       title,
       description,
@@ -35,7 +42,7 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: "@codehagen",
+      creator: siteConfig.creator,
     },
     icons,
     metadataBase: new URL(HOME_DOMAIN),
@@ -50,20 +57,6 @@ export function constructMetadata({
     }),
   };
 }
-
-export const HOME_DOMAIN =
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-    ? "https://prismui.tech"
-    : process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : "http://localhost:3000";
-
-export const APP_HOSTNAMES = new Set([
-  "prismui.tech",
-  "preview.prismui.tech",
-  "localhost:3000",
-  "localhost",
-]);
 
 export const truncate = (str: string | null, length: number) => {
   if (!str || str.length <= length) return str;

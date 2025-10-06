@@ -4,11 +4,9 @@ import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { constructMetadata } from "@/lib/constructMetadata";
 
-export const metadata: Metadata = {
-  title: "Kalender Lead Magnets",
-  description: "Bygg og administrer konkurransekalendere på norsk",
-};
+export const metadata: Metadata = constructMetadata();
 
 export default function RootLayout({
   children,
