@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (!user?.defaultWorkspaceId) {
       return NextResponse.json(
-        { error: "Ingen arbeidsområde funnet" },
+        { error: "Du må opprette et arbeidsområde før du kan lage kalendere. Gå til innstillinger for å opprette et arbeidsområde." },
         { status: 400 }
       );
     }
