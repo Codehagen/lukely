@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp } from "@tabler/icons-react";
+import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp, IconCalendar } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -472,25 +472,41 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
               </div>
 
-              <SheetHeader className="px-6 pt-4 md:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
-                <SheetTitle
-                  className="text-2xl"
-                  style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
-                >
-                  Luke {selectedDoor.doorNumber}
-                  {selectedDoor.title && ` - ${selectedDoor.title}`}
-                </SheetTitle>
-                <SheetDescription>
-                  {format(selectedDoor.openDate, "d. MMMM yyyy", { locale: nb })}
-                </SheetDescription>
+              <SheetHeader className="px-6 pt-4 md:pt-6 pb-4 border-b sticky top-0 bg-gradient-to-r from-background via-primary/5 to-background backdrop-blur-lg z-10">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-2xl font-bold text-white shadow-lg">
+                    {selectedDoor.doorNumber}
+                  </div>
+                  <div className="flex-1">
+                    <SheetTitle
+                      className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
+                      style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                    >
+                      Luke {selectedDoor.doorNumber}
+                      {selectedDoor.title && ` - ${selectedDoor.title}`}
+                    </SheetTitle>
+                    <SheetDescription className="flex items-center gap-1 text-sm">
+                      <IconCalendar className="h-3 w-3" />
+                      {format(selectedDoor.openDate, "d. MMMM yyyy", { locale: nb })}
+                    </SheetDescription>
+                  </div>
+                </div>
               </SheetHeader>
 
               <div className="px-6 py-6 space-y-8 pb-32">
                 {/* Product Section */}
                 {selectedDoor.product && (
-                  <section className="space-y-4">
+                  <section className="space-y-4 relative">
+                    {/* Prize Badge */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <IconGift className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-semibold uppercase tracking-wide text-primary">
+                        Dagens premie
+                      </span>
+                    </div>
+
                     {selectedDoor.product.imageUrl && (
-                      <div className="relative w-full overflow-hidden rounded-xl bg-muted" style={{ aspectRatio: "16 / 9" }}>
+                      <div className="relative w-full overflow-hidden rounded-2xl bg-muted shadow-lg ring-2 ring-primary/10" style={{ aspectRatio: "16 / 9" }}>
                         <BlurImage
                           src={selectedDoor.product.imageUrl}
                           alt={selectedDoor.product.name}
@@ -498,22 +514,24 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                           sizes="(max-width: 768px) 100vw, 640px"
                           className="object-cover"
                         />
-                      </div>
-                    )}
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-4">
-                        <h3
-                          className="text-2xl font-bold"
-                          style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
-                        >
-                          {selectedDoor.product.name}
-                        </h3>
                         {selectedDoor.product.value && (
-                          <Badge variant="secondary" className="text-lg font-semibold px-3 py-1">
-                            kr {selectedDoor.product.value}
-                          </Badge>
+                          <div className="absolute top-3 right-3">
+                            <Badge className="text-base font-bold px-4 py-2 bg-white/95 text-primary shadow-lg backdrop-blur-sm">
+                              <IconGift className="h-4 w-4 mr-1" />
+                              kr {selectedDoor.product.value}
+                            </Badge>
+                          </div>
                         )}
                       </div>
+                    )}
+                    <div className="space-y-3 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 p-5 border-2">
+                      <h3
+                        className="text-2xl font-bold flex items-center gap-2"
+                        style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                      >
+                        <span className="text-2xl" role="img" aria-label="prize">🎁</span>
+                        {selectedDoor.product.name}
+                      </h3>
                       {selectedDoor.product.description && (
                         <p className="text-muted-foreground leading-relaxed">
                           {selectedDoor.product.description}
@@ -524,20 +542,32 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 )}
 
                 {selectedDoor.winner ? (
-                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <IconTrophy className="h-5 w-5 text-yellow-600" />
-                      <h4 className="font-semibold">Vinner valgt!</h4>
+                  <div className="rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-3xl" role="img" aria-label="trophy">🏆</span>
+                      <div>
+                        <h4 className="font-bold text-xl">Vinner trukket!</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Denne konkurransen er avsluttet
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Gratulerer til vinneren! Denne konkurransen er avsluttet.
+                    <p className="text-sm font-medium bg-white/50 dark:bg-black/20 p-3 rounded-lg">
+                      🎉 Gratulerer til vinneren! Takk til alle som deltok.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-8">
                     {/* Quiz Section */}
                     {selectedDoor.enableQuiz && selectedDoor.questions.length > 0 && (
-                      <section className="bg-muted/50 rounded-xl p-6 border">
+                      <section className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 p-6 border-2 border-purple-200 dark:border-purple-800">
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-2xl" role="img" aria-label="quiz">🧠</span>
+                          <h4 className="text-lg font-bold">Quiz-tid!</h4>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Svar på spørsmålene under for å kvalifisere deg til trekningen ✨
+                        </p>
                         <DoorQuizSection
                           questions={selectedDoor.questions}
                           answers={quizAnswers}
@@ -547,13 +577,19 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                     )}
 
                     {/* Contact Form */}
-                    <section>
-                      <h4
-                        className="text-xl font-bold mb-4"
-                        style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
-                      >
-                        Delta og vinn!
-                      </h4>
+                    <section className="rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 border-2">
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-2xl" role="img" aria-label="celebration">✨</span>
+                        <h4
+                          className="text-xl font-bold"
+                          style={{ fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined }}
+                        >
+                          Delta og vinn!
+                        </h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        Fyll ut skjemaet under for å være med i trekningen 🎲
+                      </p>
                       <div className="space-y-4">
                         {calendar.requireEmail && (
                           <div>
@@ -594,7 +630,11 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                     </section>
 
                     {/* GDPR Consent Section */}
-                    <section className="border-t pt-6 space-y-4">
+                    <section className="rounded-xl bg-muted/30 p-5 border space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg" role="img" aria-label="shield">🔒</span>
+                        <h5 className="font-semibold text-sm">Personvern og samtykke</h5>
+                      </div>
                       <div className="flex items-start gap-3">
                         <Checkbox
                           id="terms"
@@ -699,15 +739,19 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
               {/* Sticky Footer with Submit Button */}
               {!selectedDoor.winner && (
-                <SheetFooter className="sticky bottom-0 bg-background border-t px-6 py-4 mt-auto flex-row justify-between items-center">
-                  <p className="text-sm text-muted-foreground">
-                    {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "deltakelse" : "deltakelser"}
-                  </p>
+                <SheetFooter className="sticky bottom-0 bg-gradient-to-r from-background via-primary/5 to-background border-t-2 px-6 py-4 mt-auto flex-row justify-between items-center shadow-lg backdrop-blur-lg">
+                  <div className="flex items-center gap-2">
+                    <IconGift className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-medium">
+                      {selectedDoor._count.entries} {selectedDoor._count.entries === 1 ? "deltakelse" : "deltakelser"}
+                    </p>
+                  </div>
                   <Button
                     onClick={handleSubmitEntry}
                     disabled={isSubmitting}
                     style={{ backgroundColor: calendar.brandColor || undefined }}
-                    className="min-w-[160px]"
+                    className="min-w-[160px] shadow-lg hover:scale-105 transition-transform font-bold"
+                    size="lg"
                   >
                     {isSubmitting ? (
                       <>
@@ -715,7 +759,10 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         Sender...
                       </>
                     ) : (
-                      calendar.buttonText || "Send inn"
+                      <>
+                        <IconGift className="mr-2 h-5 w-5" />
+                        {calendar.buttonText || "Send inn"}
+                      </>
                     )}
                   </Button>
                 </SheetFooter>
