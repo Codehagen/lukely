@@ -11,10 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { IconCheck, IconTrash, IconArchive } from "@tabler/icons-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as DatePicker } from "@/components/ui/calendar";
+import { IconCheck, IconTrash, IconArchive, IconCalendar } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { CalendarStatus } from "@/app/generated/prisma";
 import { Spinner } from "@/components/ui/spinner";
+import { addDays, differenceInCalendarDays, format } from "date-fns";
+import { nb } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface Calendar {
   id: string;
@@ -33,8 +38,8 @@ interface Calendar {
   metaDescription: string | null;
   termsUrl: string | null;
   privacyPolicyUrl: string | null;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   doorCount: number;
   requireEmail: boolean;
   requireName: boolean;
@@ -42,12 +47,42 @@ interface Calendar {
   allowMultipleEntries: boolean;
 }
 
+type CalendarFormData = {
+  title: string;
+  slug: string;
+  description: string;
+  brandColor: string;
+  logo: string;
+  bannerImage: string;
+  buttonText: string;
+  thankYouMessage: string;
+  footerText: string;
+  favicon: string;
+  metaDescription: string;
+  termsUrl: string;
+  privacyPolicyUrl: string;
+  status: CalendarStatus;
+  requireEmail: boolean;
+  requireName: boolean;
+  requirePhone: boolean;
+  allowMultipleEntries: boolean;
+  startDate: Date;
+  endDate: Date;
+  doorCount: number;
+};
+
 export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [formData, setFormData] = useState({
+  const parseDate = (value: Date | string) => {
+    const parsed = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  };
+  const clampDoorCount = (count: number) => Math.min(Math.max(count, 1), 31);
+
+  const [formData, setFormData] = useState<CalendarFormData>({
     title: calendar.title,
     slug: calendar.slug,
     description: calendar.description || "",
@@ -66,6 +101,9 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     requireName: calendar.requireName,
     requirePhone: calendar.requirePhone,
     allowMultipleEntries: calendar.allowMultipleEntries,
+    startDate: parseDate(calendar.startDate),
+    endDate: parseDate(calendar.endDate),
+    doorCount: calendar.doorCount,
   });
 
   const handleUpdate = async () => {
@@ -134,6 +172,46 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     }
   };
 
+  const handleStartDateChange = (date: Date) => {
+    setFormData((prev) => {
+      const nextStart = date;
+      const nextEnd = addDays(date, prev.doorCount - 1);
+      return { ...prev, startDate: nextStart, endDate: nextEnd };
+    });
+  };
+
+  const handleEndDateChange = (date: Date) => {
+    if (date < formData.startDate) {
+      toast.error("Sluttdato kan ikke være før startdato");
+      return;
+    }
+
+    const span = differenceInCalendarDays(date, formData.startDate) + 1;
+
+    if (span > 31) {
+      toast.error("Kalenderen kan maks ha 31 luker");
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      endDate: date,
+      doorCount: span,
+    }));
+  };
+
+  const handleDoorCountChange = (value: number) => {
+    if (Number.isNaN(value)) {
+      return;
+    }
+    const nextCount = clampDoorCount(value);
+    setFormData((prev) => ({
+      ...prev,
+      doorCount: nextCount,
+      endDate: addDays(prev.startDate, nextCount - 1),
+    }));
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "DRAFT":
@@ -197,6 +275,94 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
               />
               <FieldDescription>
                 Valgfri beskrivelse som vises på den offentlige kalendersiden
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+      </CardContent>
+    </Card>
+
+      {/* Schedule */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Datoer og lengde</CardTitle>
+          <CardDescription>Tilpass kampanjeperioden og antall luker</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Field>
+                <FieldLabel>Startdato</FieldLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <IconCalendar className="mr-2 h-4 w-4" />
+                      {formData.startDate
+                        ? format(formData.startDate, "d. MMM yyyy", { locale: nb })
+                        : "Velg en dato"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <DatePicker
+                      mode="single"
+                      selected={formData.startDate}
+                      onSelect={(date) => date && handleStartDateChange(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FieldDescription>Datoen for luke 1</FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel>Sluttdato</FieldLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <IconCalendar className="mr-2 h-4 w-4" />
+                      {formData.endDate
+                        ? format(formData.endDate, "d. MMM yyyy", { locale: nb })
+                        : "Velg en dato"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <DatePicker
+                      mode="single"
+                      selected={formData.endDate}
+                      onSelect={(date) => date && handleEndDateChange(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FieldDescription>
+                  Oppdateres automatisk når antall luker endres
+                </FieldDescription>
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel htmlFor="doorCount">Antall luker</FieldLabel>
+              <Input
+                id="doorCount"
+                type="number"
+                min={1}
+                max={31}
+                value={formData.doorCount}
+                onChange={(e) => handleDoorCountChange(parseInt(e.target.value, 10))}
+              />
+              <FieldDescription>
+                Mellom 1 og 31 luker. Sluttdato justeres for å matche lengden.
               </FieldDescription>
             </Field>
           </FieldGroup>

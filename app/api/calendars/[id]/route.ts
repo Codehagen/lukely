@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
+import { generateDoorDates } from "@/lib/calendar-templates";
+import { addDays, differenceInCalendarDays } from "date-fns";
 
 export async function GET(
   req: NextRequest,
@@ -81,7 +83,118 @@ export async function PATCH(
 
     const body = await req.json();
 
-    // Update calendar
+    let newStartDate = calendar.startDate;
+    let newEndDate = calendar.endDate;
+    let newDoorCount = calendar.doorCount;
+
+    if (body.startDate) {
+      const parsedStart = new Date(body.startDate);
+      if (Number.isNaN(parsedStart.getTime())) {
+        return NextResponse.json(
+          { error: "Ugyldig startdato" },
+          { status: 400 }
+        );
+      }
+      newStartDate = parsedStart;
+    }
+
+    if (body.doorCount !== undefined) {
+      const parsedDoorCount = Number(body.doorCount);
+      if (!Number.isFinite(parsedDoorCount)) {
+        return NextResponse.json(
+          { error: "Ugyldig antall luker" },
+          { status: 400 }
+        );
+      }
+      newDoorCount = Math.trunc(parsedDoorCount);
+    }
+
+    if (body.endDate) {
+      const parsedEnd = new Date(body.endDate);
+      if (Number.isNaN(parsedEnd.getTime())) {
+        return NextResponse.json(
+          { error: "Ugyldig sluttdato" },
+          { status: 400 }
+        );
+      }
+      newEndDate = parsedEnd;
+    }
+
+    if (newDoorCount < 1 || newDoorCount > 31) {
+      return NextResponse.json(
+        { error: "Antall luker må være mellom 1 og 31" },
+        { status: 400 }
+      );
+    }
+
+    if (newEndDate < newStartDate) {
+      return NextResponse.json(
+        { error: "Sluttdato kan ikke være før startdato" },
+        { status: 400 }
+      );
+    }
+
+    if (body.endDate) {
+      const span = differenceInCalendarDays(newEndDate, newStartDate) + 1;
+      if (span < 1) {
+        return NextResponse.json(
+          { error: "Datoene må dekke minst én dag" },
+          { status: 400 }
+        );
+      }
+      if (span > 31) {
+        return NextResponse.json(
+          { error: "Kalenderen kan maks ha 31 luker" },
+          { status: 400 }
+        );
+      }
+      newDoorCount = span;
+    } else {
+      newEndDate = addDays(newStartDate, newDoorCount - 1);
+    }
+
+    const shouldSyncDoors =
+      newStartDate.getTime() !== calendar.startDate.getTime() ||
+      newDoorCount !== calendar.doorCount ||
+      newEndDate.getTime() !== calendar.endDate.getTime();
+
+    let doorsBeforeUpdate: { id: string; doorNumber: number }[] = [];
+
+    if (shouldSyncDoors) {
+      doorsBeforeUpdate = await prisma.door.findMany({
+        where: { calendarId: id },
+        orderBy: { doorNumber: "asc" },
+        select: {
+          id: true,
+          doorNumber: true,
+        },
+      });
+
+      if (doorsBeforeUpdate.length > newDoorCount) {
+        const doorsToRemove = doorsBeforeUpdate.slice(newDoorCount);
+        const doorIdsToRemove = doorsToRemove.map((door) => door.id);
+
+        const [entriesCount, winnersCount] = await Promise.all([
+          prisma.doorEntry.count({
+            where: { doorId: { in: doorIdsToRemove } },
+          }),
+          prisma.winner.count({
+            where: { doorId: { in: doorIdsToRemove } },
+          }),
+        ]);
+
+        if (entriesCount > 0 || winnersCount > 0) {
+          return NextResponse.json(
+            {
+              error:
+                "Kan ikke redusere antall luker fordi noen av de siste lukene har deltakere eller vinnere.",
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     const updatedCalendar = await prisma.calendar.update({
       where: { id: id },
       data: {
@@ -103,8 +216,76 @@ export async function PATCH(
         requireName: body.requireName,
         requirePhone: body.requirePhone,
         allowMultipleEntries: body.allowMultipleEntries,
+        startDate: newStartDate,
+        endDate: newEndDate,
+        doorCount: newDoorCount,
       },
     });
+
+    if (shouldSyncDoors) {
+      if (doorsBeforeUpdate.length > newDoorCount) {
+        const doorsToRemove = doorsBeforeUpdate.slice(newDoorCount);
+        const doorIdsToRemove = doorsToRemove.map((door) => door.id);
+        await prisma.door.deleteMany({
+          where: { id: { in: doorIdsToRemove } },
+        });
+      }
+
+      let currentDoors = await prisma.door.findMany({
+        where: { calendarId: id },
+        orderBy: { doorNumber: "asc" },
+      });
+
+      if (currentDoors.length < newDoorCount) {
+        const doorDates = generateDoorDates(newStartDate, newDoorCount);
+        const doorsToCreate = [] as {
+          calendarId: string;
+          doorNumber: number;
+          openDate: Date;
+          title: string;
+          enableQuiz: boolean;
+          quizPassingScore: number;
+          showCorrectAnswers: boolean;
+          allowRetry: boolean;
+        }[];
+
+        for (let i = currentDoors.length; i < newDoorCount; i++) {
+          doorsToCreate.push({
+            calendarId: id,
+            doorNumber: i + 1,
+            openDate: doorDates[i],
+            title: `Luke ${i + 1}`,
+            enableQuiz: updatedCalendar.enableQuiz,
+            quizPassingScore: updatedCalendar.defaultQuizPassingScore,
+            showCorrectAnswers: updatedCalendar.defaultShowCorrectAnswers,
+            allowRetry: updatedCalendar.defaultAllowRetry,
+          });
+        }
+
+        if (doorsToCreate.length > 0) {
+          await prisma.door.createMany({ data: doorsToCreate });
+        }
+
+        currentDoors = await prisma.door.findMany({
+          where: { calendarId: id },
+          orderBy: { doorNumber: "asc" },
+        });
+      }
+
+      const doorDates = generateDoorDates(newStartDate, newDoorCount);
+
+      await Promise.all(
+        currentDoors.slice(0, newDoorCount).map((door, index) =>
+          prisma.door.update({
+            where: { id: door.id },
+            data: {
+              doorNumber: index + 1,
+              openDate: doorDates[index],
+            },
+          })
+        )
+      );
+    }
 
     return NextResponse.json(updatedCalendar);
   } catch (error) {

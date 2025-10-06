@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { IconLock, IconGift, IconTrophy, IconExternalLink } from "@tabler/icons-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -91,6 +92,7 @@ interface Calendar {
 export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
   const [selectedDoor, setSelectedDoor] = useState<Door | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -108,6 +110,15 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
   // Analytics tracking
   const { trackDoorClick, trackDoorEntry } = useTrackDoorInteraction(calendar.id);
+
+  // Scroll to top handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const baseShareUrl = useMemo(() => {
     const configured = (HOME_DOMAIN || "").replace(/\/$/, "");
@@ -263,6 +274,13 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     }
   };
 
+  // Calculate stats
+  const totalDoors = calendar.doors.length;
+  const openedDoors = calendar.doors.filter((door) => isDoorOpen(door)).length;
+  const totalEntries = calendar.doors.reduce((sum, door) => sum + door._count.entries, 0);
+  const totalPrizeValue = calendar.doors.reduce((sum, door) => sum + (door.product?.value || 0), 0);
+  const todaysDoor = calendar.doors.find((door) => isToday(door.openDate));
+
   return (
     <>
       {/* Analytics Tracker */}
@@ -308,22 +326,81 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
         </div>
       </header>
 
+      {/* Hero Section */}
+      {calendar.bannerImage && (
+        <section className="relative overflow-hidden border-b">
+          <div className="absolute inset-0">
+            <Image
+              src={calendar.bannerImage}
+              alt={calendar.title}
+              fill
+              sizes="100vw"
+              className="object-cover opacity-20"
+              unoptimized
+              priority
+            />
+          </div>
+          <div className="relative container max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
+            <div className="max-w-2xl">
+              <h2
+                className="text-3xl md:text-4xl font-bold mb-4"
+                style={{
+                  fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined,
+                  color: calendar.brandColor || undefined
+                }}
+              >
+                Vinn fantastiske premier hver dag!
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                {totalDoors} lukere å åpne, {totalPrizeValue > 0 && `premier til en verdi av kr ${totalPrizeValue.toLocaleString('nb-NO')}`}
+              </p>
+              <div className="flex flex-wrap gap-6">
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold" style={{ color: calendar.brandColor || undefined }}>
+                    {openedDoors}/{totalDoors}
+                  </span>
+                  <span className="text-sm text-muted-foreground">Lukere åpnet</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold" style={{ color: calendar.brandColor || undefined }}>
+                    {totalEntries.toLocaleString('nb-NO')}
+                  </span>
+                  <span className="text-sm text-muted-foreground">Deltakelser</span>
+                </div>
+                {totalPrizeValue > 0 && (
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-bold" style={{ color: calendar.brandColor || undefined }}>
+                      kr {totalPrizeValue.toLocaleString('nb-NO')}
+                    </span>
+                    <span className="text-sm text-muted-foreground">Total premieverdi</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Calendar Grid */}
       <div className="container max-w-7xl mx-auto px-4 md:px-8 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {calendar.doors.map((door) => {
             const isOpen = isDoorOpen(door);
             const hasWinner = !!door.winner;
+            const isTodaysDoor = todaysDoor?.id === door.id;
 
             return (
               <Card
                 key={door.id}
                 className={`cursor-pointer transition-all hover:scale-105 ${
                   !isOpen ? "opacity-60" : ""
-                } ${hasWinner ? "border-yellow-400" : ""}`}
+                } ${hasWinner ? "border-yellow-400" : ""} ${
+                  isTodaysDoor ? "ring-2 ring-offset-2 animate-pulse" : ""
+                }`}
                 onClick={() => handleDoorClick(door)}
                 style={{
                   borderColor: isOpen && !hasWinner ? calendar.brandColor || undefined : undefined,
+                  ringColor: isTodaysDoor ? calendar.brandColor || undefined : undefined,
                 }}
               >
                 <CardContent className="p-6 flex flex-col items-center justify-center aspect-square">
@@ -359,11 +436,23 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
 
       {/* Footer */}
       {calendar.footerText && (
-        <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-12">
+        <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container max-w-7xl mx-auto px-4 md:px-8 py-6 text-center text-sm text-muted-foreground">
             {calendar.footerText}
           </div>
         </footer>
+      )}
+
+      {/* Floating Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-all hover:scale-110"
+          style={{ backgroundColor: calendar.brandColor || "#3B82F6" }}
+          aria-label="Scroll til toppen"
+        >
+          <IconChevronUp className="h-6 w-6 text-white" />
+        </button>
       )}
 
       {/* Door Sheet - Bottom on mobile, Right on desktop */}
