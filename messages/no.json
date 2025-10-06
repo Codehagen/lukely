@@ -1,0 +1,589 @@
+{
+  "Common": {
+    "nav": {
+      "dashboard": "Dashbord",
+      "calendars": "Kalendere",
+      "leads": "Leads",
+      "analytics": "Analyser",
+      "settings": "Innstillinger",
+      "getHelp": "Få hjelp",
+      "search": "Søk"
+    },
+    "actions": {
+      "save": "Lagre endringer",
+      "saving": "Lagrer ...",
+      "delete": "Slett kalender",
+      "deleting": "Sletter ...",
+      "archive": "Arkiver kalender",
+      "archiving": "Arkiverer ...",
+      "back": "Tilbake",
+      "next": "Neste",
+      "skip": "Hopp over",
+      "edit": "Rediger",
+      "create": "Opprett kalender",
+      "creating": "Oppretter ..."
+    },
+    "status": {
+      "draft": "Kladd",
+      "scheduled": "Planlagt",
+      "active": "Aktiv",
+      "completed": "Fullført",
+      "archived": "Arkivert"
+    },
+    "dates": {
+      "selectDate": "Velg en dato"
+    },
+    "brand": {
+      "lukely": "Lukely"
+    }
+  },
+  "Auth": {
+    "signIn": {
+      "title": "Logg inn på kontoen din",
+      "description": "Skriv inn e-posten din nedenfor for å logge inn",
+      "email": "E-post",
+      "emailPlaceholder": "navn@example.com",
+      "password": "Passord",
+      "forgotPassword": "Glemt passordet?",
+      "rememberMe": "Husk meg",
+      "submit": "Logg inn",
+      "orContinueWith": "Eller fortsett med",
+      "google": "Google",
+      "signUpLink": "Registrer deg",
+      "testimonial": "Lukely hjalp oss å generere over 2000 kvalifiserte leads i julesesongen. Den interaktive kalenderen skapte engasjement vi aldri har sett før.",
+      "testimonialAuthor": "— Mari Olsen, Nordic Retail AS"
+    },
+    "signUp": {
+      "title": "Opprett en konto",
+      "description": "Skriv inn e-posten din nedenfor for å opprette en konto",
+      "name": "Navn",
+      "namePlaceholder": "Ola Nordmann",
+      "email": "E-post",
+      "emailPlaceholder": "navn@example.com",
+      "password": "Passord",
+      "submit": "Opprett konto",
+      "orContinueWith": "Eller fortsett med",
+      "google": "Google",
+      "signInLink": "Logg inn",
+      "testimonial": "Vi doblet antall leads sammenlignet med fjorårets julekalender. Lukely gjorde det utrolig enkelt å lage en profesjonell og engasjerende kampanje.",
+      "testimonialAuthor": "— Thomas Hansen, Marketing Manager"
+    },
+    "legal": {
+      "termsPrefix": "Ved å fortsette godtar du våre",
+      "termsLink": "Vilkår for bruk",
+      "and": "og",
+      "privacyLink": "Personvernerklæring",
+      "signUpTermsPrefix": "Ved å klikke fortsett godtar du våre"
+    }
+  },
+  "Calendar": {
+    "templates": {
+      "christmas": {
+        "title": "Julekalender",
+        "description": "24 dager med høytidsoverraskelser frem mot jul"
+      },
+      "valentine": {
+        "title": "Valentinsnedtelling",
+        "description": "14 dager med kjærlighet frem mot Valentinsdagen"
+      },
+      "easter": {
+        "title": "Påskekalender",
+        "description": "Tilpassbar kalender for påskefeiring"
+      },
+      "custom": {
+        "title": "Egen kalender",
+        "description": "Lag din egen kalender med valgte datoer og antall luker"
+      }
+    },
+    "create": {
+      "title": "Opprett ny kalender",
+      "description": "Sett opp en ny konkurransekalender for virksomheten din",
+      "selectTemplate": "Velg en mal",
+      "configureCalendar": "Konfigurer kalender",
+      "backToTemplates": "Tilbake til maler",
+      "doors": "luker"
+    },
+    "form": {
+      "steps": {
+        "basic": "Grunnleggende",
+        "dates": "Datoer",
+        "quiz": "Quiz",
+        "branding": "Merkevare",
+        "summary": "Oppsummering"
+      },
+      "basic": {
+        "title": "Grunnleggende informasjon",
+        "description": "Gi kalenderen din et navn og en unik adresse",
+        "calendarTitle": "Kalendertittel",
+        "calendarTitlePlaceholder": "Min julekalender 2024",
+        "calendarTitleHelp": "Dette vises som hovedoverskriften på kalenderen din",
+        "slug": "URL-slug",
+        "slugPrefix": "yoursite.com/c/",
+        "slugPlaceholder": "christmas-2024",
+        "slugHelp": "Dette lager den unike kalenderadressen din",
+        "description": "Beskrivelse",
+        "descriptionPlaceholder": "Skriv inn en beskrivelse av kalenderen...",
+        "descriptionHelp": "Valgfri beskrivelse som vises på den offentlige kalendersiden"
+      },
+      "dates": {
+        "title": "Datoer og luker",
+        "description": "Velg når kalenderen skal kjøre og hvor mange luker du vil ha",
+        "startDate": "Startdato",
+        "startDateHelp": "Når den første luken åpnes",
+        "endDate": "Sluttdato",
+        "endDateHelp": "Når den siste luken åpnes",
+        "doorCount": "Antall luker",
+        "doorCountHelpFixed": "Denne malen har et fast antall luker",
+        "doorCountHelpFlexible": "Velg hvor mange luker kalenderen skal ha (1-31)"
+      },
+      "quiz": {
+        "title": "Velg deltakertype",
+        "description": "Vil du ha quiz-spørsmål eller bare samle e-postadresser?",
+        "emailOnly": {
+          "title": "Bare E-post",
+          "description": "Samle e-postadresser uten quiz. Alle deltakere er kvalifisert for trekning."
+        },
+        "withQuiz": {
+          "title": "Med Quiz",
+          "description": "Hver luke får 3 spørsmål som deltakere må svare på. Bare de som svarer godt nok er med i trekningen for den luken."
+        },
+        "settings": {
+          "title": "Quiz-innstillinger",
+          "description": "Tilpass hvordan quizen fungerer",
+          "infoTitle": "Slik fungerer quiz i kalenderen:",
+          "infoItems": [
+            "Hver luke får 3 spørsmål (kan redigeres senere per luke)",
+            "Deltakere svarer på spørsmålene hver gang de åpner en luke",
+            "Deres score avgjør om de kvalifiserer for trekning for den spesifikke luken",
+            "Dette gjentas for hver luke de åpner gjennom hele kalenderen"
+          ],
+          "passingScore": "Poengkrav for å delta i trekning (%)",
+          "passingScoreHelp": "**Eksempel:** Hvis du setter 70% og en luke har 3 spørsmål, må deltakere få minst 2 riktige for å være med i trekningen.\n\n**Tips:** Sett til 0% hvis alle skal være med uansett hvor mange riktige svar de har.",
+          "showCorrectAnswers": "Vis riktige svar etter innsending",
+          "showCorrectAnswersHelp": "Deltakere ser hvilke svar som var riktige og gale etter de har svart på quizen",
+          "allowRetry": "Tillat nye forsøk",
+          "allowRetryHelp": "La deltakere prøve quizen på nytt hvis de ikke fikk nok riktige svar",
+          "aiInstructions": "AI-instruksjoner (valgfritt)",
+          "aiInstructionsPlaceholder": "F.eks. 'Lag spørsmål om norske juletradisjoner og nisser' eller la det stå tomt for generelle spørsmål",
+          "aiInstructionsHelp": "Tilpass AI-genererte spørsmål med egne instruksjoner",
+          "generateAuto": "Generer alle quizer automatisk med AI",
+          "generateAutoHelp": "✨ AI vil generere 3 spørsmål for hver luke automatisk når kalenderen opprettes. Du kan redigere dem senere."
+        }
+      },
+      "branding": {
+        "title": "Merkevare",
+        "description": "Tilpass kalenderen med din merkevare",
+        "brandColor": "Profilfarge",
+        "brandColorHelp": "Denne fargen brukes på knapper og detaljer i kalenderen",
+        "brandFont": "Skrifttype",
+        "brandFontPlaceholder": "Velg skrifttype",
+        "brandFontHelp": "Denne skrifttypen brukes på overskrifter og viktige elementer"
+      },
+      "summary": {
+        "title": "Klar til å opprette kalenderen?",
+        "description": "Sjekk at alt ser riktig ut før du oppretter kalenderen",
+        "basicInfo": "Grunnleggende informasjon",
+        "calendarTitle": "Kalendertittel",
+        "slug": "URL-slug",
+        "slugPrefix": "yoursite.com/c/",
+        "description": "Beskrivelse",
+        "datesAndDoors": "Datoer og luker",
+        "startDate": "Startdato",
+        "endDate": "Sluttdato",
+        "doorCount": "Antall luker",
+        "doors": "luker",
+        "quiz": "Quiz",
+        "quizEnabled": "Quiz aktivert",
+        "yes": "Ja",
+        "no": "Nei",
+        "passingScore": "Poengkrav",
+        "showAnswers": "Vis svar",
+        "allowRetry": "Tillat nye forsøk",
+        "aiGeneration": "AI-generering",
+        "automatic": "Automatisk",
+        "manual": "Manuelt",
+        "aiInstructions": "AI-instruksjoner",
+        "noQuiz": "Ingen quiz aktivert",
+        "branding": "Merkevare",
+        "brandColor": "Profilfarge"
+      }
+    },
+    "settings": {
+      "basic": {
+        "title": "Grunnleggende informasjon",
+        "description": "Oppdater de grunnleggende detaljene for kalenderen",
+        "calendarTitle": "Kalendertittel",
+        "slug": "URL-slug",
+        "slugWarning": "Å endre slug bryter eksisterende lenker",
+        "description": "Beskrivelse",
+        "descriptionHelp": "Valgfri beskrivelse som vises på den offentlige kalendersiden"
+      },
+      "branding": {
+        "title": "Merkevare",
+        "description": "Tilpass utseendet til kalenderen",
+        "brandColor": "Profilfarge",
+        "brandColorHelp": "Brukes på knapper og detaljer i kalenderen",
+        "logoUrl": "Logo-URL",
+        "logoUrlHelp": "Vis logoen din på den offentlige kalendersiden",
+        "bannerImageUrl": "Bannerbilde-URL",
+        "bannerImageUrlHelp": "Valgfritt toppbanner for kalenderen",
+        "buttonText": "Knappetekst",
+        "buttonTextDefault": "Delta nå",
+        "buttonTextHelp": "Teksten som vises på deltakelsesknappen",
+        "thankYouMessage": "Takkemelding",
+        "thankYouMessageDefault": "Takk for din deltakelse!",
+        "thankYouMessageHelp": "Meldingen som vises etter en vellykket deltakelse",
+        "footerText": "Bunntekst",
+        "footerTextHelp": "Valgfri bunntekst for kalenderen",
+        "faviconUrl": "Favicon-URL",
+        "faviconUrlHelp": "Ikonfil som vises i nettleserens fane",
+        "metaDescription": "Meta-beskrivelse",
+        "metaDescriptionPlaceholder": "Beskrivelse for søkemotorer...",
+        "metaDescriptionHelp": "SEO-beskrivelse for kalenderen"
+      },
+      "gdpr": {
+        "title": "GDPR og juridiske lenker",
+        "description": "Legg til lenker til vilkår og personvernerklæring",
+        "termsUrl": "Vilkår URL",
+        "termsUrlHelp": "Lenke til vilkårene for konkurransen (påkrevd for GDPR-samsvar)",
+        "privacyUrl": "Personvernerklæring URL",
+        "privacyUrlHelp": "Lenke til personvernerklæringen (påkrevd for GDPR-samsvar)"
+      },
+      "status": {
+        "title": "Status og publisering",
+        "description": "Bestem når kalenderen er synlig for publikum",
+        "calendarStatus": "Kalenderstatus",
+        "statusHelp": "Kun ACTIVE og SCHEDULED kalendere er synlige for publikum"
+      },
+      "participants": {
+        "title": "Deltakerinnstillinger",
+        "description": "Bestem hvordan brukerne kan delta i konkurransene",
+        "requireEmail": "Krev e-post",
+        "requireEmailHelp": "Brukere må oppgi e-post for å delta",
+        "requireName": "Krev navn",
+        "requireNameHelp": "Brukere må oppgi navnet sitt",
+        "requirePhone": "Krev telefonnummer",
+        "requirePhoneHelp": "Brukere må oppgi telefonnummer",
+        "allowMultiple": "Tillat flere deltakelser",
+        "allowMultipleHelp": "Brukere kan delta på samme luke flere ganger"
+      },
+      "quickBranding": {
+        "title": "Hurtig merkevare-redigering",
+        "description": "Tilpass utseendet til kalenderen din"
+      }
+    },
+    "messages": {
+      "created": "Kalenderen ble opprettet!",
+      "updated": "Kalenderen er oppdatert!",
+      "archived": "Kalenderen ble arkivert!",
+      "deleted": "Kalenderen ble slettet!",
+      "errorCreate": "Kunne ikke opprette kalender",
+      "errorUpdate": "Kunne ikke oppdatere kalender",
+      "errorArchive": "Kunne ikke arkivere kalender",
+      "errorDelete": "Kunne ikke slette kalender",
+      "confirmArchive": "Er du sikker på at du vil arkivere denne kalenderen?",
+      "confirmDelete": "Er du sikker på at du vil slette denne kalenderen? Dette kan ikke angres.",
+      "confirmDeleteWarning": "Dette sletter alle luker, produkter, leads og deltakelser permanent. Er du helt sikker?",
+      "generatingQuizzes": "Genererer quizer med AI...",
+      "someQuizzesFailedError": "Noen quizer kunne ikke genereres",
+      "brandingUpdated": "Merkevare oppdatert!",
+      "brandingError": "Kunne ikke oppdatere merkevare"
+    },
+    "workspace": {
+      "emptyState": "Du må opprette et arbeidsområde før du kan lage kalendere.",
+      "createWorkspace": "Opprett arbeidsområde"
+    }
+  },
+  "PublicCalendar": {
+    "notAvailable": {
+      "title": "Kalender ikke tilgjengelig",
+      "description": "Denne kalenderen er ikke aktiv akkurat nå. Kontakt arrangøren eller prøv igjen senere.",
+      "goHome": "Gå til forsiden"
+    },
+    "door": {
+      "locked": "Denne luken er ikke åpnet ennå!",
+      "title": "Luke",
+      "entries": "deltakelser",
+      "entry": "deltakelse",
+      "winnerSelected": "Vinner trukket",
+      "winnerChosen": "Vinner valgt!",
+      "winnerMessage": "Gratulerer til vinneren! Denne konkurransen er avsluttet."
+    },
+    "form": {
+      "participate": "Delta og vinn!",
+      "email": "E-post",
+      "emailPlaceholder": "din@epost.no",
+      "name": "Navn",
+      "namePlaceholder": "Ditt navn",
+      "phone": "Telefon",
+      "phonePlaceholder": "Telefonnummeret ditt",
+      "required": "*"
+    },
+    "consent": {
+      "termsPrefix": "Jeg godtar",
+      "termsLink": "vilkårene for konkurransen",
+      "privacyPrefix": "Jeg har lest og godtar",
+      "privacyLink": "personvernerklæringen",
+      "marketing": "Jeg godtar å motta markedsføring og nyhetsbrev (valgfritt)",
+      "gdprNotice": "Dine opplysninger behandles i henhold til personvernreglene. Du kan når som helst trekke tilbake ditt samtykke."
+    },
+    "sharing": {
+      "title": "Del denne kampanjen"
+    },
+    "errors": {
+      "emailRequired": "E-post er påkrevd",
+      "nameRequired": "Navn er påkrevd",
+      "phoneRequired": "Telefonnummer er påkrevd",
+      "quizRequired": "Vennligst svar på alle påkrevde spørsmål",
+      "termsRequired": "Du må godta vilkårene for å delta",
+      "privacyRequired": "Du må godta personvernerklæringen for å delta",
+      "submitError": "Kunne ikke sende inn deltakelse"
+    },
+    "actions": {
+      "submit": "Send inn",
+      "submitting": "Sender..."
+    },
+    "messages": {
+      "successDefault": "Deltakelsen er registrert! Lykke til! 🎉"
+    }
+  },
+  "Winner": {
+    "title": "Luke {number}",
+    "winner": "Vinner",
+    "open": "Åpen",
+    "locked": "Låst",
+    "totalEntries": "Totalt antall deltakelser",
+    "winnerSelected": "Vinner valgt",
+    "notified": "Varslet",
+    "selectWinner": "Velg vinner",
+    "emptyState": {
+      "title": "Ingen luker opprettet",
+      "description": "Opprett luker og produkter før du kan trekke vinnere."
+    },
+    "dialog": {
+      "title": "Velg vinner for luke {number}",
+      "entries": "deltakelser",
+      "prize": "Premie:",
+      "quizEnabled": "Quiz aktivert",
+      "quizDescription": "Denne luken har quiz med {score}% krav. Kun deltakere med riktige svar er kvalifiserte.",
+      "qualified": "Kvalifiserte:",
+      "notQualified": "Ikke kvalifiserte:",
+      "randomDraw": "Tilfeldig trekning",
+      "randomDrawQuiz": "Trekker vinner blant kvalifiserte deltakere (med riktige quiz-svar)",
+      "randomDrawNoQuiz": "Trekker tilfeldig vinner blant alle deltakelser",
+      "selecting": "Velger ...",
+      "selectRandom": "Trekk tilfeldig vinner",
+      "noQualified": "Ingen kvalifiserte deltakere ennå",
+      "allEntries": "Alle deltakelser",
+      "noEntries": {
+        "title": "Ingen deltakelser ennå",
+        "description": "Del kalenderen for å samle deltakerne før du trekker en vinner."
+      },
+      "notQualifiedBadge": "Ikke kvalifisert"
+    },
+    "messages": {
+      "noEntries": "Ingen deltakelser for denne luken",
+      "winnerSelected": "Vinner valgt: {email}! 🎉",
+      "errorSelect": "Kunne ikke velge vinner"
+    }
+  },
+  "Marketing": {
+    "hero": {
+      "title": "Få flere leads enkelt med digitale julekalendere fra Lukely",
+      "subtitle": "Lag flerspråklige digitale julekalendere, samle GDPR-godkjente samtykker og omsett sesongengasjement til helårsomsetning med vår alt-i-ett plattform.",
+      "cta": "Start gratis prøve",
+      "helperText": "Kom i gang med Lukely i løpet av 5 minutter",
+      "imageAlt": "Lukely-dashbord for kampanjeresultater"
+    },
+    "pricing": {
+      "heading": "Én kalender eller kampanjer hele året",
+      "description": "Velg mellom en enkel sesonglansering eller en årsavtale med ubegrensede Lukely-kampanjer – du kan alltid oppgradere.",
+      "singleCalendar": "Én kalender",
+      "yearlyPackage": "Årspakke",
+      "billedOnce": "Fakturert én gang",
+      "includes": "Inkluderer onboarding, kampanjeguide og support når du trenger oss.",
+      "plans": {
+        "single": {
+          "name": "Enkeltkalender",
+          "description": "Perfekt når du vil lansere én julekalender eller en enkelt sesongkampanje.",
+          "helper": "Engangspris for én kalender",
+          "cta": "Bestill enkeltkalender",
+          "label": "Én kampanje"
+        },
+        "yearly": {
+          "name": "Årspakke",
+          "description": "Planlegg flere kampanjer i løpet av året – fra jul og vinterferie til påske og sommer.",
+          "helper": "Fast pris for 12 måneder med kalendere",
+          "cta": "Snakk med oss om årsplan",
+          "label": "Hele året"
+        }
+      },
+      "features": [
+        "Tilgang til alle maler og 20+ språk",
+        "Automatiserte e-post- og SMS-påminnelser",
+        "Rapporter, eksport av samtykker og revisjonsspor",
+        "Integrasjoner mot CRM, e-post og annonseplattformer",
+        "Dashbord for sanntidsanalyse og engasjement",
+        "Prioritert support fra Lukelys kampanjeteam"
+      ]
+    },
+    "features": {
+      "label": "Kampanjefunksjoner",
+      "heading": "Alt du trenger for å øke juletrafikk og leads",
+      "description": "Design stemningsfulle opplevelser, samle førstepartsdata ansvarlig og konverter deltakerne med automatisert oppfølging – alt i Lukely.",
+      "items": [
+        {
+          "title": "Full oversikt i ett dashbord",
+          "description": "Følg med på kampanjeresultater, leads, samtykker og engasjement i sanntid – alt samlet i et brukervennlig dashbord."
+        },
+        {
+          "title": "Automatiser påminnelser og premier",
+          "description": "Planlegg daglige e-poster og SMS, håndter GDPR-samtykke og trekk vinnere automatisk med revisjonssikre logger."
+        }
+      ]
+    },
+    "howItWorks": {
+      "label": "Slik fungerer Lukely",
+      "heading": "Planlegg, lanser og skalér din interaktive kampanje",
+      "description": "Gjør en sesongidé om til en inntektsdrivende opplevelse med en veiviser som holder teamet raskt, compliant og tro mot merkevaren.",
+      "cta": "Book en Lukely-demo",
+      "steps": [
+        {
+          "title": "Design kalenderen",
+          "description": "Velg en mal, lokaliser hver luke og legg til premier, quizer eller kampanjer med drag-and-drop-editoren."
+        },
+        {
+          "title": "Markedsfør og engasjer",
+          "description": "Bygg den inn på nettsiden, kjør betalte og organiske kampanjer og automatiser daglige påminnelser som får publikum tilbake."
+        },
+        {
+          "title": "Konverter og rapporter",
+          "description": "Synkroniser leads til CRM-et, følg konverteringer i sanntid og optimaliser neste års kampanje med detaljerte innsikter."
+        }
+      ]
+    },
+    "faqs": {
+      "heading": "Ofte spurt om Lukely",
+      "description": "Få detaljene om å lansere sesongkampanjer, samle inn samtykker og koble Lukely til verktøyene dere bruker fra før.",
+      "footer": "Finner du ikke det du leter etter? Ta kontakt med vårt",
+      "footerLink": "kundesuksessteam",
+      "items": [
+        {
+          "question": "Hvor raskt kan vi lansere en Lukely-kampanje?",
+          "answer": "De fleste team går live i løpet av få dager. Velg en mal, legg inn premier og innhold, og bruk forhåndsvisningen vår for godkjenning før publisering. Trenger du hjelp? Onboarding-teamet støtter med tekst, design og integrasjoner."
+        },
+        {
+          "question": "Er Lukely i samsvar med GDPR og andre personvernregler?",
+          "answer": "Ja. Lukely har samtykkebokser, double opt-in, IP-filtrering, alderssperrer og komplette revisjonslogger. Du kan eksportere samtykkedata når som helst eller synkronisere dem automatisk til markedsføringsverktøyene dine."
+        },
+        {
+          "question": "Kan vi bruke vårt eget design og domene?",
+          "answer": "Selvsagt. Last opp egne fonter, farger og animasjoner, og vis kalenderen på eget domene eller direkte i CMS-et. Byråer kan klone kampanjer for flere merkevarer og holde ressursene ryddige."
+        },
+        {
+          "question": "Hvilke verktøy integreres Lukely med?",
+          "answer": "Koble Lukely til HubSpot, Mailchimp, Klaviyo, Salesforce, Zapier, Meta Ads, Google Analytics og flere. REST-API-et og webhookene lar deg sende hendelser til alle interne systemer i sanntid."
+        },
+        {
+          "question": "Hvilken støtte er inkludert?",
+          "answer": "Alle planer inkluderer live chat og e-poststøtte, onboarding-ressurser og kampanjesjekklister. Enterprise-kunder kan legge til flerspråklig support, tilpassede SLA-er og driftede tjenester."
+        }
+      ]
+    },
+    "testimonials": {
+      "heading": "Dette sier kundene om Lukely",
+      "description": "Bli med globale merkevarer som bruker Lukely til å drive engasjerende sesongkampanjer, bygge abonnentlister og skape målbar juleomsetning.",
+      "items": [
+        {
+          "name": "Yves Kalume",
+          "role": "CRM-sjef, Moneco",
+          "quote": "Lukely hjalp oss å hente inn 38 000 kvalifiserte leads på tre uker. Samtykke-funksjonen og integrasjonene gjorde at teamet vårt kunne aktivere alle kontaktene før jul."
+        },
+        {
+          "name": "Meschac Irung",
+          "role": "Leder for livssyklusmarkedsføring, Hulu",
+          "quote": "Vi lanserte på 20 språk uten utviklerstøtte. Lukely holdt merkevareopplevelsen konsistent overalt og doblet opt-in-raten vår år for år."
+        },
+        {
+          "name": "Bernard Ngandu",
+          "role": "Growth Operations-leder, Stripe",
+          "quote": "GDPR-prosessene bremset oss før. Lukely håndterer samtykke, double opt-in og revisjonslogger, så juridisk og markedsføring jobber endelig i takt."
+        },
+        {
+          "name": "Glodie Lukose",
+          "role": "Markedssjef, Prime Video",
+          "quote": "Daglige påminnelser og øyeblikkelige trekninger fikk publikum tilbake. Engasjementet lå over 60 % gjennom hele kampanjen."
+        },
+        {
+          "name": "Theo Balick",
+          "role": "CTO, Lukely",
+          "quote": "Vi bygde Lukely for at markedsførere skal kunne bevege seg raskt uten å gi slipp på sikkerhet eller merkevarekontroll. Å se kundene nå julemålene sine er grunnen til at vi gjør dette."
+        },
+        {
+          "name": "Ras Micky",
+          "role": "E-handelsstrateg",
+          "quote": "Lukely ga oss fleksibilitet til å matche hver giveaway med produktslippene våre. Malredigeringen er intuitiv, men kraftig nok for egne animasjoner."
+        }
+      ],
+      "featured": [
+        {
+          "company": "Tailwind Labs",
+          "name": "Adam Wathan",
+          "role": "CEO i Tailwind Labs",
+          "quote": "Lukely fjernet alle tekniske hindringer. Vi rebrandet kalenderen, lokaliserte innholdet og automatiserte premier – alt i ett dashbord på under et døgn."
+        },
+        {
+          "company": "Hulu",
+          "name": "Shadcn",
+          "role": "Frontend-utvikler, Hulu",
+          "quote": "Automatiserte påminnelser holder abonnentene våre gira. Daglige besøk lå over 70 %, og vi økte SMS-samtykke 3,4 ganger sammenlignet med tidligere kampanjer."
+        },
+        {
+          "company": "Stripe",
+          "name": "Glodie Lukose",
+          "role": "Markedssjef, Stripe",
+          "quote": "Rapporteringspakken viser nøyaktig hvilke premier, kanaler og segmenter som konverterer best. Innsikten løftet gjensalgsinntektene våre med 18 %."
+        }
+      ]
+    },
+    "footer": {
+      "cta": {
+        "heading": "Kjør uforglemmelige sesongkampanjer med Lukely",
+        "description": "Bli med over 1000 merkevarer som henter nye abonnenter, øker inntektene og begeistrer kundene sine med interaktive opplevelser.",
+        "button": "Planlegg julekampanjen"
+      },
+      "description": "Lukely hjelper markedsføringsteam med å lansere interaktive sesongkampanjer og samle inn samtykkebasert førstepartsdata.",
+      "copyright": "Alle rettigheter forbeholdt.",
+      "status": "Alle systemer stabile",
+      "sections": {
+        "product": "Produkt",
+        "company": "Selskap",
+        "community": "Fellesskap"
+      },
+      "links": {
+        "features": "Funksjoner",
+        "solutions": "Løsninger",
+        "partners": "Partnere",
+        "mobileApp": "Mobilapp",
+        "about": "Om oss",
+        "license": "Lisens",
+        "privacy": "Personvern"
+      }
+    }
+  },
+  "Config": {
+    "siteConfig": {
+      "name": "Lukely",
+      "description": "Få flere leads enkelt med Lukely",
+      "keywords": [
+        "lukely",
+        "julekalender",
+        "kalender",
+        "konkurranser",
+        "lead magnets",
+        "adventskalender",
+        "markedsføring"
+      ]
+    }
+  }
+}

@@ -6,12 +6,12 @@ const QuizSchema = z.object({
   questions: z.array(
     z.object({
       type: z.enum(["MULTIPLE_CHOICE", "TRUE_FALSE", "TEXT", "RATING"]),
-      questionText: z.string().describe("Question in Norwegian (Bokmål)"),
+      questionText: z.string().describe("Question text in the specified language"),
       correctAnswer: z.string().describe("The correct answer"),
       options: z
         .array(z.string())
         .optional()
-        .describe("Options in Norwegian for multiple choice (4 options)"),
+        .describe("Options for multiple choice in the specified language (4 options)"),
       points: z.number().default(1),
     })
   ),
@@ -24,6 +24,7 @@ export interface DoorInfo {
   productName?: string;
   productDescription?: string;
   theme?: "CHRISTMAS" | "VALENTINE" | "EASTER" | "CUSTOM";
+  locale?: string; // 'no' or 'en'
 }
 
 export async function generateDoorQuiz(
@@ -31,15 +32,25 @@ export async function generateDoorQuiz(
   instructions?: string,
   questionCount: number = 3
 ): Promise<GeneratedQuestion[]> {
-  const themeContext = {
+  const locale = doorInfo.locale || 'no';
+  const isNorwegian = locale === 'no';
+
+  const themeContext = isNorwegian ? {
     CHRISTMAS: "julekalender og norske juletradisjoner",
     VALENTINE: "valentinsdagen og kjærlighet",
     EASTER: "påske og norske påsketradisjoner",
     CUSTOM: "denne spesielle anledningen",
-  }[doorInfo.theme || "CUSTOM"];
+  } : {
+    CHRISTMAS: "Christmas calendar and holiday traditions",
+    VALENTINE: "Valentine's Day and love",
+    EASTER: "Easter and Easter traditions",
+    CUSTOM: "this special occasion",
+  };
 
-  const prompt = `
-Generer en quiz for luke ${doorInfo.doorNumber} i en ${themeContext}.
+  const languageInstruction = isNorwegian ? "norsk (bokmål)" : "English";
+
+  const prompt = isNorwegian ? `
+Generer en quiz for luke ${doorInfo.doorNumber} i en ${themeContext[doorInfo.theme || "CUSTOM"]}.
 ${doorInfo.productName ? `Premie: ${doorInfo.productName}` : ""}
 ${doorInfo.productDescription ? `Beskrivelse: ${doorInfo.productDescription}` : ""}
 
@@ -62,13 +73,40 @@ EKSEMPLER PÅ GODE SPØRSMÅL:
 - "Hva er den mest populære juletradisjonen i Norge?"
 - "Hvilket år ble den første adventskalenderen laget?"
 - "Sant eller usant: Julenissen bor på Nordpolen"
+  `.trim() : `
+Generate a quiz for door ${doorInfo.doorNumber} for a ${themeContext[doorInfo.theme || "CUSTOM"]}.
+${doorInfo.productName ? `Prize: ${doorInfo.productName}` : ""}
+${doorInfo.productDescription ? `Description: ${doorInfo.productDescription}` : ""}
+
+${instructions || `Create ${questionCount} engaging questions related to the theme.`}
+
+IMPORTANT RULES:
+- Write EVERYTHING in English
+- Make questions fun and festive
+- Include a mix of easy and medium difficulty
+- For multiple choice: create EXACTLY 4 options where ONE is correct
+- Questions should take 30-60 seconds to answer
+- Keep it light and enjoyable
+- correctAnswer should be:
+  * For MULTIPLE_CHOICE: index (0-3) of correct option
+  * For TRUE_FALSE: "true" or "false"
+  * For TEXT: the exact answer (lowercase, without punctuation)
+  * For RATING: the number (1-5)
+
+EXAMPLES OF GOOD QUESTIONS:
+- "What is the most popular Christmas tradition?"
+- "In which year was the first advent calendar created?"
+- "True or false: Santa Claus lives at the North Pole"
   `.trim();
+
+  const systemMessage = isNorwegian
+    ? "Du er en ekspert på å lage engasjerende quizer på norsk. Du lager alltid festlige, morsomme spørsmål som folk liker å svare på. Du skriver ALLTID på norsk (bokmål)."
+    : "You are an expert at creating engaging quizzes in English. You always create festive, fun questions that people enjoy answering. You ALWAYS write in English.";
 
   try {
     const result = await generateObject({
       model: openai("gpt-4o"),
-      system:
-        "Du er en ekspert på å lage engasjerende quizer på norsk. Du lager alltid festlige, morsomme spørsmål som folk liker å svare på. Du skriver ALLTID på norsk (bokmål).",
+      system: systemMessage,
       prompt,
       schema: QuizSchema,
     });
@@ -76,7 +114,10 @@ EKSEMPLER PÅ GODE SPØRSMÅL:
     return result.object.questions.slice(0, questionCount);
   } catch (error) {
     console.error("Error generating quiz:", error);
-    throw new Error("Kunne ikke generere quiz. Prøv igjen.");
+    const errorMessage = isNorwegian
+      ? "Kunne ikke generere quiz. Prøv igjen."
+      : "Could not generate quiz. Please try again.";
+    throw new Error(errorMessage);
   }
 }
 

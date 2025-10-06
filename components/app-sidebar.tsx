@@ -19,6 +19,7 @@ import {
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -34,124 +35,55 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashbord",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Kalendere",
-      url: "/dashboard/calendars",
-      icon: IconCalendar,
-    },
-    {
-      title: "Leads",
-      url: "/dashboard/leads",
-      icon: IconUsers,
-    },
-    {
-      title: "Analyser",
-      url: "/dashboard/analytics",
-      icon: IconChartBar,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Innsamling",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Aktive forslag",
-          url: "#",
-        },
-        {
-          title: "Arkivert",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Forslag",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Aktive forslag",
-          url: "#",
-        },
-        {
-          title: "Arkivert",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompt-maler",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Aktive forslag",
-          url: "#",
-        },
-        {
-          title: "Arkivert",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Innstillinger",
-      url: "/dashboard/innstillinger",
-      icon: IconSettings,
-    },
-    {
-      title: "Få hjelp",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Søk",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Databibliotek",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Rapporter",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Teksthjelp",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
-};
-
 export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user: { name: string; email: string; image?: string | null } | null;
 }) {
+  const t = useTranslations('Common.nav');
+
+  const navMain = [
+    {
+      title: t('dashboard'),
+      url: "/dashboard",
+      icon: IconDashboard,
+    },
+    {
+      title: t('calendars'),
+      url: "/dashboard/calendars",
+      icon: IconCalendar,
+    },
+    {
+      title: t('leads'),
+      url: "/dashboard/leads",
+      icon: IconUsers,
+    },
+    {
+      title: t('analytics'),
+      url: "/dashboard/analytics",
+      icon: IconChartBar,
+    },
+  ];
+
+  const navSecondary = [
+    {
+      title: t('settings'),
+      url: "/dashboard/innstillinger",
+      icon: IconSettings,
+    },
+    {
+      title: t('getHelp'),
+      url: "#",
+      icon: IconHelp,
+    },
+    {
+      title: t('search'),
+      url: "#",
+      icon: IconSearch,
+    },
+  ];
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -170,9 +102,8 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>

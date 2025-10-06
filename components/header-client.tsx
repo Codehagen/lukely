@@ -8,6 +8,7 @@ import { Menu, X, Shield, SquareActivity, Sparkles, Cpu, Gem, ShoppingBag, BookO
 import { useMedia } from '@/hooks/use-media'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 export interface HeaderUser {
     id: string
@@ -198,6 +199,7 @@ export default function Header({ user }: HeaderProps) {
                         {!isLarge && isMobileMenuOpen && <MobileMenu user={user ?? null} closeMenu={() => setIsMobileMenuOpen(false)} />}
 
                         <div className="max-lg:in-data-[state=active]:mt-6 in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
+                            <LanguageSwitcher />
                             <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                                 {user ? (
                                     <Button

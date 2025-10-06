@@ -1,0 +1,589 @@
+{
+  "Common": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "calendars": "Calendars",
+      "leads": "Leads",
+      "analytics": "Analytics",
+      "settings": "Settings",
+      "getHelp": "Get Help",
+      "search": "Search"
+    },
+    "actions": {
+      "save": "Save changes",
+      "saving": "Saving ...",
+      "delete": "Delete calendar",
+      "deleting": "Deleting ...",
+      "archive": "Archive calendar",
+      "archiving": "Archiving ...",
+      "back": "Back",
+      "next": "Next",
+      "skip": "Skip",
+      "edit": "Edit",
+      "create": "Create calendar",
+      "creating": "Creating ..."
+    },
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "active": "Active",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "dates": {
+      "selectDate": "Select a date"
+    },
+    "brand": {
+      "lukely": "Lukely"
+    }
+  },
+  "Auth": {
+    "signIn": {
+      "title": "Sign in to your account",
+      "description": "Enter your email below to sign in",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "rememberMe": "Remember me",
+      "submit": "Sign in",
+      "orContinueWith": "Or continue with",
+      "google": "Google",
+      "signUpLink": "Sign up",
+      "testimonial": "Lukely helped us generate over 2000 qualified leads during the holiday season. The interactive calendar created engagement we've never seen before.",
+      "testimonialAuthor": "— Mari Olsen, Nordic Retail AS"
+    },
+    "signUp": {
+      "title": "Create an account",
+      "description": "Enter your email below to create an account",
+      "name": "Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com",
+      "password": "Password",
+      "submit": "Create account",
+      "orContinueWith": "Or continue with",
+      "google": "Google",
+      "signInLink": "Sign in",
+      "testimonial": "We doubled the number of leads compared to last year's Christmas calendar. Lukely made it incredibly easy to create a professional and engaging campaign.",
+      "testimonialAuthor": "— Thomas Hansen, Marketing Manager"
+    },
+    "legal": {
+      "termsPrefix": "By continuing you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "signUpTermsPrefix": "By clicking continue you agree to our"
+    }
+  },
+  "Calendar": {
+    "templates": {
+      "christmas": {
+        "title": "Christmas Calendar",
+        "description": "24 days of holiday surprises leading up to Christmas"
+      },
+      "valentine": {
+        "title": "Valentine's Countdown",
+        "description": "14 days of love leading up to Valentine's Day"
+      },
+      "easter": {
+        "title": "Easter Calendar",
+        "description": "Customizable calendar for Easter celebrations"
+      },
+      "custom": {
+        "title": "Custom Calendar",
+        "description": "Create your own calendar with chosen dates and number of doors"
+      }
+    },
+    "create": {
+      "title": "Create new calendar",
+      "description": "Set up a new contest calendar for your business",
+      "selectTemplate": "Select a template",
+      "configureCalendar": "Configure calendar",
+      "backToTemplates": "Back to templates",
+      "doors": "doors"
+    },
+    "form": {
+      "steps": {
+        "basic": "Basic",
+        "dates": "Dates",
+        "quiz": "Quiz",
+        "branding": "Branding",
+        "summary": "Summary"
+      },
+      "basic": {
+        "title": "Basic information",
+        "description": "Give your calendar a name and a unique address",
+        "calendarTitle": "Calendar title",
+        "calendarTitlePlaceholder": "My Christmas Calendar 2024",
+        "calendarTitleHelp": "This will be displayed as the main heading on your calendar",
+        "slug": "URL slug",
+        "slugPrefix": "yoursite.com/c/",
+        "slugPlaceholder": "christmas-2024",
+        "slugHelp": "This creates your unique calendar address",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter a description of the calendar...",
+        "descriptionHelp": "Optional description displayed on the public calendar page"
+      },
+      "dates": {
+        "title": "Dates and doors",
+        "description": "Choose when the calendar should run and how many doors you want",
+        "startDate": "Start date",
+        "startDateHelp": "When the first door opens",
+        "endDate": "End date",
+        "endDateHelp": "When the last door opens",
+        "doorCount": "Number of doors",
+        "doorCountHelpFixed": "This template has a fixed number of doors",
+        "doorCountHelpFlexible": "Choose how many doors the calendar should have (1-31)"
+      },
+      "quiz": {
+        "title": "Select participant type",
+        "description": "Do you want quiz questions or just collect email addresses?",
+        "emailOnly": {
+          "title": "Email Only",
+          "description": "Collect email addresses without quiz. All participants are qualified for the draw."
+        },
+        "withQuiz": {
+          "title": "With Quiz",
+          "description": "Each door gets 3 questions that participants must answer. Only those who answer well enough are entered in the draw for that door."
+        },
+        "settings": {
+          "title": "Quiz settings",
+          "description": "Customize how the quiz works",
+          "infoTitle": "How quiz works in the calendar:",
+          "infoItems": [
+            "Each door gets 3 questions (can be edited later per door)",
+            "Participants answer the questions each time they open a door",
+            "Their score determines if they qualify for the draw for that specific door",
+            "This repeats for each door they open throughout the calendar"
+          ],
+          "passingScore": "Score required to enter draw (%)",
+          "passingScoreHelp": "**Example:** If you set 70% and a door has 3 questions, participants must get at least 2 correct to be entered in the draw.\n\n**Tip:** Set to 0% if everyone should be entered regardless of correct answers.",
+          "showCorrectAnswers": "Show correct answers after submission",
+          "showCorrectAnswersHelp": "Participants see which answers were correct and wrong after they've answered the quiz",
+          "allowRetry": "Allow retries",
+          "allowRetryHelp": "Let participants try the quiz again if they didn't get enough correct answers",
+          "aiInstructions": "AI instructions (optional)",
+          "aiInstructionsPlaceholder": "E.g. 'Create questions about Norwegian Christmas traditions and Santa' or leave blank for general questions",
+          "aiInstructionsHelp": "Customize AI-generated questions with your own instructions",
+          "generateAuto": "Generate all quizzes automatically with AI",
+          "generateAutoHelp": "✨ AI will generate 3 questions for each door automatically when the calendar is created. You can edit them later."
+        }
+      },
+      "branding": {
+        "title": "Branding",
+        "description": "Customize the calendar with your brand",
+        "brandColor": "Brand color",
+        "brandColorHelp": "This color is used on buttons and details in the calendar",
+        "brandFont": "Font",
+        "brandFontPlaceholder": "Select font",
+        "brandFontHelp": "This font is used on headings and important elements"
+      },
+      "summary": {
+        "title": "Ready to create the calendar?",
+        "description": "Check that everything looks correct before creating the calendar",
+        "basicInfo": "Basic information",
+        "calendarTitle": "Calendar title",
+        "slug": "URL slug",
+        "slugPrefix": "yoursite.com/c/",
+        "description": "Description",
+        "datesAndDoors": "Dates and doors",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "doorCount": "Number of doors",
+        "doors": "doors",
+        "quiz": "Quiz",
+        "quizEnabled": "Quiz enabled",
+        "yes": "Yes",
+        "no": "No",
+        "passingScore": "Score requirement",
+        "showAnswers": "Show answers",
+        "allowRetry": "Allow retry",
+        "aiGeneration": "AI generation",
+        "automatic": "Automatic",
+        "manual": "Manual",
+        "aiInstructions": "AI instructions",
+        "noQuiz": "No quiz enabled",
+        "branding": "Branding",
+        "brandColor": "Brand color"
+      }
+    },
+    "settings": {
+      "basic": {
+        "title": "Basic information",
+        "description": "Update the basic details for the calendar",
+        "calendarTitle": "Calendar title",
+        "slug": "URL slug",
+        "slugWarning": "Changing the slug will break existing links",
+        "description": "Description",
+        "descriptionHelp": "Optional description displayed on the public calendar page"
+      },
+      "branding": {
+        "title": "Branding",
+        "description": "Customize the look of the calendar",
+        "brandColor": "Brand color",
+        "brandColorHelp": "Used on buttons and details in the calendar",
+        "logoUrl": "Logo URL",
+        "logoUrlHelp": "Display your logo on the public calendar page",
+        "bannerImageUrl": "Banner image URL",
+        "bannerImageUrlHelp": "Optional top banner for the calendar",
+        "buttonText": "Button text",
+        "buttonTextDefault": "Enter now",
+        "buttonTextHelp": "The text displayed on the participation button",
+        "thankYouMessage": "Thank you message",
+        "thankYouMessageDefault": "Thank you for your participation!",
+        "thankYouMessageHelp": "The message displayed after a successful entry",
+        "footerText": "Footer text",
+        "footerTextHelp": "Optional footer for the calendar",
+        "faviconUrl": "Favicon URL",
+        "faviconUrlHelp": "Icon file displayed in the browser tab",
+        "metaDescription": "Meta description",
+        "metaDescriptionPlaceholder": "Description for search engines...",
+        "metaDescriptionHelp": "SEO description for the calendar"
+      },
+      "gdpr": {
+        "title": "GDPR and legal links",
+        "description": "Add links to terms and privacy policy",
+        "termsUrl": "Terms URL",
+        "termsUrlHelp": "Link to the contest terms (required for GDPR compliance)",
+        "privacyUrl": "Privacy Policy URL",
+        "privacyUrlHelp": "Link to the privacy policy (required for GDPR compliance)"
+      },
+      "status": {
+        "title": "Status and publishing",
+        "description": "Determine when the calendar is visible to the public",
+        "calendarStatus": "Calendar status",
+        "statusHelp": "Only ACTIVE and SCHEDULED calendars are publicly visible"
+      },
+      "participants": {
+        "title": "Participant settings",
+        "description": "Determine how users can participate in the contests",
+        "requireEmail": "Require email",
+        "requireEmailHelp": "Users must provide email to participate",
+        "requireName": "Require name",
+        "requireNameHelp": "Users must provide their name",
+        "requirePhone": "Require phone number",
+        "requirePhoneHelp": "Users must provide phone number",
+        "allowMultiple": "Allow multiple entries",
+        "allowMultipleHelp": "Users can participate in the same door multiple times"
+      },
+      "quickBranding": {
+        "title": "Quick branding edit",
+        "description": "Customize the look of your calendar"
+      }
+    },
+    "messages": {
+      "created": "Calendar created!",
+      "updated": "Calendar updated!",
+      "archived": "Calendar archived!",
+      "deleted": "Calendar deleted!",
+      "errorCreate": "Could not create calendar",
+      "errorUpdate": "Could not update calendar",
+      "errorArchive": "Could not archive calendar",
+      "errorDelete": "Could not delete calendar",
+      "confirmArchive": "Are you sure you want to archive this calendar?",
+      "confirmDelete": "Are you sure you want to delete this calendar? This cannot be undone.",
+      "confirmDeleteWarning": "This will permanently delete all doors, products, leads and entries. Are you absolutely sure?",
+      "generatingQuizzes": "Generating quizzes with AI...",
+      "someQuizzesFailedError": "Some quizzes could not be generated",
+      "brandingUpdated": "Branding updated!",
+      "brandingError": "Could not update branding"
+    },
+    "workspace": {
+      "emptyState": "You must create a workspace before you can create calendars.",
+      "createWorkspace": "Create workspace"
+    }
+  },
+  "PublicCalendar": {
+    "notAvailable": {
+      "title": "Calendar not available",
+      "description": "This calendar is not active right now. Contact the organizer or try again later.",
+      "goHome": "Go to homepage"
+    },
+    "door": {
+      "locked": "This door hasn't opened yet!",
+      "title": "Door",
+      "entries": "entries",
+      "entry": "entry",
+      "winnerSelected": "Winner drawn",
+      "winnerChosen": "Winner selected!",
+      "winnerMessage": "Congratulations to the winner! This contest has ended."
+    },
+    "form": {
+      "participate": "Enter and win!",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "phone": "Phone",
+      "phonePlaceholder": "Your phone number",
+      "required": "*"
+    },
+    "consent": {
+      "termsPrefix": "I accept the",
+      "termsLink": "contest terms",
+      "privacyPrefix": "I have read and accept the",
+      "privacyLink": "privacy policy",
+      "marketing": "I accept to receive marketing and newsletters (optional)",
+      "gdprNotice": "Your information is processed in accordance with privacy regulations. You can withdraw your consent at any time."
+    },
+    "sharing": {
+      "title": "Share this campaign"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "nameRequired": "Name is required",
+      "phoneRequired": "Phone number is required",
+      "quizRequired": "Please answer all required questions",
+      "termsRequired": "You must accept the terms to participate",
+      "privacyRequired": "You must accept the privacy policy to participate",
+      "submitError": "Could not submit entry"
+    },
+    "actions": {
+      "submit": "Submit",
+      "submitting": "Submitting..."
+    },
+    "messages": {
+      "successDefault": "Entry registered! Good luck! 🎉"
+    }
+  },
+  "Winner": {
+    "title": "Door {number}",
+    "winner": "Winner",
+    "open": "Open",
+    "locked": "Locked",
+    "totalEntries": "Total entries",
+    "winnerSelected": "Winner selected",
+    "notified": "Notified",
+    "selectWinner": "Select winner",
+    "emptyState": {
+      "title": "No doors created",
+      "description": "Create doors and products before you can draw winners."
+    },
+    "dialog": {
+      "title": "Select winner for door {number}",
+      "entries": "entries",
+      "prize": "Prize:",
+      "quizEnabled": "Quiz enabled",
+      "quizDescription": "This door has quiz with {score}% requirement. Only participants with correct answers are qualified.",
+      "qualified": "Qualified:",
+      "notQualified": "Not qualified:",
+      "randomDraw": "Random draw",
+      "randomDrawQuiz": "Drawing winner from qualified participants (with correct quiz answers)",
+      "randomDrawNoQuiz": "Randomly drawing winner from all entries",
+      "selecting": "Selecting ...",
+      "selectRandom": "Draw random winner",
+      "noQualified": "No qualified participants yet",
+      "allEntries": "All entries",
+      "noEntries": {
+        "title": "No entries yet",
+        "description": "Share the calendar to collect participants before drawing a winner."
+      },
+      "notQualifiedBadge": "Not qualified"
+    },
+    "messages": {
+      "noEntries": "No entries for this door",
+      "winnerSelected": "Winner selected: {email}! 🎉",
+      "errorSelect": "Could not select winner"
+    }
+  },
+  "Marketing": {
+    "hero": {
+      "title": "Get more leads easily with digital Christmas calendars from Lukely",
+      "subtitle": "Create multilingual digital Christmas calendars, collect GDPR-approved consents and convert seasonal engagement into year-round revenue with our all-in-one platform.",
+      "cta": "Start free trial",
+      "helperText": "Get started with Lukely in 5 minutes",
+      "imageAlt": "Lukely dashboard for campaign results"
+    },
+    "pricing": {
+      "heading": "One calendar or campaigns all year",
+      "description": "Choose between a simple seasonal launch or an annual agreement with unlimited Lukely campaigns – you can always upgrade.",
+      "singleCalendar": "One calendar",
+      "yearlyPackage": "Annual package",
+      "billedOnce": "Billed once",
+      "includes": "Includes onboarding, campaign guide and support when you need us.",
+      "plans": {
+        "single": {
+          "name": "Single calendar",
+          "description": "Perfect when you want to launch one Christmas calendar or a single seasonal campaign.",
+          "helper": "One-time price for one calendar",
+          "cta": "Order single calendar",
+          "label": "One campaign"
+        },
+        "yearly": {
+          "name": "Annual package",
+          "description": "Plan multiple campaigns throughout the year – from Christmas and winter holidays to Easter and summer.",
+          "helper": "Fixed price for 12 months with calendars",
+          "cta": "Talk to us about annual plan",
+          "label": "All year"
+        }
+      },
+      "features": [
+        "Access to all templates and 20+ languages",
+        "Automated email and SMS reminders",
+        "Reports, consent export and audit trails",
+        "Integrations with CRM, email and ad platforms",
+        "Dashboard for real-time analysis and engagement",
+        "Priority support from Lukely's campaign team"
+      ]
+    },
+    "features": {
+      "label": "Campaign features",
+      "heading": "Everything you need to increase holiday traffic and leads",
+      "description": "Design atmospheric experiences, collect first-party data responsibly and convert participants with automated follow-up – all in Lukely.",
+      "items": [
+        {
+          "title": "Complete overview in one dashboard",
+          "description": "Track campaign results, leads, consents and engagement in real-time – all collected in one user-friendly dashboard."
+        },
+        {
+          "title": "Automate reminders and prizes",
+          "description": "Schedule daily emails and SMS, handle GDPR consent and draw winners automatically with audit-proof logs."
+        }
+      ]
+    },
+    "howItWorks": {
+      "label": "How Lukely works",
+      "heading": "Plan, launch and scale your interactive campaign",
+      "description": "Turn a seasonal idea into a revenue-driving experience with a guide that keeps the team fast, compliant and true to the brand.",
+      "cta": "Book a Lukely demo",
+      "steps": [
+        {
+          "title": "Design the calendar",
+          "description": "Choose a template, localize each door and add prizes, quizzes or campaigns with the drag-and-drop editor."
+        },
+        {
+          "title": "Market and engage",
+          "description": "Embed it on the website, run paid and organic campaigns and automate daily reminders that bring the audience back."
+        },
+        {
+          "title": "Convert and report",
+          "description": "Sync leads to the CRM, track conversions in real-time and optimize next year's campaign with detailed insights."
+        }
+      ]
+    },
+    "faqs": {
+      "heading": "Frequently asked about Lukely",
+      "description": "Get the details about launching seasonal campaigns, collecting consents and connecting Lukely to the tools you already use.",
+      "footer": "Can't find what you're looking for? Contact our",
+      "footerLink": "customer success team",
+      "items": [
+        {
+          "question": "How quickly can we launch a Lukely campaign?",
+          "answer": "Most teams go live within a few days. Choose a template, add prizes and content, and use our preview for approval before publishing. Need help? The onboarding team supports with copy, design and integrations."
+        },
+        {
+          "question": "Is Lukely compliant with GDPR and other privacy regulations?",
+          "answer": "Yes. Lukely has consent boxes, double opt-in, IP filtering, age gates and complete audit logs. You can export consent data anytime or sync them automatically to your marketing tools."
+        },
+        {
+          "question": "Can we use our own design and domain?",
+          "answer": "Absolutely. Upload your own fonts, colors and animations, and display the calendar on your own domain or directly in the CMS. Agencies can clone campaigns for multiple brands and keep resources organized."
+        },
+        {
+          "question": "Which tools does Lukely integrate with?",
+          "answer": "Connect Lukely to HubSpot, Mailchimp, Klaviyo, Salesforce, Zapier, Meta Ads, Google Analytics and more. The REST API and webhooks let you send events to all internal systems in real-time."
+        },
+        {
+          "question": "What support is included?",
+          "answer": "All plans include live chat and email support, onboarding resources and campaign checklists. Enterprise customers can add multilingual support, custom SLAs and managed services."
+        }
+      ]
+    },
+    "testimonials": {
+      "heading": "What customers say about Lukely",
+      "description": "Join global brands using Lukely to drive engaging seasonal campaigns, build subscriber lists and create measurable holiday revenue.",
+      "items": [
+        {
+          "name": "Yves Kalume",
+          "role": "CRM Manager, Moneco",
+          "quote": "Lukely helped us collect 38,000 qualified leads in three weeks. The consent feature and integrations allowed our team to activate all contacts before Christmas."
+        },
+        {
+          "name": "Meschac Irung",
+          "role": "Lifecycle Marketing Lead, Hulu",
+          "quote": "We launched in 20 languages without developer support. Lukely kept the brand experience consistent everywhere and doubled our opt-in rate year over year."
+        },
+        {
+          "name": "Bernard Ngandu",
+          "role": "Growth Operations Lead, Stripe",
+          "quote": "GDPR processes slowed us down before. Lukely handles consent, double opt-in and audit logs, so legal and marketing finally work in sync."
+        },
+        {
+          "name": "Glodie Lukose",
+          "role": "Marketing Manager, Prime Video",
+          "quote": "Daily reminders and instant draws brought the audience back. Engagement stayed above 60% throughout the campaign."
+        },
+        {
+          "name": "Theo Balick",
+          "role": "CTO, Lukely",
+          "quote": "We built Lukely so marketers can move fast without sacrificing security or brand control. Seeing customers hit their holiday goals is why we do this."
+        },
+        {
+          "name": "Ras Micky",
+          "role": "E-commerce Strategist",
+          "quote": "Lukely gave us flexibility to match each giveaway with our product launches. The template editing is intuitive but powerful enough for custom animations."
+        }
+      ],
+      "featured": [
+        {
+          "company": "Tailwind Labs",
+          "name": "Adam Wathan",
+          "role": "CEO at Tailwind Labs",
+          "quote": "Lukely removed all technical barriers. We rebranded the calendar, localized the content and automated prizes – all in one dashboard in under a day."
+        },
+        {
+          "company": "Hulu",
+          "name": "Shadcn",
+          "role": "Frontend Developer, Hulu",
+          "quote": "Automated reminders keep our subscribers excited. Daily visits stayed above 70%, and we increased SMS consent 3.4x compared to previous campaigns."
+        },
+        {
+          "company": "Stripe",
+          "name": "Glodie Lukose",
+          "role": "Marketing Manager, Stripe",
+          "quote": "The reporting suite shows exactly which prizes, channels and segments convert best. The insights lifted our resale revenue by 18%."
+        }
+      ]
+    },
+    "footer": {
+      "cta": {
+        "heading": "Run unforgettable seasonal campaigns with Lukely",
+        "description": "Join over 1000 brands that attract new subscribers, increase revenue and delight their customers with interactive experiences.",
+        "button": "Plan your holiday campaign"
+      },
+      "description": "Lukely helps marketing teams launch interactive seasonal campaigns and collect consent-based first-party data.",
+      "copyright": "All rights reserved.",
+      "status": "All systems operational",
+      "sections": {
+        "product": "Product",
+        "company": "Company",
+        "community": "Community"
+      },
+      "links": {
+        "features": "Features",
+        "solutions": "Solutions",
+        "partners": "Partners",
+        "mobileApp": "Mobile app",
+        "about": "About us",
+        "license": "License",
+        "privacy": "Privacy"
+      }
+    }
+  },
+  "Config": {
+    "siteConfig": {
+      "name": "Lukely",
+      "description": "Get more leads easily with Lukely",
+      "keywords": [
+        "lukely",
+        "christmas calendar",
+        "calendar",
+        "contests",
+        "lead magnets",
+        "advent calendar",
+        "marketing"
+      ]
+    }
+  }
+}

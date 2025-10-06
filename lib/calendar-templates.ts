@@ -2,8 +2,8 @@ import { CalendarType } from "@/app/generated/prisma";
 
 export interface CalendarTemplate {
   type: CalendarType;
-  title: string;
-  description: string;
+  titleKey: string; // Translation key
+  descriptionKey: string; // Translation key
   doorCount: number;
   defaultDates?: {
     startMonth: number;
@@ -22,8 +22,8 @@ export interface CalendarTemplate {
 export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   christmas: {
     type: "CHRISTMAS",
-    title: "Julekalender",
-    description: "24 dager med høytidsoverraskelser frem mot jul",
+    titleKey: "Calendar.templates.christmas.title",
+    descriptionKey: "Calendar.templates.christmas.description",
     doorCount: 24,
     defaultDates: {
       startMonth: 11, // December (0-indexed)
@@ -40,8 +40,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   valentine: {
     type: "VALENTINE",
-    title: "Valentinsnedtelling",
-    description: "14 dager med kjærlighet frem mot Valentinsdagen",
+    titleKey: "Calendar.templates.valentine.title",
+    descriptionKey: "Calendar.templates.valentine.description",
     doorCount: 14,
     defaultDates: {
       startMonth: 1, // February (0-indexed)
@@ -58,8 +58,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   easter: {
     type: "EASTER",
-    title: "Påskekalender",
-    description: "Tilpassbar kalender for påskefeiring",
+    titleKey: "Calendar.templates.easter.title",
+    descriptionKey: "Calendar.templates.easter.description",
     doorCount: 7,
     flexible: true,
     theme: {
@@ -70,8 +70,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   custom: {
     type: "CUSTOM",
-    title: "Egen kalender",
-    description: "Lag din egen kalender med valgte datoer og antall luker",
+    titleKey: "Calendar.templates.custom.title",
+    descriptionKey: "Calendar.templates.custom.description",
     doorCount: 12,
     flexible: true,
     theme: {
