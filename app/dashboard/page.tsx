@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/item";
 import { IconCalendar, IconUsers, IconTrophy } from "@tabler/icons-react";
 import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
