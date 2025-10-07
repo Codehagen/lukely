@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ interface StepDatoerProps {
   onStartDateChange: (date: Date) => void;
   onEndDateChange: (date: Date) => void;
   onDoorCountChange: (count: number) => void;
-  templateFlexible: boolean;
 }
 
 type DurationPreset = "1week" | "2weeks" | "1month" | "custom";
@@ -73,7 +72,6 @@ export function StepDatoer({
   onStartDateChange,
   onEndDateChange,
   onDoorCountChange,
-  templateFlexible,
 }: StepDatoerProps) {
   const [selectedPreset, setSelectedPreset] = useState<DurationPreset>("custom");
 
@@ -101,16 +99,18 @@ export function StepDatoer({
   };
 
   const handleStartDateChange = (date: Date) => {
-    onStartDateChange(date);
+    const newDate = new Date(date);
+    onStartDateChange(newDate);
     // Recalculate door count when start date changes
-    const calculatedDoorCount = calculateDoorCount(date, formData.endDate);
+    const calculatedDoorCount = calculateDoorCount(newDate, formData.endDate);
     onDoorCountChange(calculatedDoorCount);
   };
 
   const handleEndDateChange = (date: Date) => {
-    onEndDateChange(date);
+    const newDate = new Date(date);
+    onEndDateChange(newDate);
     // Recalculate door count when end date changes
-    const calculatedDoorCount = calculateDoorCount(formData.startDate, date);
+    const calculatedDoorCount = calculateDoorCount(formData.startDate, newDate);
     onDoorCountChange(calculatedDoorCount);
   };
 
@@ -153,122 +153,94 @@ export function StepDatoer({
         ))}
       </div>
 
-      {selectedPreset === "custom" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tilpassede innstillinger</CardTitle>
-            <CardDescription>
-              Velg når kalenderen skal kjøre og hvor mange luker du vil ha
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FieldGroup className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Field>
-                  <FieldLabel>Startdato</FieldLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.startDate && "text-muted-foreground"
-                        )}
-                      >
-                        <IconCalendar className="mr-2 h-4 w-4" />
-                        {formData.startDate
-                          ? format(formData.startDate, "PPP", { locale: nb })
-                          : "Velg en dato"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.startDate}
-                        onSelect={(date) => date && handleStartDateChange(date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FieldDescription>Når den første luken åpnes</FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel>Sluttdato</FieldLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.endDate && "text-muted-foreground"
-                        )}
-                      >
-                        <IconCalendar className="mr-2 h-4 w-4" />
-                        {formData.endDate
-                          ? format(formData.endDate, "PPP", { locale: nb })
-                          : "Velg en dato"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.endDate}
-                        onSelect={(date) => date && handleEndDateChange(date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FieldDescription>Når den siste luken åpnes</FieldDescription>
-                </Field>
-              </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Datoer og varighet</CardTitle>
+          <CardDescription>
+            {selectedPreset === "custom"
+              ? "Velg når kalenderen skal kjøre og hvor mange luker du vil ha"
+              : "Forhåndsutfylt basert på ditt valg - du kan justere datoene om nødvendig"
+            }
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel>Startdato</FieldLabel>
+                <Popover key={`start-${selectedPreset}-${formData.startDate?.getTime()}`}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <IconCalendar className="mr-2 h-4 w-4" />
+                      {formData.startDate
+                        ? format(formData.startDate, "PPP", { locale: nb })
+                        : "Velg en dato"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.startDate}
+                      onSelect={(date) => date && handleStartDateChange(date)}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FieldDescription>Når den første luken åpnes</FieldDescription>
+              </Field>
 
               <Field>
-                <FieldLabel htmlFor="doorCount">Antall luker</FieldLabel>
-                <Input
-                  id="doorCount"
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={formData.doorCount}
-                  onChange={(e) => onDoorCountChange(parseInt(e.target.value))}
-                  disabled={true}
-                />
-                <FieldDescription>
-                  Automatisk beregnet fra datoene ({formData.doorCount} dager)
-                </FieldDescription>
+                <FieldLabel>Sluttdato</FieldLabel>
+                <Popover key={`end-${selectedPreset}-${formData.endDate?.getTime()}`}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <IconCalendar className="mr-2 h-4 w-4" />
+                      {formData.endDate
+                        ? format(formData.endDate, "PPP", { locale: nb })
+                        : "Velg en dato"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.endDate}
+                      onSelect={(date) => date && handleEndDateChange(date)}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FieldDescription>Når den siste luken åpnes</FieldDescription>
               </Field>
-            </FieldGroup>
-          </CardContent>
-        </Card>
-      )}
-
-      {selectedPreset !== "custom" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Valgte datoer</CardTitle>
-            <CardDescription>
-              Basert på ditt valg
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Startdato</p>
-                <p className="text-lg">{format(formData.startDate, "PPP", { locale: nb })}</p>
-              </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Sluttdato</p>
-                <p className="text-lg">{format(formData.endDate, "PPP", { locale: nb })}</p>
-              </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Antall luker</p>
-                <p className="text-lg">{formData.doorCount}</p>
-              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+
+            <Field>
+              <FieldLabel htmlFor="doorCount">Antall luker</FieldLabel>
+              <Input
+                id="doorCount"
+                type="number"
+                min="1"
+                max="31"
+                value={formData.doorCount}
+                onChange={(e) => onDoorCountChange(parseInt(e.target.value))}
+                disabled={true}
+              />
+              <FieldDescription>
+                Automatisk beregnet fra datoene ({formData.doorCount} dager)
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
     </div>
   );
 }

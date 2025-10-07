@@ -290,7 +290,7 @@ export default function NewCalendarForm() {
                     Tilbake
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
                     <Card
                       key={key}
@@ -374,13 +374,14 @@ export default function NewCalendarForm() {
                   <StepDatoer
                     formData={formData}
                     onStartDateChange={(startDate) =>
-                      setFormData({ ...formData, startDate })
+                      setFormData((prev) => ({ ...prev, startDate }))
                     }
-                    onEndDateChange={(endDate) => setFormData({ ...formData, endDate })}
+                    onEndDateChange={(endDate) =>
+                      setFormData((prev) => ({ ...prev, endDate }))
+                    }
                     onDoorCountChange={(doorCount) =>
-                      setFormData({ ...formData, doorCount })
+                      setFormData((prev) => ({ ...prev, doorCount }))
                     }
-                    templateFlexible={CALENDAR_TEMPLATES[selectedTemplate].flexible}
                   />
                 )}
 
