@@ -24,6 +24,7 @@ import { ShareTargetButtons } from "@/components/share-target-buttons";
 import { useGoogleFont } from "@/hooks/use-google-font";
 import { getFontFamilyValue } from "@/lib/google-fonts";
 import { HOME_DOMAIN } from "@/lib/config";
+import { DotPattern } from "@/components/dot-pattern";
 
 interface Door {
   id: string;
@@ -354,17 +355,29 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
             background: `linear-gradient(135deg, ${calendar.brandColor || "#3B82F6"}20 0%, ${calendar.brandColor || "#3B82F6"}05 50%, transparent 100%)`
           }}
         />
+        <DotPattern
+          width={20}
+          height={20}
+          cx={1}
+          cy={1}
+          cr={1}
+          className="opacity-30 [mask-image:radial-gradient(circle_at_center,white,transparent)]"
+          style={{ color: calendar.brandColor || "#3B82F6" }}
+        />
         {calendar.bannerImage && (
-          <div className="absolute inset-0 opacity-10">
-            <Image
-              src={calendar.bannerImage}
-              alt={calendar.title}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              unoptimized
-              priority
-            />
+          <div className="absolute inset-0 flex items-center justify-center p-8 md:p-16 opacity-10">
+            <div className="relative w-full h-full max-h-[300px] md:max-h-[400px]">
+              <Image
+                src={calendar.bannerImage}
+                alt={calendar.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 1200px"
+                className="object-contain blur-[0.5px]"
+                style={{ objectPosition: "center" }}
+                unoptimized
+                priority
+              />
+            </div>
           </div>
         )}
         <div className="relative container max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24 lg:py-32">
