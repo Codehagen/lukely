@@ -23,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
-import { CalendarStatusSwitcher } from "@/components/calendar-status-switcher";
+import { CalendarStatusSelect } from "@/components/calendar-status-select";
 import { CalendarQuickBranding } from "@/components/calendar-quick-branding";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
@@ -122,15 +122,9 @@ export default async function CalendarOverviewPage({
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-bold tracking-tight">
-              {calendar.title}
-            </h2>
-            <CalendarStatusSwitcher
-              calendarId={calendar.id}
-              currentStatus={calendar.status}
-            />
-          </div>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {calendar.title}
+          </h2>
           <p className="text-muted-foreground mt-1">
             {format(calendar.startDate, "d. MMM yyyy", { locale: nb })} -{" "}
             {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
@@ -282,6 +276,17 @@ export default async function CalendarOverviewPage({
               </CardHeader>
               <CardContent>
                 <dl className="space-y-4">
+                  {/* Status */}
+                  <div>
+                    <dt className="text-sm text-muted-foreground mb-2">Status</dt>
+                    <dd>
+                      <CalendarStatusSelect
+                        calendarId={calendar.id}
+                        currentStatus={calendar.status}
+                      />
+                    </dd>
+                  </div>
+
                   {/* Type and Dates */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
