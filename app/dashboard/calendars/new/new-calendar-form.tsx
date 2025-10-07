@@ -107,6 +107,14 @@ export default function NewCalendarForm() {
     setCurrentFormStep(5);
   };
 
+  const handleSaveDraft = () => {
+    toast.message("Lagring som utkast kommer snart");
+  };
+
+  const handlePreview = () => {
+    toast.message("Forhåndsvisningen er ikke tilgjengelig enda");
+  };
+
   const handleSubmit = async () => {
     if (!selectedTemplate) return;
 
@@ -205,18 +213,33 @@ export default function NewCalendarForm() {
 
           {templateStep === 2 && selectedTemplate && (
             <>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
-                <Button variant="outline" onClick={() => setTemplateStep(1)}>
-                  Tilbake til maler
-                </Button>
+              <div className="rounded-xl border bg-background/95 px-4 py-3 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex-1 min-w-[260px]">
+                    <Stepper
+                      currentStep={currentFormStep}
+                      steps={FORM_STEPS}
+                      onStepClick={goToStep}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setTemplateStep(1)}>
+                      Tilbake til maler
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleSaveDraft}>
+                      Lagre som utkast
+                    </Button>
+                    <Button size="sm" onClick={handlePreview}>
+                      Forhåndsvis
+                    </Button>
+                  </div>
+                </div>
               </div>
 
-              <Stepper
-                currentStep={currentFormStep}
-                steps={FORM_STEPS}
-                onStepClick={goToStep}
-              />
+              <div className="mt-6 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
+                <p className="text-sm text-muted-foreground">Tilpass kalenderen steg for steg</p>
+              </div>
 
               {currentFormStep === 1 && (
                 <StepGrunnleggende
