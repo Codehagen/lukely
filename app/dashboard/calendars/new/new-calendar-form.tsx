@@ -13,6 +13,7 @@ import { StepDatoer } from "@/components/calendar-form-steps/step-datoer";
 import { StepQuiz } from "@/components/calendar-form-steps/step-quiz";
 import { StepMerkevare } from "@/components/calendar-form-steps/step-merkevare";
 import { StepOppsummering } from "@/components/calendar-form-steps/step-oppsummering";
+import CalendarPreview from "@/components/calendar-preview";
 
 const FORM_STEPS: Step[] = [
   { id: 1, title: "Grunnleggende" },
@@ -172,127 +173,138 @@ export default function NewCalendarForm() {
         </div>
       </div>
 
-      {templateStep === 1 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Velg en mal</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
-              <Card
-                key={key}
-                className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => handleTemplateSelect(key)}
-              >
-                <CardHeader>
-                  <div className="text-4xl mb-2">{template.theme.icon}</div>
-                  <CardTitle className="text-lg">{template.title}</CardTitle>
-                  <CardDescription>{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {template.doorCount} luker
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {templateStep === 2 && selectedTemplate && (
+      {/* Split-screen layout - Preview always visible on right */}
+      <div className="grid md:grid-cols-[2fr_3fr] gap-6">
+        {/* LEFT PANEL */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
-            <Button variant="outline" onClick={() => setTemplateStep(1)}>
-              Tilbake til maler
-            </Button>
-          </div>
-
-          <Stepper
-            currentStep={currentFormStep}
-            steps={FORM_STEPS}
-            onStepClick={goToStep}
-          />
-
-          {currentFormStep === 1 && (
-            <StepGrunnleggende
-              formData={formData}
-              onTitleChange={(title) => generateSlug(title)}
-              onSlugChange={(slug) => setFormData({ ...formData, slug })}
-              onDescriptionChange={(description) =>
-                setFormData({ ...formData, description })
-              }
-            />
+          {templateStep === 1 && (
+            <>
+              <h2 className="text-xl font-semibold">Velg en mal</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
+                  <Card
+                    key={key}
+                    className="cursor-pointer hover:border-primary transition-colors"
+                    onClick={() => handleTemplateSelect(key)}
+                  >
+                    <CardHeader>
+                      <div className="text-4xl mb-2">{template.theme.icon}</div>
+                      <CardTitle className="text-lg">{template.title}</CardTitle>
+                      <CardDescription>{template.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        {template.doorCount} luker
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
 
-          {currentFormStep === 2 && (
-            <StepDatoer
-              formData={formData}
-              onStartDateChange={(startDate) =>
-                setFormData({ ...formData, startDate })
-              }
-              onEndDateChange={(endDate) => setFormData({ ...formData, endDate })}
-              onDoorCountChange={(doorCount) =>
-                setFormData({ ...formData, doorCount })
-              }
-              templateFlexible={CALENDAR_TEMPLATES[selectedTemplate].flexible}
-            />
-          )}
+          {templateStep === 2 && selectedTemplate && (
+            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Konfigurer kalender</h2>
+                <Button variant="outline" onClick={() => setTemplateStep(1)}>
+                  Tilbake til maler
+                </Button>
+              </div>
 
-          {currentFormStep === 3 && (
-            <StepQuiz
-              formData={formData}
-              onEnableQuizChange={(enableQuiz) =>
-                setFormData({ ...formData, enableQuiz })
-              }
-              onPassingScoreChange={(defaultQuizPassingScore) =>
-                setFormData({ ...formData, defaultQuizPassingScore })
-              }
-              onShowAnswersChange={(defaultShowCorrectAnswers) =>
-                setFormData({ ...formData, defaultShowCorrectAnswers })
-              }
-              onAllowRetryChange={(defaultAllowRetry) =>
-                setFormData({ ...formData, defaultAllowRetry })
-              }
-              onInstructionsChange={(aiQuizInstructions) =>
-                setFormData({ ...formData, aiQuizInstructions })
-              }
-              onGenerateAllChange={(generateAllQuizzes) =>
-                setFormData({ ...formData, generateAllQuizzes })
-              }
-            />
-          )}
+              <Stepper
+                currentStep={currentFormStep}
+                steps={FORM_STEPS}
+                onStepClick={goToStep}
+              />
 
-          {currentFormStep === 4 && (
-            <StepMerkevare
-              formData={formData}
-              onBrandColorChange={(brandColor) =>
-                setFormData({ ...formData, brandColor })
-              }
-              onBrandFontChange={(brandFont) =>
-                setFormData({ ...formData, brandFont })
-              }
-              onLogoChange={(logo) =>
-                setFormData({ ...formData, logo: logo ?? "" })
-              }
-            />
-          )}
+              {currentFormStep === 1 && (
+                <StepGrunnleggende
+                  formData={formData}
+                  onTitleChange={(title) => generateSlug(title)}
+                  onSlugChange={(slug) => setFormData({ ...formData, slug })}
+                  onDescriptionChange={(description) =>
+                    setFormData({ ...formData, description })
+                  }
+                />
+              )}
 
-          {currentFormStep === 5 && (
-            <StepOppsummering formData={formData} onEdit={goToStep} />
-          )}
+              {currentFormStep === 2 && (
+                <StepDatoer
+                  formData={formData}
+                  onStartDateChange={(startDate) =>
+                    setFormData({ ...formData, startDate })
+                  }
+                  onEndDateChange={(endDate) => setFormData({ ...formData, endDate })}
+                  onDoorCountChange={(doorCount) =>
+                    setFormData({ ...formData, doorCount })
+                  }
+                  templateFlexible={CALENDAR_TEMPLATES[selectedTemplate].flexible}
+                />
+              )}
 
-          <StepNavigation
-            currentStep={currentFormStep}
-            totalSteps={FORM_STEPS.length}
-            onPrevious={previousStep}
-            onNext={nextStep}
-            onSkip={skipToSummary}
-            onSubmit={handleSubmit}
-            isSubmitting={isCreating}
-            canSkip={currentFormStep === 3 || currentFormStep === 4}
-          />
+              {currentFormStep === 3 && (
+                <StepQuiz
+                  formData={formData}
+                  onEnableQuizChange={(enableQuiz) =>
+                    setFormData({ ...formData, enableQuiz })
+                  }
+                  onPassingScoreChange={(defaultQuizPassingScore) =>
+                    setFormData({ ...formData, defaultQuizPassingScore })
+                  }
+                  onShowAnswersChange={(defaultShowCorrectAnswers) =>
+                    setFormData({ ...formData, defaultShowCorrectAnswers })
+                  }
+                  onAllowRetryChange={(defaultAllowRetry) =>
+                    setFormData({ ...formData, defaultAllowRetry })
+                  }
+                  onInstructionsChange={(aiQuizInstructions) =>
+                    setFormData({ ...formData, aiQuizInstructions })
+                  }
+                  onGenerateAllChange={(generateAllQuizzes) =>
+                    setFormData({ ...formData, generateAllQuizzes })
+                  }
+                />
+              )}
+
+              {currentFormStep === 4 && (
+                <StepMerkevare
+                  formData={formData}
+                  onBrandColorChange={(brandColor) =>
+                    setFormData({ ...formData, brandColor })
+                  }
+                  onBrandFontChange={(brandFont) =>
+                    setFormData({ ...formData, brandFont })
+                  }
+                  onLogoChange={(logo) =>
+                    setFormData({ ...formData, logo: logo ?? "" })
+                  }
+                />
+              )}
+
+              {currentFormStep === 5 && (
+                <StepOppsummering formData={formData} onEdit={goToStep} />
+              )}
+
+              <StepNavigation
+                currentStep={currentFormStep}
+                totalSteps={FORM_STEPS.length}
+                onPrevious={previousStep}
+                onNext={nextStep}
+                onSkip={skipToSummary}
+                onSubmit={handleSubmit}
+                isSubmitting={isCreating}
+                canSkip={currentFormStep === 3 || currentFormStep === 4}
+              />
+            </>
+          )}
         </div>
-      )}
+
+        {/* RIGHT PANEL - Live Preview (always visible) */}
+        <div className="hidden md:block">
+          <CalendarPreview formData={formData} />
+        </div>
+      </div>
     </div>
   );
 }
