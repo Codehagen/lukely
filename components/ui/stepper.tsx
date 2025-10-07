@@ -11,14 +11,29 @@ interface StepperProps {
   currentStep: number;
   steps: Step[];
   onStepClick?: (step: number) => void;
+  variant?: "default" | "compact";
+  orientation?: "horizontal" | "vertical";
 }
 
-export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
+export function Stepper({
+  currentStep,
+  steps,
+  onStepClick,
+  variant = "default",
+  orientation = "horizontal"
+}: StepperProps) {
+  const isCompact = variant === "compact";
+  const isVertical = orientation === "vertical";
+
   return (
     <div className="w-full">
       <nav
         aria-label="Form progression"
-        className="flex flex-wrap items-center gap-2 sm:gap-3"
+        className={cn(
+          "flex gap-2",
+          isVertical ? "flex-col" : "flex-row flex-wrap items-center",
+          isCompact ? "gap-2" : "gap-2 sm:gap-3"
+        )}
       >
         {steps.map((step) => {
           const isCompleted = currentStep > step.id;
@@ -31,7 +46,8 @@ export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
               onClick={() => isClickable && onStepClick?.(step.id)}
               disabled={!isClickable || isCurrent}
               className={cn(
-                "group relative flex items-center gap-3 rounded-full border px-4 py-2 text-sm font-medium transition",
+                "group relative flex items-center rounded-full border font-medium transition",
+                isCompact ? "gap-2 px-3 py-1.5 text-xs" : "gap-3 px-4 py-2 text-sm",
                 isCurrent &&
                   "border-primary bg-background text-foreground shadow-sm",
                 isCompleted && !isCurrent &&
@@ -43,7 +59,8 @@ export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
             >
               <span
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold transition",
+                  "flex items-center justify-center rounded-full border font-semibold transition",
+                  isCompact ? "h-6 w-6 text-xs" : "h-7 w-7 text-xs",
                   isCurrent && "border-primary bg-primary text-primary-foreground",
                   isCompleted && !isCurrent &&
                     "border-primary/40 bg-primary/10 text-primary",
@@ -52,16 +69,19 @@ export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
                   isClickable && !isCurrent && "group-hover:border-primary"
                 )}
               >
-                {isCompleted ? <IconCheck className="h-4 w-4" /> : step.id}
+                {isCompleted ? <IconCheck className={cn(isCompact ? "h-3 w-3" : "h-4 w-4")} /> : step.id}
               </span>
 
-              <span className="flex flex-col items-start leading-tight">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Steg {step.id}
-                </span>
+              <span className={cn("flex flex-col items-start leading-tight", isCompact && "gap-0")}>
+                {!isCompact && (
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Steg {step.id}
+                  </span>
+                )}
                 <span
                   className={cn(
-                    "text-sm font-semibold",
+                    "font-semibold",
+                    isCompact ? "text-xs" : "text-sm",
                     isCurrent && "text-foreground",
                     isCompleted && !isCurrent && "text-primary"
                   )}
@@ -69,7 +89,9 @@ export function Stepper({ currentStep, steps, onStepClick }: StepperProps) {
                   {step.title}
                 </span>
                 {step.optional && (
-                  <span className="text-[11px] text-muted-foreground">Valgfritt</span>
+                  <span className={cn("text-muted-foreground", isCompact ? "text-[10px]" : "text-[11px]")}>
+                    Valgfritt
+                  </span>
                 )}
               </span>
             </button>
