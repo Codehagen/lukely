@@ -19,7 +19,6 @@ import {
   IconExternalLink,
   IconSettings,
   IconChartBar,
-  IconDoorEnter,
   IconDotsVertical,
 } from "@tabler/icons-react";
 import { format } from "date-fns";
@@ -35,8 +34,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { CopyUrlButton } from "@/components/copy-url-button";
 import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 import { CalendarActivityTimeline } from "@/components/calendar-activity-timeline";
@@ -274,100 +271,101 @@ export default async function CalendarOverviewPage({
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Kalenderdetaljer</CardTitle>
-                  <Badge variant="secondary" className="gap-1.5">
-                    <IconCalendar className="h-3.5 w-3.5" />
-                    {typeLabels[calendar.type] || calendar.type}
-                  </Badge>
+                  <CardTitle className="text-lg">Kalenderdetaljer</CardTitle>
+                  <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
+                    <Button variant="ghost" size="sm">
+                      <IconSettings className="h-4 w-4 mr-2" />
+                      Rediger
+                    </Button>
+                  </Link>
                 </div>
-                <CardDescription>
-                  {format(calendar.startDate, "d. MMMM yyyy", { locale: nb })} - {format(calendar.endDate, "d. MMMM yyyy", { locale: nb })}
-                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Description */}
-                {calendar.description && (
-                  <>
-                    <div className="rounded-lg bg-muted/50 p-4">
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        {calendar.description}
-                      </p>
+              <CardContent>
+                <dl className="space-y-4">
+                  {/* Type and Dates */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Type</dt>
+                      <dd className="font-medium">{typeLabels[calendar.type] || calendar.type}</dd>
                     </div>
-                    <Separator />
-                  </>
-                )}
-
-                {/* Key Information */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <IconGift className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Antall luker</p>
-                        <p className="text-lg font-semibold">{calendar.doorCount}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">Produkter lagt til</p>
-                      <p className="text-lg font-semibold">
-                        {doorsWithProducts}/{calendar._count.doors}
-                      </p>
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Antall luker</dt>
+                      <dd className="font-medium">{calendar.doorCount}</dd>
                     </div>
                   </div>
-                </div>
 
-                <Separator />
-
-                {/* Public URL */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Offentlig URL</p>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/c/${calendar.slug}`}
-                      target="_blank"
-                      className="flex items-center gap-1.5 text-sm font-mono text-blue-600 hover:underline"
-                    >
-                      {process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/{calendar.slug}
-                      <IconExternalLink className="h-3.5 w-3.5" />
-                    </Link>
+                  {/* Dates */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Startdato</dt>
+                      <dd className="font-medium">
+                        {format(calendar.startDate, "d. MMMM yyyy", { locale: nb })}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Sluttdato</dt>
+                      <dd className="font-medium">
+                        {format(calendar.endDate, "d. MMMM yyyy", { locale: nb })}
+                      </dd>
+                    </div>
                   </div>
-                  <CopyUrlButton
-                    url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/${calendar.slug}`}
-                    className="w-full"
-                  />
-                </div>
 
-                <Separator />
+                  {/* Description */}
+                  {calendar.description && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Beskrivelse</dt>
+                      <dd className="text-sm">{calendar.description}</dd>
+                    </div>
+                  )}
 
-                {/* Branding */}
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-muted-foreground">Merkevare</p>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3">
+                  {/* Products Progress */}
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Produkter lagt til</dt>
+                    <dd className="font-medium">
+                      {doorsWithProducts}/{calendar._count.doors}
+                    </dd>
+                  </div>
+
+                  {/* Public URL */}
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Offentlig URL</dt>
+                    <dd className="space-y-2">
+                      <Link
+                        href={`/c/${calendar.slug}`}
+                        target="_blank"
+                        className="flex items-center gap-1.5 text-sm font-mono text-blue-600 hover:underline w-fit"
+                      >
+                        {process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/{calendar.slug}
+                        <IconExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                      <CopyUrlButton
+                        url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/${calendar.slug}`}
+                        className="w-full"
+                      />
+                    </dd>
+                  </div>
+
+                  {/* Branding */}
+                  <div>
+                    <dt className="text-sm text-muted-foreground mb-2">Profilfarge</dt>
+                    <dd className="flex items-center gap-3">
                       <div
-                        className="h-12 w-12 rounded-full border-2 shadow-sm"
+                        className="h-10 w-10 rounded border"
                         style={{
                           backgroundColor: calendar.brandColor || "#3B82F6",
                         }}
                       />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Profilfarge</p>
-                        <p className="font-mono text-sm font-semibold">
-                          {calendar.brandColor || "#3B82F6"}
-                        </p>
-                      </div>
-                    </div>
+                      <span className="font-mono text-sm">{calendar.brandColor || "#3B82F6"}</span>
+                    </dd>
                   </div>
-                </div>
+                </dl>
               </CardContent>
             </Card>
 
             {/* Right Column - Activity Timeline */}
             <Card>
               <CardHeader>
-                <CardTitle>Siste aktivitet</CardTitle>
+                <CardTitle className="text-lg">Siste aktivitet</CardTitle>
                 <CardDescription>
                   Nyeste deltakelser og vinnervalg
                 </CardDescription>
