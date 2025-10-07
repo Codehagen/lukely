@@ -33,12 +33,12 @@ const links = [
                 href: '#',
             },
             {
-                title: 'Lisens',
-                href: '#',
+                title: 'Personvern',
+                href: '/legal/personvern',
             },
             {
-                title: 'Personvern',
-                href: '#',
+                title: 'Vilkår',
+                href: '/legal/vilkar',
             },
         ],
     },

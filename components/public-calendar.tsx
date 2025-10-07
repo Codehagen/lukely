@@ -976,20 +976,17 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         <div className="flex-1">
                           <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
                             Jeg godtar{" "}
-                            {calendar.termsUrl ? (
-                              <a
-                                href={calendar.termsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                vilkårene for konkurransen
-                                <IconExternalLink className="h-3 w-3" />
-                              </a>
-                            ) : (
-                              <span className="font-medium">vilkårene for konkurransen</span>
-                            )}{" "}
+                            <a
+                              href={calendar.termsUrl || "/legal/vilkar"}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              vilkårene for konkurransen
+                              <IconExternalLink className="h-3 w-3" />
+                            </a>
+                            {" "}
                             <span className="text-destructive">*</span>
                           </Label>
                         </div>
@@ -1004,20 +1001,17 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         <div className="flex-1">
                           <Label htmlFor="privacy" className="text-sm font-normal cursor-pointer">
                             Jeg har lest og godtar{" "}
-                            {calendar.privacyPolicyUrl ? (
-                              <a
-                                href={calendar.privacyPolicyUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                personvernerklæringen
-                                <IconExternalLink className="h-3 w-3" />
-                              </a>
-                            ) : (
-                              <span className="font-medium">personvernerklæringen</span>
-                            )}{" "}
+                            <a
+                              href={calendar.privacyPolicyUrl || "/legal/personvern"}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              personvernerklæringen
+                              <IconExternalLink className="h-3 w-3" />
+                            </a>
+                            {" "}
                             <span className="text-destructive">*</span>
                           </Label>
                         </div>
