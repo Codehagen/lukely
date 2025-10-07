@@ -120,9 +120,9 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-6 sm:grid-cols-[minmax(0,1.4fr),minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-2">
           {/* Left Column: Form Fields (order-2 on mobile, order-1 on desktop) */}
-          <div className="space-y-6 order-2 sm:order-1">
+          <div className="space-y-6 order-2 lg:order-1">
             {/* Colors & Text Section */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-foreground">Farger & Tekst</h3>
@@ -210,7 +210,7 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
 
           {/* Right Column: Live Preview (order-1 on mobile, order-2 on desktop) */}
           <div
-            className="flex flex-col justify-between gap-6 rounded-xl border bg-background/60 p-6 order-1 sm:order-2"
+            className="flex flex-col justify-between gap-6 rounded-xl border bg-background/60 p-6 order-1 lg:order-2"
             style={{
               borderColor: accentBorder,
               background: `linear-gradient(160deg, ${accentSurface} 0%, transparent 100%)`,
