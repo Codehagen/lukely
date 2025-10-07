@@ -164,6 +164,11 @@ enum CalendarStatus {
   ARCHIVED
 }
 
+enum CalendarFormat {
+  LANDING
+  QUIZ
+}
+
 // Main calendar model
 model Calendar {
   id              String          @id @default(cuid())
@@ -171,6 +176,7 @@ model Calendar {
   slug            String          @unique
   description     String?
   type            CalendarType
+  format          CalendarFormat  @default(LANDING)
   status          CalendarStatus  @default(DRAFT)
 
   // Branding

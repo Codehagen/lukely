@@ -198,7 +198,7 @@ export default function CalendarPreview({ formData }: CalendarPreviewProps) {
                       className="text-3xl font-bold mb-4 leading-tight"
                       style={{
                         fontFamily: formData.brandFont ? getFontFamilyValue(formData.brandFont) : undefined,
-                        background: `linear-gradient(135deg, ${formData.brandColor || "#3B82F6"}, ${formData.brandColor || "#3B82F6"}99)`,
+                        backgroundImage: `linear-gradient(135deg, ${formData.brandColor || "#3B82F6"}, ${formData.brandColor || "#3B82F6"}99)`,
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text"

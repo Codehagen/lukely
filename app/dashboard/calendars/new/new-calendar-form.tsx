@@ -8,30 +8,33 @@ import { CALENDAR_TEMPLATES, getDefaultDatesForYear } from "@/lib/calendar-templ
 import { toast } from "sonner";
 import { Stepper, Step } from "@/components/ui/stepper";
 import { StepNavigation } from "@/components/calendar-form-steps/step-navigation";
+import { StepFormat } from "@/components/calendar-form-steps/step-format";
 import { StepGrunnleggende } from "@/components/calendar-form-steps/step-grunnleggende";
 import { StepDatoer } from "@/components/calendar-form-steps/step-datoer";
 import { StepQuiz } from "@/components/calendar-form-steps/step-quiz";
 import { StepMerkevare } from "@/components/calendar-form-steps/step-merkevare";
 import { StepOppsummering } from "@/components/calendar-form-steps/step-oppsummering";
 import CalendarPreview from "@/components/calendar-preview";
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { IconEye, IconEyeOff, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
 
 const FORM_STEPS: Step[] = [
-  { id: 1, title: "Grunnleggende" },
-  { id: 2, title: "Datoer" },
-  { id: 3, title: "Quiz", optional: true },
-  { id: 4, title: "Merkevare", optional: true },
-  { id: 5, title: "Oppsummering" },
+  { id: 1, title: "Format" },
+  { id: 2, title: "Mal" },
+  { id: 3, title: "Grunnleggende" },
+  { id: 4, title: "Datoer" },
+  { id: 5, title: "Quiz", optional: true },
+  { id: 6, title: "Merkevare", optional: true },
+  { id: 7, title: "Oppsummering" },
 ];
 
 export default function NewCalendarForm() {
   const router = useRouter();
-  const [templateStep, setTemplateStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [currentFormStep, setCurrentFormStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [formData, setFormData] = useState({
+    calendarFormat: "" as "landing" | "quiz" | "",
     title: "",
     description: "",
     slug: "",
@@ -67,9 +70,27 @@ export default function NewCalendarForm() {
       brandColor: template.theme.colors[0],
       startDate: dates?.startDate || new Date(),
       endDate: dates?.endDate || new Date(),
+      // Auto-enable quiz if format is quiz
+      enableQuiz: formData.calendarFormat === "quiz",
     });
 
-    setTemplateStep(2);
+    // Move to step 3 (Grunnleggende)
+    setCurrentFormStep(3);
+  };
+
+  const handleBrandingImport = (branding: {
+    title: string;
+    description: string;
+    brandColor?: string;
+    logo?: string;
+  }) => {
+    setFormData({
+      ...formData,
+      title: branding.title,
+      description: branding.description,
+      brandColor: branding.brandColor || formData.brandColor,
+      logo: branding.logo || formData.logo,
+    });
   };
 
   const generateSlug = (title: string) => {
@@ -89,13 +110,27 @@ export default function NewCalendarForm() {
 
   const nextStep = () => {
     if (currentFormStep < FORM_STEPS.length) {
-      setCurrentFormStep(currentFormStep + 1);
+      let nextStepNumber = currentFormStep + 1;
+
+      // Skip quiz step (5) if format is "landing"
+      if (nextStepNumber === 5 && formData.calendarFormat === "landing") {
+        nextStepNumber = 6;
+      }
+
+      setCurrentFormStep(nextStepNumber);
     }
   };
 
   const previousStep = () => {
     if (currentFormStep > 1) {
-      setCurrentFormStep(currentFormStep - 1);
+      let prevStepNumber = currentFormStep - 1;
+
+      // Skip quiz step (5) if format is "landing" when going back
+      if (prevStepNumber === 5 && formData.calendarFormat === "landing") {
+        prevStepNumber = 4;
+      }
+
+      setCurrentFormStep(prevStepNumber);
     }
   };
 
@@ -106,7 +141,7 @@ export default function NewCalendarForm() {
   };
 
   const skipToSummary = () => {
-    setCurrentFormStep(5);
+    setCurrentFormStep(7); // Updated to new step count
   };
 
   const handleSaveDraft = () => {
@@ -133,6 +168,9 @@ export default function NewCalendarForm() {
           type: template.type,
           startDate: formData.startDate.toISOString(),
           endDate: formData.endDate.toISOString(),
+          calendarFormat: formData.calendarFormat,
+          // Auto-enable quiz if format is "quiz"
+          enableQuiz: formData.calendarFormat === "quiz" ? true : formData.enableQuiz,
         }),
       });
 
@@ -185,35 +223,66 @@ export default function NewCalendarForm() {
       <div className={`grid gap-6 ${showPreview ? "lg:grid-cols-[1fr_1fr] xl:grid-cols-[3fr_2fr]" : "grid-cols-1"}`}>
         {/* LEFT PANEL */}
         <div className={`space-y-6 ${!showPreview ? "max-w-4xl mx-auto w-full" : ""}`}>
-          {templateStep === 1 && (
+          {/* Step 1: Format Selection */}
+          {currentFormStep === 1 && (
             <>
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Velg en mal</h2>
+                <h2 className="text-xl font-semibold">Velg kalenderformat</h2>
+                <StepFormat
+                  formData={formData}
+                  onFormatChange={(format) => setFormData({ ...formData, calendarFormat: format })}
+                />
+
+                {/* Navigation button - appears after format is selected */}
+                {formData.calendarFormat && (
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={nextStep} size="lg">
+                      Neste
+                      <IconArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Step 2: Template Selection */}
+          {currentFormStep === 2 && (
+            <>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Velg en mal</h2>
+                  <Button variant="ghost" size="sm" onClick={previousStep}>
+                    <IconArrowLeft className="mr-2 h-4 w-4" />
+                    Tilbake
+                  </Button>
+                </div>
                 <div className="grid grid-cols-1 gap-4">
-                {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
-                  <Card
-                    key={key}
-                    className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => handleTemplateSelect(key)}
-                  >
-                    <CardHeader>
-                      <div className="text-4xl mb-2">{template.theme.icon}</div>
-                      <CardTitle className="text-lg">{template.title}</CardTitle>
-                      <CardDescription>{template.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                        {template.doorCount} luker
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
+                  {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
+                    <Card
+                      key={key}
+                      className="cursor-pointer hover:border-primary transition-colors"
+                      onClick={() => handleTemplateSelect(key)}
+                    >
+                      <CardHeader>
+                        <div className="text-4xl mb-2">{template.theme.icon}</div>
+                        <CardTitle className="text-lg">{template.title}</CardTitle>
+                        <CardDescription>{template.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                          {template.doorCount} luker
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </div>
             </>
           )}
 
-          {templateStep === 2 && selectedTemplate && (
+          {/* Steps 3-7: Form Configuration */}
+          {currentFormStep >= 3 && selectedTemplate && (
             <>
               {/* Stepper Navigation - Clean and Prominent */}
               <div className="space-y-4">
@@ -238,7 +307,7 @@ export default function NewCalendarForm() {
                         </>
                       )}
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setTemplateStep(1)}>
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentFormStep(2)}>
                       <span className="hidden sm:inline">Tilbake til maler</span>
                       <span className="sm:hidden">Tilbake</span>
                     </Button>
@@ -256,7 +325,7 @@ export default function NewCalendarForm() {
 
               {/* Form Steps Content */}
               <div className="mt-6">
-                {currentFormStep === 1 && (
+                {currentFormStep === 3 && (
                   <StepGrunnleggende
                     formData={formData}
                     onTitleChange={(title) => generateSlug(title)}
@@ -264,10 +333,11 @@ export default function NewCalendarForm() {
                     onDescriptionChange={(description) =>
                       setFormData({ ...formData, description })
                     }
+                    onBrandingImport={handleBrandingImport}
                   />
                 )}
 
-                {currentFormStep === 2 && (
+                {currentFormStep === 4 && (
                   <StepDatoer
                     formData={formData}
                     onStartDateChange={(startDate) =>
@@ -281,7 +351,7 @@ export default function NewCalendarForm() {
                   />
                 )}
 
-                {currentFormStep === 3 && (
+                {currentFormStep === 5 && formData.calendarFormat === "quiz" && (
                   <StepQuiz
                     formData={formData}
                     onEnableQuizChange={(enableQuiz) =>
@@ -305,7 +375,7 @@ export default function NewCalendarForm() {
                   />
                 )}
 
-                {currentFormStep === 4 && (
+                {currentFormStep === 6 && (
                   <StepMerkevare
                     formData={formData}
                     onBrandColorChange={(brandColor) =>
@@ -320,7 +390,7 @@ export default function NewCalendarForm() {
                   />
                 )}
 
-                {currentFormStep === 5 && (
+                {currentFormStep === 7 && (
                   <StepOppsummering formData={formData} onEdit={goToStep} />
                 )}
               </div>
@@ -333,7 +403,7 @@ export default function NewCalendarForm() {
                 onSkip={skipToSummary}
                 onSubmit={handleSubmit}
                 isSubmitting={isCreating}
-                canSkip={currentFormStep === 3 || currentFormStep === 4}
+                canSkip={currentFormStep === 5 || currentFormStep === 6}
               />
             </>
           )}
