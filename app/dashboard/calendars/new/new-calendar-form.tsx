@@ -224,11 +224,60 @@ export default function NewCalendarForm() {
           }
         );
 
-        if (quizResponse.ok) {
-          const quizResult = await quizResponse.json();
-          toast.success(quizResult.message, { id: "quiz-gen" });
-        } else {
+        if (!quizResponse.ok) {
           toast.error("Noen quizer kunne ikke genereres", { id: "quiz-gen" });
+        } else {
+          // Read SSE stream
+          const reader = quizResponse.body?.getReader();
+          const decoder = new TextDecoder();
+
+          if (reader) {
+            try {
+              let successCount = 0;
+              let failedCount = 0;
+
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
+
+                for (const line of lines) {
+                  if (line.startsWith("data: ")) {
+                    try {
+                      const data = JSON.parse(line.slice(6));
+
+                      if (data.type === "progress") {
+                        toast.loading(
+                          `Genererer quiz for luke ${data.current} av ${data.total}...`,
+                          { id: "quiz-gen" }
+                        );
+                      } else if (data.type === "complete") {
+                        successCount = data.results.success;
+                        failedCount = data.results.failed;
+                      } else if (data.type === "error") {
+                        toast.error(data.message, { id: "quiz-gen" });
+                      }
+                    } catch (e) {
+                      console.error("Error parsing SSE:", e);
+                    }
+                  }
+                }
+              }
+
+              // Show final result
+              if (successCount > 0) {
+                toast.success(
+                  `Quiz generert for ${successCount} ${failedCount > 0 ? `av ${successCount + failedCount}` : ""} luker!`,
+                  { id: "quiz-gen" }
+                );
+              }
+            } catch (error) {
+              console.error("Error reading SSE stream:", error);
+              toast.error("Noen quizer kunne ikke genereres", { id: "quiz-gen" });
+            }
+          }
         }
       } else {
         toast.success("Kalenderen ble opprettet!");
