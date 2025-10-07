@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { IconCheck, IconPalette, IconPhoto } from "@tabler/icons-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,10 +18,13 @@ interface CalendarQuickBrandingProps {
   calendar: {
     id: string;
     brandColor: string | null;
+    brandFont: string | null;
     logo: string | null;
     bannerImage: string | null;
     buttonText: string | null;
     thankYouMessage: string | null;
+    footerText: string | null;
+    metaDescription: string | null;
   };
 }
 
@@ -28,11 +33,40 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
   const [isUpdating, setIsUpdating] = useState(false);
   const [formData, setFormData] = useState({
     brandColor: calendar.brandColor || "#3B82F6",
+    brandFont: calendar.brandFont || "Inter",
     logo: calendar.logo || "",
     bannerImage: calendar.bannerImage || "",
     buttonText: calendar.buttonText || "Delta nå",
     thankYouMessage: calendar.thankYouMessage || "Takk for din deltakelse!",
+    footerText: calendar.footerText || "",
+    metaDescription: calendar.metaDescription || "",
   });
+
+  // Load Google Fonts dynamically for preview
+  useEffect(() => {
+    const fontName = formData.brandFont.replace(/\s/g, "+");
+    const linkId = "dynamic-font-link";
+
+    // Remove existing font link if present
+    const existingLink = document.getElementById(linkId);
+    if (existingLink) {
+      existingLink.remove();
+    }
+
+    // Add new font link
+    const link = document.createElement("link");
+    link.id = linkId;
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
+    document.head.appendChild(link);
+
+    return () => {
+      const linkToRemove = document.getElementById(linkId);
+      if (linkToRemove) {
+        linkToRemove.remove();
+      }
+    };
+  }, [formData.brandFont]);
 
   const handleUpdate = async () => {
     setIsUpdating(true);
@@ -57,10 +91,13 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
 
   const hasChanges = JSON.stringify(formData) !== JSON.stringify({
     brandColor: calendar.brandColor || "#3B82F6",
+    brandFont: calendar.brandFont || "Inter",
     logo: calendar.logo || "",
     bannerImage: calendar.bannerImage || "",
     buttonText: calendar.buttonText || "Delta nå",
     thankYouMessage: calendar.thankYouMessage || "Takk for din deltakelse!",
+    footerText: calendar.footerText || "",
+    metaDescription: calendar.metaDescription || "",
   });
 
   const fallbackColor = "#3B82F6";
@@ -174,6 +211,42 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
                   Meldingen som vises etter en vellykket deltakelse
                 </FieldDescription>
               </Field>
+
+              <Field>
+                <FieldLabel htmlFor="brandFont">Skrifttype</FieldLabel>
+                <Select
+                  value={formData.brandFont}
+                  onValueChange={(value) => setFormData({ ...formData, brandFont: value })}
+                >
+                  <SelectTrigger id="brandFont">
+                    <SelectValue placeholder="Velg skrifttype" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Inter">Inter</SelectItem>
+                    <SelectItem value="Roboto">Roboto</SelectItem>
+                    <SelectItem value="Open Sans">Open Sans</SelectItem>
+                    <SelectItem value="Montserrat">Montserrat</SelectItem>
+                    <SelectItem value="Lato">Lato</SelectItem>
+                    <SelectItem value="Poppins">Poppins</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldDescription>
+                  Skrifttypen som brukes i kalenderen
+                </FieldDescription>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="footerText">Bunntekst</FieldLabel>
+                <Input
+                  id="footerText"
+                  value={formData.footerText}
+                  onChange={(e) => setFormData({ ...formData, footerText: e.target.value })}
+                  placeholder="© 2024 Ditt Firma AS"
+                />
+                <FieldDescription>
+                  Valgfri tekst som vises nederst i kalenderen
+                </FieldDescription>
+              </Field>
             </div>
 
             {/* Images Section */}
@@ -206,6 +279,25 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
                 </FieldDescription>
               </Field>
             </div>
+
+            {/* SEO Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-semibold text-foreground">SEO & Deling</h3>
+
+              <Field>
+                <FieldLabel htmlFor="metaDescription">Meta-beskrivelse</FieldLabel>
+                <Textarea
+                  id="metaDescription"
+                  value={formData.metaDescription}
+                  onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                  placeholder="En kort beskrivelse av din julekalender som vises når den deles på sosiale medier..."
+                  rows={3}
+                />
+                <FieldDescription>
+                  Brukes i søkemotorer og når kalenderen deles på sosiale medier (maks 160 tegn)
+                </FieldDescription>
+              </Field>
+            </div>
           </div>
 
           {/* Right Column: Live Preview (order-1 on mobile, order-2 on desktop) */}
@@ -214,6 +306,7 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
             style={{
               borderColor: accentBorder,
               background: `linear-gradient(160deg, ${accentSurface} 0%, transparent 100%)`,
+              fontFamily: `"${formData.brandFont}", system-ui, -apple-system, sans-serif`,
             }}
           >
             <div className="space-y-3">
@@ -268,6 +361,12 @@ export function CalendarQuickBranding({ calendar }: CalendarQuickBrandingProps) 
               >
                 {formData.buttonText}
               </button>
+
+              {formData.footerText && (
+                <p className="text-xs text-muted-foreground text-center mt-4 pt-3 border-t">
+                  {formData.footerText}
+                </p>
+              )}
             </div>
           </div>
         </div>

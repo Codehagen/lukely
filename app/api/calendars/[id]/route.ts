@@ -202,6 +202,7 @@ export async function PATCH(
         slug: body.slug,
         description: body.description,
         brandColor: body.brandColor,
+        brandFont: body.brandFont,
         logo: body.logo,
         bannerImage: body.bannerImage,
         buttonText: body.buttonText,
