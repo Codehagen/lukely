@@ -352,6 +352,7 @@ model Winner {
   selectedAt      DateTime        @default(now())
   notified        Boolean         @default(false)
   notifiedAt      DateTime?
+  isPublic        Boolean         @default(false)
 
   @@index([leadId])
   @@map("winner")

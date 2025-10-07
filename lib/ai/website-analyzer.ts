@@ -12,10 +12,6 @@ export const WebsiteAnalysisSchema = z.object({
     .union([z.string().regex(/^#[0-9A-F]{6}$/i), z.null()])
     .optional()
     .describe("Secondary brand color as hex code"),
-  logoUrl: z
-    .union([z.string().url(), z.null()])
-    .optional()
-    .describe("URL to the company logo (og:image, favicon, or main logo)"),
   description: z
     .string()
     .describe("Business description or tagline in Norwegian"),
@@ -31,30 +27,59 @@ export const WebsiteAnalysisSchema = z.object({
 export type WebsiteAnalysis = z.infer<typeof WebsiteAnalysisSchema>;
 
 /**
+ * Normalizes a URL to ensure it has the correct format
+ * Handles various input formats:
+ * - "codenord.no" -> "https://codenord.no"
+ * - "www.codenord.no" -> "https://www.codenord.no"
+ * - "http://codenord.no" -> "https://codenord.no"
+ * - "https://codenord.no/" -> "https://codenord.no"
+ */
+function normalizeUrl(input: string): string {
+  let url = input.trim();
+
+  // Remove trailing slashes
+  url = url.replace(/\/+$/, "");
+
+  // Add protocol if missing
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = `https://${url}`;
+  }
+
+  // Upgrade HTTP to HTTPS
+  if (url.startsWith("http://")) {
+    url = url.replace("http://", "https://");
+  }
+
+  // Parse URL to validate and extract base
+  try {
+    const parsedUrl = new URL(url);
+
+    // Return base URL (protocol + hostname)
+    return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+  } catch (error) {
+    throw new Error("Ugyldig URL-format. Vennligst skriv inn et gyldig domene (f.eks. codenord.no)");
+  }
+}
+
+/**
  * Fetches and analyzes a website to extract branding information using AI
  * @param url - The URL of the website to analyze
  * @returns Structured branding information
  */
 export async function analyzeWebsite(url: string): Promise<WebsiteAnalysis> {
-  // Validate URL format
-  try {
-    new URL(url);
-  } catch {
-    throw new Error("Ugyldig URL-format. Vennligst bruk en fullstendig URL (f.eks. https://example.com)");
-  }
+  // Normalize URL (add protocol, remove trailing slashes, etc.)
+  const normalizedUrl = normalizeUrl(url);
 
   // Fetch website content
   let htmlContent: string;
   let pageTitle: string = "";
   let metaDescription: string = "";
-  let ogImage: string = "";
-  let faviconUrl: string = "";
 
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    const response = await fetch(url, {
+    const response = await fetch(normalizedUrl, {
       signal: controller.signal,
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; LukelyBot/1.0; +https://lukely.no)",
@@ -77,32 +102,6 @@ export async function analyzeWebsite(url: string): Promise<WebsiteAnalysis> {
       /<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i
     );
     metaDescription = metaDescMatch?.[1]?.trim() || "";
-
-    const ogImageMatch = htmlContent.match(
-      /<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i
-    );
-    ogImage = ogImageMatch?.[1]?.trim() || "";
-
-    const faviconMatch = htmlContent.match(
-      /<link\s+[^>]*rel=["'](?:icon|shortcut icon)["'][^>]*href=["']([^"']+)["']/i
-    );
-    faviconUrl = faviconMatch?.[1]?.trim() || "";
-
-    // Make favicon URL absolute if relative
-    if (faviconUrl && !faviconUrl.startsWith("http")) {
-      const urlObj = new URL(url);
-      faviconUrl = faviconUrl.startsWith("/")
-        ? `${urlObj.protocol}//${urlObj.host}${faviconUrl}`
-        : `${urlObj.protocol}//${urlObj.host}/${faviconUrl}`;
-    }
-
-    // Make og:image URL absolute if relative
-    if (ogImage && !ogImage.startsWith("http")) {
-      const urlObj = new URL(url);
-      ogImage = ogImage.startsWith("/")
-        ? `${urlObj.protocol}//${urlObj.host}${ogImage}`
-        : `${urlObj.protocol}//${urlObj.host}/${ogImage}`;
-    }
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === "AbortError") {
@@ -129,11 +128,9 @@ export async function analyzeWebsite(url: string): Promise<WebsiteAnalysis> {
   const prompt = `
 Analyser denne nettsiden og ekstraher merkevareinfo:
 
-URL: ${url}
+URL: ${normalizedUrl}
 Side tittel: ${pageTitle}
 Meta beskrivelse: ${metaDescription}
-OG:Image: ${ogImage || "Ikke funnet"}
-Favicon: ${faviconUrl || "Ikke funnet"}
 
 Tekstinnhold (utdrag):
 ${textContent.substring(0, 1500)}
@@ -145,7 +142,6 @@ VIKTIGE REGLER:
 - businessName: Bedriftens/merkets navn (IKKE nettstedsdomene)
 - brandColor: Finn primærfargen fra logo, overskrifter eller dominerende farger (HEX format)
 - secondaryColor: Sekundærfarge hvis synlig (valgfritt)
-- logoUrl: Bruk OG:Image hvis tilgjengelig, ellers favicon, ellers null
 - description: Lag en kort bedriftsbeskrivelse på norsk basert på innholdet (1-2 setninger)
 - suggestedCalendarTitle: Foreslå en kalendertittel på norsk (f.eks. "[Bedriftsnavn] Julekalender 2024")
 - detectedFont: Font-familie fra CSS hvis synlig, ellers null

@@ -18,10 +18,7 @@ interface StepGrunnleggendeProps {
   onSlugChange: (slug: string) => void;
   onDescriptionChange: (description: string) => void;
   onBrandingImport?: (branding: {
-    title: string;
-    description: string;
     brandColor?: string;
-    logo?: string;
   }) => void;
 }
 
@@ -59,19 +56,17 @@ export function StepGrunnleggende({
       }
 
       // Extract branding data
-      const { businessName, description, suggestedCalendarTitle, brandColor, logoUrl } = data.data;
+      const { businessName, description, suggestedCalendarTitle, brandColor } = data.data;
 
       // Update form fields
       onTitleChange(suggestedCalendarTitle || businessName || "");
       onDescriptionChange(description || "");
 
-      // Pass branding info to parent (for color and logo)
+      // Pass branding info to parent (for color only)
+      // Note: title and description already handled by onTitleChange/onDescriptionChange above
       if (onBrandingImport) {
         onBrandingImport({
-          title: suggestedCalendarTitle || businessName || "",
-          description: description || "",
           brandColor: brandColor || undefined,
-          logo: logoUrl || undefined,
         });
       }
 

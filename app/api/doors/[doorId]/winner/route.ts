@@ -93,3 +93,81 @@ export async function POST(
     );
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ doorId: string }> }
+) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 401 });
+    }
+
+    const { doorId } = await params;
+    const { isPublic } = await req.json();
+
+    if (typeof isPublic !== "boolean") {
+      return NextResponse.json(
+        { error: "Ugyldig forespørsel" },
+        { status: 400 }
+      );
+    }
+
+    const door = await prisma.door.findUnique({
+      where: { id: doorId },
+      include: {
+        calendar: {
+          include: {
+            workspace: {
+              include: {
+                members: {
+                  where: { userId: session.user.id },
+                },
+              },
+            },
+          },
+        },
+        winner: {
+          include: {
+            lead: true,
+          },
+        },
+      },
+    });
+
+    if (!door) {
+      return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
+    }
+
+    if (door.calendar.workspace.members.length === 0) {
+      return NextResponse.json({ error: "Ingen tilgang" }, { status: 403 });
+    }
+
+    if (!door.winner) {
+      return NextResponse.json(
+        { error: "Ingen vinner å oppdatere" },
+        { status: 400 }
+      );
+    }
+
+    const winner = await prisma.winner.update({
+      where: { doorId },
+      data: { isPublic },
+      include: {
+        lead: true,
+      },
+    });
+
+    return NextResponse.json(winner);
+  } catch (error) {
+    console.error("Error updating winner visibility:", error);
+    return NextResponse.json(
+      { error: "Kunne ikke oppdatere vinner" },
+      { status: 500 }
+    );
+  }
+}

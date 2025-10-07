@@ -79,18 +79,21 @@ export default function NewCalendarForm() {
   };
 
   const handleBrandingImport = (branding: {
-    title: string;
-    description: string;
     brandColor?: string;
-    logo?: string;
   }) => {
     setFormData({
       ...formData,
-      title: branding.title,
-      description: branding.description,
       brandColor: branding.brandColor || formData.brandColor,
-      logo: branding.logo || formData.logo,
     });
+  };
+
+  const generateRandomSuffix = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   };
 
   const generateSlug = (title: string) => {
@@ -102,9 +105,12 @@ export default function NewCalendarForm() {
       .replace(/ø/g, "o")
       .replace(/å/g, "a");
 
-    const slug = normalizedTitle
+    const baseSlug = normalizedTitle
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+
+    // Add random suffix for uniqueness
+    const slug = `${baseSlug}-${generateRandomSuffix()}`;
     setFormData({ ...formData, title, slug });
   };
 
@@ -144,6 +150,27 @@ export default function NewCalendarForm() {
     setCurrentFormStep(7); // Updated to new step count
   };
 
+  const canProceedFromCurrentStep = () => {
+    switch (currentFormStep) {
+      case 1: // Format selection
+        return !!formData.calendarFormat;
+      case 2: // Template selection
+        return !!selectedTemplate;
+      case 3: // Grunnleggende (title and slug required)
+        return !!formData.title.trim() && !!formData.slug.trim();
+      case 4: // Datoer
+        return true; // Dates are set automatically
+      case 5: // Quiz (optional step)
+        return true;
+      case 6: // Merkevare (optional step)
+        return true;
+      case 7: // Oppsummering
+        return true;
+      default:
+        return true;
+    }
+  };
+
   const handleSaveDraft = () => {
     toast.message("Lagring som utkast kommer snart");
   };
@@ -154,6 +181,12 @@ export default function NewCalendarForm() {
 
   const handleSubmit = async () => {
     if (!selectedTemplate) return;
+
+    // Validate required fields
+    if (!formData.title || !formData.slug) {
+      toast.error("Vennligst fyll ut tittel og URL-slug");
+      return;
+    }
 
     setIsCreating(true);
     try {
@@ -187,7 +220,7 @@ export default function NewCalendarForm() {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ questionCount: 3 }),
+            body: JSON.stringify({ questionCount: 1 }),
           }
         );
 
@@ -360,15 +393,6 @@ export default function NewCalendarForm() {
                     onPassingScoreChange={(defaultQuizPassingScore) =>
                       setFormData({ ...formData, defaultQuizPassingScore })
                     }
-                    onShowAnswersChange={(defaultShowCorrectAnswers) =>
-                      setFormData({ ...formData, defaultShowCorrectAnswers })
-                    }
-                    onAllowRetryChange={(defaultAllowRetry) =>
-                      setFormData({ ...formData, defaultAllowRetry })
-                    }
-                    onInstructionsChange={(aiQuizInstructions) =>
-                      setFormData({ ...formData, aiQuizInstructions })
-                    }
                     onGenerateAllChange={(generateAllQuizzes) =>
                       setFormData({ ...formData, generateAllQuizzes })
                     }
@@ -404,6 +428,7 @@ export default function NewCalendarForm() {
                 onSubmit={handleSubmit}
                 isSubmitting={isCreating}
                 canSkip={currentFormStep === 5 || currentFormStep === 6}
+                canProceed={canProceedFromCurrentStep()}
               />
             </>
           )}

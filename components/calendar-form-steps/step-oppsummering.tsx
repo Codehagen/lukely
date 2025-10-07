@@ -1,7 +1,6 @@
-import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IconEdit, IconCheck, IconX, IconPhoto } from "@tabler/icons-react";
+import { IconEdit, IconCheck, IconX, IconPhoto, IconLink } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { HOME_DOMAIN } from "@/lib/config";
@@ -231,15 +230,9 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
             {formData.logo ? (
               <div>
                 <dt className="text-sm text-muted-foreground mb-2">Logo</dt>
-                <dd>
-                  <div className="relative h-16 w-16 overflow-hidden rounded-lg border bg-white shadow-sm">
-                    <Image
-                      src={formData.logo}
-                      alt="Forhåndsvisning av logo"
-                      fill
-                      className="object-contain p-2"
-                    />
-                  </div>
+                <dd className="flex items-start gap-2 rounded-md border p-3 bg-muted/50">
+                  <IconLink className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm break-all">{formData.logo}</span>
                 </dd>
               </div>
             ) : (

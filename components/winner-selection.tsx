@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import {
   Item,
   ItemActions,
@@ -53,6 +54,7 @@ interface Winner {
   selectedAt: Date;
   notified: boolean;
   lead: Lead;
+  isPublic: boolean;
 }
 
 interface DoorEntry {
@@ -95,6 +97,7 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
   const router = useRouter();
   const [selectedDoor, setSelectedDoor] = useState<Door | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [updatingWinnerDoorId, setUpdatingWinnerDoorId] = useState<string | null>(null);
   const hasDoors = calendar.doors.length > 0;
 
   const selectRandomWinner = async (door: Door) => {
@@ -122,6 +125,34 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
       console.error(error);
     } finally {
       setIsSelecting(false);
+    }
+  };
+
+  const updateWinnerVisibility = async (door: Door, isPublic: boolean) => {
+    if (!door.winner) return;
+
+    setUpdatingWinnerDoorId(door.id);
+    try {
+      const response = await fetch(`/api/doors/${door.id}/winner`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublic }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => null);
+        throw new Error(error?.error || "Kunne ikke oppdatere vinner");
+      }
+
+      toast.success(
+        isPublic ? "Vinner annonsert på offentlig kalender" : "Vinner skjult fra offentlig kalender"
+      );
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Kunne ikke oppdatere visningen av vinner");
+    } finally {
+      setUpdatingWinnerDoorId(null);
     }
   };
 
@@ -212,6 +243,22 @@ export default function WinnerSelection({ calendar }: { calendar: Calendar }) {
                           <p className="text-xs text-green-600">Varslet</p>
                         </div>
                       )}
+                      <div className="flex items-center justify-between gap-3 mt-3 border-t border-yellow-200 pt-3">
+                        <div>
+                          <p className="text-xs font-medium uppercase text-yellow-700 dark:text-yellow-300">
+                            Vis på offentlig kalender
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            Slå på for å annonsere vinneren på nettsiden
+                          </p>
+                        </div>
+                        <Switch
+                          checked={door.winner.isPublic}
+                          onCheckedChange={(checked) => updateWinnerVisibility(door, checked)}
+                          disabled={updatingWinnerDoorId === door.id}
+                          aria-label="Vis vinner på offentlig kalender"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <Button

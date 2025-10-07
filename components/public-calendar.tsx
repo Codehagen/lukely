@@ -46,6 +46,7 @@ interface Door {
   } | null;
   winner: {
     id: string;
+    isPublic: boolean;
     lead: {
       name: string | null;
       email: string;
@@ -494,6 +495,9 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
           {calendar.doors.map((door) => {
             const isOpen = isDoorOpen(door);
             const hasWinner = !!door.winner;
+            const publicWinnerName = door.winner?.isPublic
+              ? door.winner?.lead.name || door.winner?.lead.email
+              : null;
             const isTodaysDoor = todaysDoor?.id === door.id;
 
             return (
@@ -541,7 +545,9 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                       >
                         {door.doorNumber}
                       </p>
-                      <p className="text-xs text-muted-foreground text-center">Vinner trukket</p>
+                      <p className="text-xs text-muted-foreground text-center">
+                        {publicWinnerName ? `Vinner: ${publicWinnerName}` : "Vinner trukket"}
+                      </p>
                     </>
                   ) : (
                     <>
@@ -851,8 +857,8 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 )}
 
                 {selectedDoor.winner ? (
-                  <div className="rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg">
-                    <div className="flex items-center gap-3 mb-3">
+                  <div className="rounded-2xl bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg space-y-3">
+                    <div className="flex items-center gap-3">
                       <span className="text-3xl" role="img" aria-label="trophy">🏆</span>
                       <div>
                         <h4 className="font-bold text-xl">Vinner trukket!</h4>
@@ -861,9 +867,25 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm font-medium bg-white/50 dark:bg-black/20 p-3 rounded-lg">
-                      🎉 Gratulerer til vinneren! Takk til alle som deltok.
-                    </p>
+                    {selectedDoor.winner.isPublic ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold bg-white/70 dark:bg-black/20 p-3 rounded-lg">
+                          🎉 Gratulerer til {selectedDoor.winner.lead.name || selectedDoor.winner.lead.email}!
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Tusen takk til alle som deltok – følg med for flere premier.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium bg-white/50 dark:bg-black/20 p-3 rounded-lg">
+                          Vinneren er trukket og kontaktet direkte.
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Arrangøren har valgt å ikke annonsere vinneren offentlig.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-8">

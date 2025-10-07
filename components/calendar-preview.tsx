@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -126,28 +125,15 @@ export default function CalendarPreview({ formData }: CalendarPreviewProps) {
                 <div className="px-4 py-3">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      {formData.logo ? (
-                        <div className="relative h-10 w-10 overflow-hidden rounded-xl shadow-lg bg-white dark:bg-white/10 p-2 border border-gray-100 dark:border-gray-800">
-                          <Image
-                            src={formData.logo}
-                            alt={formData.title || "Calendar"}
-                            fill
-                            sizes="40px"
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="h-10 w-10 rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg"
-                          style={{
-                            backgroundColor: formData.brandColor || "#3B82F6",
-                            fontFamily: formData.brandFont ? getFontFamilyValue(formData.brandFont) : undefined
-                          }}
-                        >
-                          {(formData.title || "K").charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <div
+                        className="h-10 w-10 rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg"
+                        style={{
+                          backgroundColor: formData.brandColor || "#3B82F6",
+                          fontFamily: formData.brandFont ? getFontFamilyValue(formData.brandFont) : undefined
+                        }}
+                      >
+                        {(formData.title || "K").charAt(0).toUpperCase()}
+                      </div>
                       <div>
                         <h1
                           className="text-lg font-bold tracking-tight"

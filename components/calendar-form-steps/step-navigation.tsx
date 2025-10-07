@@ -11,6 +11,7 @@ interface StepNavigationProps {
   onSubmit?: () => void;
   isSubmitting?: boolean;
   canSkip?: boolean;
+  canProceed?: boolean;
 }
 
 export function StepNavigation({
@@ -22,6 +23,7 @@ export function StepNavigation({
   onSubmit,
   isSubmitting = false,
   canSkip = false,
+  canProceed = true,
 }: StepNavigationProps) {
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === totalSteps;
@@ -66,7 +68,7 @@ export function StepNavigation({
             )}
           </Button>
         ) : (
-          <Button type="button" onClick={onNext} disabled={isSubmitting}>
+          <Button type="button" onClick={onNext} disabled={isSubmitting || !canProceed}>
             Neste
             <IconArrowRight className="ml-2 h-4 w-4" />
           </Button>

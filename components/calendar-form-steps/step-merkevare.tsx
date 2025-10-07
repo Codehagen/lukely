@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ImageUpload } from "@/components/image-upload";
 import { GOOGLE_FONTS, getFontFamilyValue } from "@/lib/google-fonts";
 import { useGoogleFont } from "@/hooks/use-google-font";
 
@@ -100,16 +99,24 @@ export function StepMerkevare({
         </Field>
 
         <Field>
-          <FieldLabel>Logo</FieldLabel>
-          <ImageUpload
-            currentImageUrl={formData.logo}
-            onUploadComplete={(url) => onLogoChange(url)}
-            onRemove={() => onLogoChange(null)}
-            aspectRatio="square"
+          <FieldLabel htmlFor="logo">Logo URL</FieldLabel>
+          <Input
+            id="logo"
+            type="url"
+            value={formData.logo || ""}
+            onChange={(e) => onLogoChange(e.target.value || null)}
+            placeholder="https://example.com/logo.png"
           />
           <FieldDescription>
-            Last opp din logo (helst kvadratisk PNG med transparent bakgrunn)
+            Logo-URL (valgfritt). Logoen vil vises når du implementerer bildeopplasting.
           </FieldDescription>
+          {formData.logo && (
+            <div className="mt-2 p-2 bg-muted rounded-md">
+              <p className="text-xs text-muted-foreground break-all">
+                Lagret: {formData.logo}
+              </p>
+            </div>
+          )}
         </Field>
       </CardContent>
     </Card>
