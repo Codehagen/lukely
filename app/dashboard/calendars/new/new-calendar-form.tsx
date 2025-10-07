@@ -207,7 +207,11 @@ export default function NewCalendarForm() {
         }),
       });
 
-      if (!response.ok) throw new Error("Kunne ikke opprette kalender");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Kunne ikke opprette kalender" }));
+        console.error("Calendar creation failed:", response.status, errorData);
+        throw new Error(errorData.error || "Kunne ikke opprette kalender");
+      }
 
       const calendar = await response.json();
 
@@ -285,7 +289,8 @@ export default function NewCalendarForm() {
 
       router.push(`/dashboard/calendars/${calendar.id}`);
     } catch (error) {
-      toast.error("Kunne ikke opprette kalender");
+      const errorMessage = error instanceof Error ? error.message : "Kunne ikke opprette kalender";
+      toast.error(errorMessage);
       console.error(error);
     } finally {
       setIsCreating(false);

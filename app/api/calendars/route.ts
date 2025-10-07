@@ -50,23 +50,20 @@ export async function POST(req: NextRequest) {
       aiQuizInstructions,
     } = body;
 
-    // Check if slug is unique
-    const existingCalendar = await prisma.calendar.findUnique({
-      where: { slug },
-    });
+    // Ensure slug is unique - auto-append number if needed
+    let uniqueSlug = slug;
+    let suffix = 1;
 
-    if (existingCalendar) {
-      return NextResponse.json(
-        { error: "Slugen er allerede i bruk" },
-        { status: 400 }
-      );
+    while (await prisma.calendar.findUnique({ where: { slug: uniqueSlug } })) {
+      uniqueSlug = `${slug}-${suffix}`;
+      suffix++;
     }
 
     // Create calendar
     const calendar = await prisma.calendar.create({
       data: {
         title,
-        slug,
+        slug: uniqueSlug,
         description,
         type,
         format: calendarFormat ? (calendarFormat === "quiz" ? "QUIZ" : "LANDING") : "LANDING",
