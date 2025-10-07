@@ -295,16 +295,26 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
         <div className="container max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 md:gap-4">
-              {calendar.logo && (
-                <div className="relative h-10 w-10 md:h-14 md:w-14 overflow-hidden rounded-xl shadow-md">
+              {calendar.logo ? (
+                <div className="relative h-10 w-10 md:h-14 md:w-14 overflow-hidden rounded-xl shadow-lg bg-white dark:bg-white/10 p-2 border border-gray-100 dark:border-gray-800">
                   <Image
                     src={calendar.logo}
                     alt={calendar.title}
                     fill
-                    sizes="56px"
-                    className="object-cover"
+                    sizes="(max-width: 768px) 40px, 56px"
+                    className="object-contain"
                     unoptimized
                   />
+                </div>
+              ) : (
+                <div
+                  className="h-10 w-10 md:h-14 md:w-14 rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg md:text-2xl"
+                  style={{
+                    backgroundColor: calendar.brandColor || "#3B82F6",
+                    fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined
+                  }}
+                >
+                  {calendar.workspace.name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
@@ -640,16 +650,26 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
         <div className="container max-w-7xl mx-auto px-4 md:px-8 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              {calendar.logo && (
-                <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+              {calendar.logo ? (
+                <div className="relative h-8 w-8 overflow-hidden rounded-lg shadow-md bg-white dark:bg-white/10 p-1.5 border border-gray-100 dark:border-gray-800">
                   <Image
                     src={calendar.logo}
                     alt={calendar.title}
                     fill
                     sizes="32px"
-                    className="object-cover"
+                    className="object-contain"
                     unoptimized
                   />
+                </div>
+              ) : (
+                <div
+                  className="h-8 w-8 rounded-lg shadow-md flex items-center justify-center text-white font-bold text-sm"
+                  style={{
+                    backgroundColor: calendar.brandColor || "#3B82F6",
+                    fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined
+                  }}
+                >
+                  {calendar.workspace.name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="text-sm text-muted-foreground">
