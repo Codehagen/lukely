@@ -197,7 +197,7 @@ export default function DoorManagement({ calendar }: { calendar: Calendar }) {
                         {door.product.imageUrl ? (
                           <ItemMedia
                             variant="image"
-                            className="relative h-24 w-24 overflow-hidden rounded-md md:h-28 md:w-28"
+                            className="relative h-24 w-24 overflow-hidden rounded-md md:h-28 md:w-28 !self-center"
                           >
                             <Image
                               src={door.product.imageUrl}
