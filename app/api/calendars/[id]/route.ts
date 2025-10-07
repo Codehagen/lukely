@@ -83,6 +83,8 @@ export async function PATCH(
 
     const body = await req.json();
 
+    const isLandingCalendar = calendar.format === "LANDING";
+
     let newStartDate = calendar.startDate;
     let newEndDate = calendar.endDate;
     let newDoorCount = calendar.doorCount;
@@ -109,6 +111,10 @@ export async function PATCH(
       newDoorCount = Math.trunc(parsedDoorCount);
     }
 
+    if (isLandingCalendar) {
+      newDoorCount = 0;
+    }
+
     if (body.endDate) {
       const parsedEnd = new Date(body.endDate);
       if (Number.isNaN(parsedEnd.getTime())) {
@@ -120,7 +126,7 @@ export async function PATCH(
       newEndDate = parsedEnd;
     }
 
-    if (newDoorCount < 1 || newDoorCount > 31) {
+    if (!isLandingCalendar && (newDoorCount < 1 || newDoorCount > 31)) {
       return NextResponse.json(
         { error: "Antall luker må være mellom 1 og 31" },
         { status: 400 }
@@ -134,7 +140,7 @@ export async function PATCH(
       );
     }
 
-    if (body.endDate) {
+    if (!isLandingCalendar && body.endDate) {
       const span = differenceInCalendarDays(newEndDate, newStartDate) + 1;
       if (span < 1) {
         return NextResponse.json(
@@ -149,14 +155,15 @@ export async function PATCH(
         );
       }
       newDoorCount = span;
-    } else {
+    } else if (!isLandingCalendar) {
       newEndDate = addDays(newStartDate, newDoorCount - 1);
     }
 
     const shouldSyncDoors =
-      newStartDate.getTime() !== calendar.startDate.getTime() ||
-      newDoorCount !== calendar.doorCount ||
-      newEndDate.getTime() !== calendar.endDate.getTime();
+      !isLandingCalendar &&
+      (newStartDate.getTime() !== calendar.startDate.getTime() ||
+        newDoorCount !== calendar.doorCount ||
+        newEndDate.getTime() !== calendar.endDate.getTime());
 
     let doorsBeforeUpdate: { id: string; doorNumber: number }[] = [];
 
@@ -217,6 +224,15 @@ export async function PATCH(
         requireName: body.requireName,
         requirePhone: body.requirePhone,
         allowMultipleEntries: body.allowMultipleEntries,
+        landingHeroTitle: body.landingHeroTitle,
+        landingHeroSubtitle: body.landingHeroSubtitle,
+        landingHeroDescription: body.landingHeroDescription,
+        landingPrimaryActionLabel: body.landingPrimaryActionLabel,
+        landingPrimaryActionUrl: body.landingPrimaryActionUrl,
+        landingSecondaryActionLabel: body.landingSecondaryActionLabel,
+        landingSecondaryActionUrl: body.landingSecondaryActionUrl,
+        landingHighlights: body.landingHighlights,
+        landingShowLeadForm: body.landingShowLeadForm,
         startDate: newStartDate,
         endDate: newEndDate,
         doorCount: newDoorCount,

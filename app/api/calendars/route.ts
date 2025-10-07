@@ -48,6 +48,15 @@ export async function POST(req: NextRequest) {
       defaultShowCorrectAnswers,
       defaultAllowRetry,
       aiQuizInstructions,
+      landingHeroTitle,
+      landingHeroSubtitle,
+      landingHeroDescription,
+      landingPrimaryActionLabel,
+      landingPrimaryActionUrl,
+      landingSecondaryActionLabel,
+      landingSecondaryActionUrl,
+      landingHighlights,
+      landingShowLeadForm,
     } = body;
 
     // Ensure slug is unique - auto-append number if needed
@@ -60,49 +69,71 @@ export async function POST(req: NextRequest) {
     }
 
     // Create calendar
+    const isQuizFormat = calendarFormat === "quiz";
+    const landingData = !isQuizFormat
+      ? {
+          landingHeroTitle: landingHeroTitle || null,
+          landingHeroSubtitle: landingHeroSubtitle || null,
+          landingHeroDescription: landingHeroDescription || null,
+          landingPrimaryActionLabel: landingPrimaryActionLabel || undefined,
+          landingPrimaryActionUrl: landingPrimaryActionUrl || null,
+          landingSecondaryActionLabel: landingSecondaryActionLabel || null,
+          landingSecondaryActionUrl: landingSecondaryActionUrl || null,
+          landingHighlights:
+            Array.isArray(landingHighlights) && landingHighlights.length > 0
+              ? landingHighlights
+              : undefined,
+          landingShowLeadForm: landingShowLeadForm ?? true,
+        }
+      : {};
+
     const calendar = await prisma.calendar.create({
       data: {
         title,
         slug: uniqueSlug,
         description,
         type,
-        format: calendarFormat ? (calendarFormat === "quiz" ? "QUIZ" : "LANDING") : "LANDING",
+        format: isQuizFormat ? "QUIZ" : "LANDING",
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        doorCount,
+        doorCount: isQuizFormat ? doorCount : 0,
         brandColor,
         brandFont: brandFont || "Inter",
         logo: logo || null,
         requireEmail: requireEmail ?? true,
         requireName: requireName ?? true,
         requirePhone: requirePhone ?? false,
-        enableQuiz: calendarFormat === "quiz" ? true : (enableQuiz ?? false),
+        enableQuiz: isQuizFormat ? true : false,
         defaultQuizPassingScore: defaultQuizPassingScore ?? 80,
         defaultShowCorrectAnswers: defaultShowCorrectAnswers ?? false,
         defaultAllowRetry: defaultAllowRetry ?? false,
         aiQuizInstructions: aiQuizInstructions || null,
         workspaceId: user.defaultWorkspaceId,
         status: "DRAFT",
+        ...landingData,
       },
     });
 
-    // Generate doors for the calendar
-    const doorDates = generateDoorDates(new Date(startDate), doorCount);
+    if (isQuizFormat) {
+      const doorDates = generateDoorDates(new Date(startDate), doorCount);
 
-    const doorsData = doorDates.map((date, index) => ({
-      calendarId: calendar.id,
-      doorNumber: index + 1,
-      openDate: date,
-      title: `Luke ${index + 1}`,
-      enableQuiz: enableQuiz ?? false,
-      quizPassingScore: defaultQuizPassingScore ?? 80,
-      showCorrectAnswers: defaultShowCorrectAnswers ?? false,
-      allowRetry: defaultAllowRetry ?? false,
-    }));
+      const doorsData = doorDates.map((date, index) => ({
+        calendarId: calendar.id,
+        doorNumber: index + 1,
+        openDate: date,
+        title: `Luke ${index + 1}`,
+        enableQuiz: enableQuiz ?? false,
+        quizPassingScore: defaultQuizPassingScore ?? 80,
+        showCorrectAnswers: defaultShowCorrectAnswers ?? false,
+        allowRetry: defaultAllowRetry ?? false,
+      }));
 
-    await prisma.door.createMany({
-      data: doorsData,
-    });
+      if (doorsData.length > 0) {
+        await prisma.door.createMany({
+          data: doorsData,
+        });
+      }
+    }
 
     return NextResponse.json(calendar);
   } catch (error) {
@@ -114,7 +145,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),

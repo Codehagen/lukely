@@ -75,6 +75,7 @@ export default async function DashboardPage() {
     VALENTINE: "Valentin",
     EASTER: "Påske",
     CUSTOM: "Tilpasset",
+    LANDING_PAGE: "Landingside",
   };
 
   // Get total stats

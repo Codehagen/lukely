@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import PublicCalendar from "@/components/public-calendar";
 import {
@@ -60,6 +60,10 @@ export default async function PublicCalendarPage({
 
   if (!calendar) {
     notFound();
+  }
+
+  if (calendar.format === "LANDING") {
+    redirect(`/l/${slug}`);
   }
 
   // Check if calendar is published

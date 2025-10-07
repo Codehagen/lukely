@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,10 +14,11 @@ import { StepDatoer } from "@/components/calendar-form-steps/step-datoer";
 import { StepQuiz } from "@/components/calendar-form-steps/step-quiz";
 import { StepMerkevare } from "@/components/calendar-form-steps/step-merkevare";
 import { StepOppsummering } from "@/components/calendar-form-steps/step-oppsummering";
+import { StepLandingContent, LandingHighlight } from "@/components/calendar-form-steps/step-landing-content";
 import CalendarPreview from "@/components/calendar-preview";
 import { IconEye, IconEyeOff, IconArrowRight, IconArrowLeft } from "@tabler/icons-react";
 
-const FORM_STEPS: Step[] = [
+const QUIZ_FORM_STEPS: Step[] = [
   { id: 1, title: "Format" },
   { id: 2, title: "Mal" },
   { id: 3, title: "Grunnleggende" },
@@ -27,13 +28,93 @@ const FORM_STEPS: Step[] = [
   { id: 7, title: "Oppsummering" },
 ];
 
+const LANDING_FORM_STEPS: Step[] = [
+  { id: 1, title: "Format" },
+  { id: 2, title: "Mal" },
+  { id: 3, title: "Grunnleggende" },
+  { id: 4, title: "Innhold" },
+  { id: 5, title: "Merkevare", optional: true },
+  { id: 6, title: "Oppsummering" },
+];
+
+const DEFAULT_LANDING_HIGHLIGHTS: LandingHighlight[] = [
+  {
+    title: "Innsikt i sanntid",
+    description: "Følg trafikk og konverteringer direkte i dashboardet.",
+  },
+  {
+    title: "Smart leadskjema",
+    description: "Tilpass feltene og samle data som betyr noe for deg.",
+  },
+  {
+    title: "Merkevarebygging",
+    description: "Tilpass farger, fonter og budskap til profilen din.",
+  },
+];
+
+interface CalendarFormState {
+  calendarFormat: "landing" | "quiz" | "";
+  title: string;
+  description: string;
+  slug: string;
+  startDate: Date;
+  endDate: Date;
+  doorCount: number;
+  brandColor: string;
+  brandFont: string;
+  logo: string;
+  requireEmail: boolean;
+  requireName: boolean;
+  requirePhone: boolean;
+  enableQuiz: boolean;
+  defaultQuizPassingScore: number;
+  defaultShowCorrectAnswers: boolean;
+  defaultAllowRetry: boolean;
+  aiQuizInstructions: string;
+  generateAllQuizzes: boolean;
+  landingHeroTitle: string;
+  landingHeroSubtitle: string;
+  landingHeroDescription: string;
+  landingPrimaryActionLabel: string;
+  landingPrimaryActionUrl: string;
+  landingSecondaryActionLabel: string;
+  landingSecondaryActionUrl: string;
+  landingHighlights: LandingHighlight[];
+  landingShowLeadForm: boolean;
+}
+
+const createDefaultLandingContent = (): Pick<
+  CalendarFormState,
+  | "landingHeroTitle"
+  | "landingHeroSubtitle"
+  | "landingHeroDescription"
+  | "landingPrimaryActionLabel"
+  | "landingPrimaryActionUrl"
+  | "landingSecondaryActionLabel"
+  | "landingSecondaryActionUrl"
+  | "landingHighlights"
+  | "landingShowLeadForm"
+> => ({
+  landingHeroTitle: "",
+  landingHeroSubtitle: "",
+  landingHeroDescription: "",
+  landingPrimaryActionLabel: "Registrer deg nå",
+  landingPrimaryActionUrl: "",
+  landingSecondaryActionLabel: "",
+  landingSecondaryActionUrl: "",
+  landingHighlights: DEFAULT_LANDING_HIGHLIGHTS.map((highlight) => ({
+    ...highlight,
+  })),
+  landingShowLeadForm: true,
+});
+
 export default function NewCalendarForm() {
   const router = useRouter();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [currentFormStep, setCurrentFormStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CalendarFormState>({
     calendarFormat: "" as "landing" | "quiz" | "",
     title: "",
     description: "",
@@ -46,14 +127,77 @@ export default function NewCalendarForm() {
     logo: "",
     requireEmail: true,
     requireName: true,
-    requirePhone: false,
-    enableQuiz: false,
-    defaultQuizPassingScore: 80,
-    defaultShowCorrectAnswers: false,
-    defaultAllowRetry: false,
-    aiQuizInstructions: "",
-    generateAllQuizzes: false,
-  });
+  requirePhone: false,
+  enableQuiz: false,
+  defaultQuizPassingScore: 80,
+  defaultShowCorrectAnswers: false,
+  defaultAllowRetry: false,
+  aiQuizInstructions: "",
+  generateAllQuizzes: false,
+  ...createDefaultLandingContent(),
+});
+
+  const steps = useMemo(
+    () => (formData.calendarFormat === "quiz" ? QUIZ_FORM_STEPS : LANDING_FORM_STEPS),
+    [formData.calendarFormat]
+  );
+  const totalSteps = steps.length;
+  const isLandingFormat = formData.calendarFormat === "landing";
+  const currentStepDefinition = steps[currentFormStep - 1];
+  const currentStepTitle = currentStepDefinition?.title;
+  const isOptionalStep = currentStepDefinition?.optional === true;
+
+  useEffect(() => {
+    setCurrentFormStep((prev) => Math.min(prev, totalSteps));
+  }, [totalSteps]);
+
+  const updateFormData = (values: Partial<CalendarFormState>) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...values,
+    }));
+  };
+
+  const availableTemplates = useMemo(
+    () =>
+      Object.entries(CALENDAR_TEMPLATES).filter(
+        ([, template]) =>
+          formData.calendarFormat === ""
+            ? true
+            : template.format === formData.calendarFormat
+      ),
+    [formData.calendarFormat]
+  );
+
+  const handleFormatChange = (format: "landing" | "quiz") => {
+    setSelectedTemplate(null);
+    setFormData((prev) => {
+      const baseState: CalendarFormState = {
+        ...prev,
+        calendarFormat: format,
+      };
+
+      if (format === "landing") {
+        return {
+          ...baseState,
+          ...createDefaultLandingContent(),
+          enableQuiz: false,
+          generateAllQuizzes: false,
+          aiQuizInstructions: "",
+          doorCount: 0,
+          startDate: new Date(),
+          endDate: new Date(),
+        };
+      }
+
+      return {
+        ...baseState,
+        enableQuiz: true,
+        doorCount: Math.max(prev.doorCount || 0, 1),
+      };
+    });
+    setCurrentFormStep(1);
+  };
 
   const handleTemplateSelect = (templateKey: string) => {
     setSelectedTemplate(templateKey);
@@ -62,16 +206,60 @@ export default function NewCalendarForm() {
     const currentYear = new Date().getFullYear();
     const dates = getDefaultDatesForYear(template, currentYear);
 
-    setFormData({
-      ...formData,
-      title: template.title,
-      description: template.description,
-      doorCount: template.doorCount,
-      brandColor: template.theme.colors[0],
-      startDate: dates?.startDate || new Date(),
-      endDate: dates?.endDate || new Date(),
-      // Auto-enable quiz if format is quiz
-      enableQuiz: formData.calendarFormat === "quiz",
+    setFormData((prev) => {
+      const updates: Partial<CalendarFormState> = {
+        calendarFormat: template.format,
+        title: template.title,
+        description: template.description,
+        brandColor: template.theme.colors[0] ?? prev.brandColor,
+        enableQuiz: template.format === "quiz",
+      };
+
+      if (template.format === "quiz") {
+        updates.doorCount = template.doorCount;
+        updates.startDate = dates?.startDate || new Date();
+        updates.endDate = dates?.endDate || new Date();
+      } else {
+        updates.doorCount = 0;
+        const landingDefaults = template.landingDefaults;
+        updates.startDate = new Date();
+        updates.endDate = new Date();
+        updates.enableQuiz = false;
+        updates.generateAllQuizzes = false;
+        updates.aiQuizInstructions = "";
+        if (landingDefaults) {
+          updates.landingHeroTitle = landingDefaults.heroTitle;
+          updates.landingHeroSubtitle = landingDefaults.heroSubtitle;
+          updates.landingHeroDescription = landingDefaults.heroDescription;
+          updates.landingPrimaryActionLabel = landingDefaults.primaryActionLabel;
+          updates.landingPrimaryActionUrl = landingDefaults.primaryActionUrl || "";
+          updates.landingSecondaryActionLabel = landingDefaults.secondaryActionLabel || "";
+          updates.landingSecondaryActionUrl = landingDefaults.secondaryActionUrl || "";
+          updates.landingHighlights = landingDefaults.features.map((feature) => ({
+            title: feature.title,
+            description: feature.description,
+          }));
+          updates.landingShowLeadForm =
+            landingDefaults.showLeadForm ?? prev.landingShowLeadForm;
+        } else {
+          updates.landingHeroTitle = prev.landingHeroTitle;
+          updates.landingHeroSubtitle = prev.landingHeroSubtitle;
+          updates.landingHeroDescription = prev.landingHeroDescription;
+          updates.landingPrimaryActionLabel = prev.landingPrimaryActionLabel;
+          updates.landingPrimaryActionUrl = prev.landingPrimaryActionUrl;
+          updates.landingSecondaryActionLabel = prev.landingSecondaryActionLabel;
+          updates.landingSecondaryActionUrl = prev.landingSecondaryActionUrl;
+          updates.landingHighlights = prev.landingHighlights.map((highlight) => ({
+            ...highlight,
+          }));
+          updates.landingShowLeadForm = prev.landingShowLeadForm;
+        }
+      }
+
+      return {
+        ...prev,
+        ...updates,
+      };
     });
 
     // Move to step 3 (Grunnleggende)
@@ -81,10 +269,10 @@ export default function NewCalendarForm() {
   const handleBrandingImport = (branding: {
     brandColor?: string;
   }) => {
-    setFormData({
-      ...formData,
-      brandColor: branding.brandColor || formData.brandColor,
-    });
+    setFormData((prev) => ({
+      ...prev,
+      brandColor: branding.brandColor || prev.brandColor,
+    }));
   };
 
   const generateRandomSuffix = () => {
@@ -111,64 +299,111 @@ export default function NewCalendarForm() {
 
     // Add random suffix for uniqueness
     const slug = `${baseSlug}-${generateRandomSuffix()}`;
-    setFormData({ ...formData, title, slug });
+    setFormData((prev) => ({
+      ...prev,
+      title,
+      slug,
+    }));
   };
 
   const nextStep = () => {
-    if (currentFormStep < FORM_STEPS.length) {
-      let nextStepNumber = currentFormStep + 1;
-
-      // Skip quiz step (5) if format is "landing"
-      if (nextStepNumber === 5 && formData.calendarFormat === "landing") {
-        nextStepNumber = 6;
-      }
-
-      setCurrentFormStep(nextStepNumber);
-    }
+    setCurrentFormStep((prev) => Math.min(prev + 1, totalSteps));
   };
 
   const previousStep = () => {
-    if (currentFormStep > 1) {
-      let prevStepNumber = currentFormStep - 1;
-
-      // Skip quiz step (5) if format is "landing" when going back
-      if (prevStepNumber === 5 && formData.calendarFormat === "landing") {
-        prevStepNumber = 4;
-      }
-
-      setCurrentFormStep(prevStepNumber);
-    }
+    setCurrentFormStep((prev) => Math.max(prev - 1, 1));
   };
 
   const goToStep = (step: number) => {
-    if (step <= currentFormStep) {
+    if (step <= currentFormStep && step >= 1 && step <= totalSteps) {
       setCurrentFormStep(step);
     }
   };
 
   const skipToSummary = () => {
-    setCurrentFormStep(7); // Updated to new step count
+    setCurrentFormStep(totalSteps);
   };
 
   const canProceedFromCurrentStep = () => {
-    switch (currentFormStep) {
-      case 1: // Format selection
-        return !!formData.calendarFormat;
-      case 2: // Template selection
-        return !!selectedTemplate;
-      case 3: // Grunnleggende (title and slug required)
-        return !!formData.title.trim() && !!formData.slug.trim();
-      case 4: // Datoer
-        return true; // Dates are set automatically
-      case 5: // Quiz (optional step)
-        return true;
-      case 6: // Merkevare (optional step)
-        return true;
-      case 7: // Oppsummering
-        return true;
-      default:
-        return true;
+    if (currentFormStep === 1) {
+      return !!formData.calendarFormat;
     }
+
+    if (currentFormStep === 2) {
+      return !!selectedTemplate;
+    }
+
+    if (currentFormStep === 3) {
+      return !!formData.title.trim() && !!formData.slug.trim();
+    }
+
+    if (formData.calendarFormat === "quiz") {
+      if (currentFormStep === 4) {
+        return formData.doorCount > 0;
+      }
+      return true;
+    }
+
+    if (isLandingFormat) {
+      if (currentFormStep === 4) {
+        const hasHero = formData.landingHeroTitle.trim().length > 0;
+        const hasPrimaryCta = formData.landingPrimaryActionLabel.trim().length > 0;
+        const hasHighlights = formData.landingHighlights.some(
+          (highlight) =>
+            highlight.title.trim().length > 0 && highlight.description.trim().length > 0
+        );
+        return hasHero && hasPrimaryCta && hasHighlights;
+      }
+      return true;
+    }
+
+    return true;
+  };
+
+  const addLandingHighlight = () => {
+    setFormData((prev) => {
+      if (prev.landingHighlights.length >= 4) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        landingHighlights: [
+          ...prev.landingHighlights,
+          {
+            title: "",
+            description: "",
+          },
+        ],
+      };
+    });
+  };
+
+  const updateLandingHighlight = (index: number, values: Partial<LandingHighlight>) => {
+    setFormData((prev) => {
+      const highlights = prev.landingHighlights.map((highlight, idx) =>
+        idx === index ? { ...highlight, ...values } : highlight
+      );
+
+      return {
+        ...prev,
+        landingHighlights: highlights,
+      };
+    });
+  };
+
+  const removeLandingHighlight = (index: number) => {
+    setFormData((prev) => {
+      if (prev.landingHighlights.length <= 1) {
+        return prev;
+      }
+
+      const highlights = prev.landingHighlights.filter((_, idx) => idx !== index);
+      return {
+        ...prev,
+        landingHighlights: highlights,
+      };
+    });
   };
 
   const handleSaveDraft = () => {
@@ -192,19 +427,33 @@ export default function NewCalendarForm() {
     try {
       const template = CALENDAR_TEMPLATES[selectedTemplate];
 
+      const sanitizedHighlights = formData.landingHighlights
+        .filter(
+          (highlight) =>
+            highlight.title.trim().length > 0 || highlight.description.trim().length > 0
+        )
+        .map((highlight) => ({
+          title: highlight.title.trim(),
+          description: highlight.description.trim(),
+        }));
+
+      const payload = {
+        ...formData,
+        type: template.type,
+        startDate: formData.startDate.toISOString(),
+        endDate: formData.endDate.toISOString(),
+        calendarFormat: formData.calendarFormat,
+        doorCount: isLandingFormat ? 0 : formData.doorCount,
+        landingHighlights: sanitizedHighlights,
+        // Auto-enable quiz if format is "quiz"
+        enableQuiz: formData.calendarFormat === "quiz" ? true : formData.enableQuiz,
+      };
+
       // Step 1: Create calendar
       const response = await fetch("/api/calendars", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          type: template.type,
-          startDate: formData.startDate.toISOString(),
-          endDate: formData.endDate.toISOString(),
-          calendarFormat: formData.calendarFormat,
-          // Auto-enable quiz if format is "quiz"
-          enableQuiz: formData.calendarFormat === "quiz" ? true : formData.enableQuiz,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -315,10 +564,7 @@ export default function NewCalendarForm() {
             <>
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Velg kalenderformat</h2>
-                <StepFormat
-                  formData={formData}
-                  onFormatChange={(format) => setFormData({ ...formData, calendarFormat: format })}
-                />
+                <StepFormat formData={formData} onFormatChange={handleFormatChange} />
 
                 {/* Navigation button - appears after format is selected */}
                 {formData.calendarFormat && (
@@ -344,26 +590,51 @@ export default function NewCalendarForm() {
                     Tilbake
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(CALENDAR_TEMPLATES).map(([key, template]) => (
-                    <Card
-                      key={key}
-                      className="cursor-pointer hover:border-primary transition-colors"
-                      onClick={() => handleTemplateSelect(key)}
-                    >
-                      <CardHeader>
-                        <div className="text-4xl mb-2">{template.theme.icon}</div>
-                        <CardTitle className="text-lg">{template.title}</CardTitle>
-                        <CardDescription>{template.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                          {template.doorCount} luker
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                {availableTemplates.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {availableTemplates.map(([key, template]) => {
+                      const isSelected = selectedTemplate === key;
+                      return (
+                        <Card
+                          key={key}
+                          className={`cursor-pointer transition-colors ${
+                            isSelected
+                              ? "border-primary shadow-lg ring-2 ring-primary/20"
+                              : "hover:border-primary"
+                          }`}
+                          onClick={() => handleTemplateSelect(key)}
+                        >
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <div className="text-4xl mb-2">{template.theme.icon}</div>
+                              {isSelected && (
+                                <span className="text-xs font-medium text-primary">Valgt</span>
+                              )}
+                            </div>
+                            <CardTitle className="text-lg">{template.title}</CardTitle>
+                            <CardDescription>{template.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-muted-foreground">
+                              {template.format === "landing"
+                                ? "Landingsside"
+                                : `${template.doorCount} luker`}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Ingen maler tilgjengelig</CardTitle>
+                      <CardDescription>
+                        Det finnes ingen maler for det valgte formatet enda. Prøv et annet format eller skreddersy kalenderen senere.
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                )}
               </div>
             </>
           )}
@@ -403,7 +674,7 @@ export default function NewCalendarForm() {
                 <div className="border-b pb-4">
                   <Stepper
                     currentStep={currentFormStep}
-                    steps={FORM_STEPS}
+                    steps={steps}
                     onStepClick={goToStep}
                     variant="compact"
                   />
@@ -412,19 +683,27 @@ export default function NewCalendarForm() {
 
               {/* Form Steps Content */}
               <div className="mt-6">
-                {currentFormStep === 3 && (
+                {currentStepTitle === "Grunnleggende" && (
                   <StepGrunnleggende
                     formData={formData}
                     onTitleChange={(title) => generateSlug(title)}
-                    onSlugChange={(slug) => setFormData({ ...formData, slug })}
+                    onSlugChange={(slug) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        slug,
+                      }))
+                    }
                     onDescriptionChange={(description) =>
-                      setFormData({ ...formData, description })
+                      setFormData((prev) => ({
+                        ...prev,
+                        description,
+                      }))
                     }
                     onBrandingImport={handleBrandingImport}
                   />
                 )}
 
-                {currentFormStep === 4 && (
+                {currentStepTitle === "Datoer" && (
                   <StepDatoer
                     formData={formData}
                     onStartDateChange={(startDate) =>
@@ -439,50 +718,82 @@ export default function NewCalendarForm() {
                   />
                 )}
 
-                {currentFormStep === 5 && formData.calendarFormat === "quiz" && (
+                {currentStepTitle === "Innhold" && isLandingFormat && (
+                  <StepLandingContent
+                    formData={formData}
+                    onChange={(values) => updateFormData(values)}
+                    onUpdateHighlight={updateLandingHighlight}
+                    onAddHighlight={addLandingHighlight}
+                    onRemoveHighlight={removeLandingHighlight}
+                  />
+                )}
+
+                {currentStepTitle === "Quiz" && formData.calendarFormat === "quiz" && (
                   <StepQuiz
                     formData={formData}
                     onEnableQuizChange={(enableQuiz) =>
-                      setFormData({ ...formData, enableQuiz })
+                      setFormData((prev) => ({
+                        ...prev,
+                        enableQuiz,
+                      }))
                     }
                     onPassingScoreChange={(defaultQuizPassingScore) =>
-                      setFormData({ ...formData, defaultQuizPassingScore })
+                      setFormData((prev) => ({
+                        ...prev,
+                        defaultQuizPassingScore,
+                      }))
                     }
                     onGenerateAllChange={(generateAllQuizzes) =>
-                      setFormData({ ...formData, generateAllQuizzes })
+                      setFormData((prev) => ({
+                        ...prev,
+                        generateAllQuizzes,
+                      }))
                     }
                   />
                 )}
 
-                {currentFormStep === 6 && (
+                {currentStepTitle === "Merkevare" && (
                   <StepMerkevare
                     formData={formData}
                     onBrandColorChange={(brandColor) =>
-                      setFormData({ ...formData, brandColor })
+                      setFormData((prev) => ({
+                        ...prev,
+                        brandColor,
+                      }))
                     }
                     onBrandFontChange={(brandFont) =>
-                      setFormData({ ...formData, brandFont })
+                      setFormData((prev) => ({
+                        ...prev,
+                        brandFont,
+                      }))
                     }
                     onLogoChange={(logo) =>
-                      setFormData({ ...formData, logo: logo ?? "" })
+                      setFormData((prev) => ({
+                        ...prev,
+                        logo: logo ?? "",
+                      }))
                     }
                   />
                 )}
 
-                {currentFormStep === 7 && (
-                  <StepOppsummering formData={formData} onEdit={goToStep} />
+                {currentStepTitle === "Oppsummering" && (
+                  <StepOppsummering
+                    formData={formData}
+                    calendarFormat={formData.calendarFormat}
+                    onEdit={goToStep}
+                  />
                 )}
               </div>
 
               <StepNavigation
                 currentStep={currentFormStep}
-                totalSteps={FORM_STEPS.length}
+                totalSteps={totalSteps}
                 onPrevious={previousStep}
                 onNext={nextStep}
                 onSkip={skipToSummary}
                 onSubmit={handleSubmit}
                 isSubmitting={isCreating}
-                canSkip={currentFormStep === 5 || currentFormStep === 6}
+                canSkip={isOptionalStep}
                 canProceed={canProceedFromCurrentStep()}
               />
             </>

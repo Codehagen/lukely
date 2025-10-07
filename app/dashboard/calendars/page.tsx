@@ -72,6 +72,7 @@ export default async function CalendarsPage() {
     VALENTINE: "Valentin",
     EASTER: "Påske",
     CUSTOM: "Tilpasset",
+    LANDING_PAGE: "Landingside",
   };
 
   const getStatusColor = (status: string) => {

@@ -101,10 +101,10 @@ export default async function CalendarOverviewPage({
     notFound();
   }
 
-  const totalEntries = calendar.doors.reduce(
-    (sum, door) => sum + door._count.entries,
-    0
-  );
+  const totalEntries =
+    calendar.format === "LANDING"
+      ? calendar._count.leads
+      : calendar.doors.reduce((sum, door) => sum + door._count.entries, 0);
   const winnersSelected = calendar.doors.filter((door) => door.winner).length;
   const doorsWithProducts = calendar.doors.filter(
     (door) => door.product
@@ -115,7 +115,12 @@ export default async function CalendarOverviewPage({
     VALENTINE: "Valentin",
     EASTER: "Påske",
     CUSTOM: "Tilpasset",
+    LANDING_PAGE: "Landingside",
   };
+
+  const publicPath = calendar.format === "LANDING" ? `/l/${calendar.slug}` : `/c/${calendar.slug}`;
+  const publicUrlBase = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const publicAbsoluteUrl = `${publicUrlBase}${publicPath}`;
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
@@ -133,22 +138,26 @@ export default async function CalendarOverviewPage({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          <ButtonGroup>
-            <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
-              <Button variant="outline" size="sm">
-                <IconGift className="mr-2 h-4 w-4" />
-                Luker
-              </Button>
-            </Link>
-          </ButtonGroup>
-          <ButtonGroup>
-            <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
-              <Button variant="outline" size="sm">
-                <IconTrophy className="mr-2 h-4 w-4" />
-                Velg vinnere
-              </Button>
-            </Link>
-          </ButtonGroup>
+          {calendar.format === "QUIZ" && (
+            <>
+              <ButtonGroup>
+                <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
+                  <Button variant="outline" size="sm">
+                    <IconGift className="mr-2 h-4 w-4" />
+                    Luker
+                  </Button>
+                </Link>
+              </ButtonGroup>
+              <ButtonGroup>
+                <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
+                  <Button variant="outline" size="sm">
+                    <IconTrophy className="mr-2 h-4 w-4" />
+                    Velg vinnere
+                  </Button>
+                </Link>
+              </ButtonGroup>
+            </>
+          )}
           <ButtonGroup>
             <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
               <Button variant="outline" size="sm">
@@ -165,7 +174,7 @@ export default async function CalendarOverviewPage({
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link href={`/c/${calendar.slug}`} target="_blank">
+                    <Link href={publicPath} target="_blank">
                       <IconExternalLink className="mr-2 h-4 w-4" />
                       Forhåndsvis
                     </Link>
@@ -336,15 +345,15 @@ export default async function CalendarOverviewPage({
                     <dt className="text-sm text-muted-foreground">Offentlig URL</dt>
                     <dd className="space-y-2">
                       <Link
-                        href={`/c/${calendar.slug}`}
+                        href={publicPath}
                         target="_blank"
                         className="flex items-center gap-1.5 text-sm font-mono text-blue-600 hover:underline w-fit"
                       >
-                        {process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/{calendar.slug}
+                        {publicAbsoluteUrl}
                         <IconExternalLink className="h-3.5 w-3.5" />
                       </Link>
                       <CopyUrlButton
-                        url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/${calendar.slug}`}
+                        url={publicAbsoluteUrl}
                         className="w-full"
                       />
                     </dd>

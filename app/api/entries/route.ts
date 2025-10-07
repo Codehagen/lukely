@@ -46,30 +46,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if door exists
-    const door = await prisma.door.findUnique({
-      where: { id: doorId },
-      include: {
-        winner: true,
-        questions: true,
-      },
-    });
+    const isLandingCalendar = calendar.format === "LANDING";
+    let door: any = null;
 
-    if (!door) {
-      return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
-    }
+    if (!isLandingCalendar) {
+      if (!doorId) {
+        return NextResponse.json({ error: "Luke-ID mangler" }, { status: 400 });
+      }
 
-    // Check if door is open
-    if (new Date() < door.openDate) {
-      return NextResponse.json({ error: "Luken er ikke åpnet ennå" }, { status: 400 });
-    }
+      door = await prisma.door.findUnique({
+        where: { id: doorId },
+        include: {
+          winner: true,
+          questions: true,
+        },
+      });
 
-    // Check if winner already selected
-    if (door.winner) {
-      return NextResponse.json(
-        { error: "Vinner er allerede trukket for denne luken" },
-        { status: 400 }
-      );
+      if (!door) {
+        return NextResponse.json({ error: "Luke ikke funnet" }, { status: 404 });
+      }
+
+      if (new Date() < door.openDate) {
+        return NextResponse.json({ error: "Luken er ikke åpnet ennå" }, { status: 400 });
+      }
+
+      if (door.winner) {
+        return NextResponse.json(
+          { error: "Vinner er allerede trukket for denne luken" },
+          { status: 400 }
+        );
+      }
     }
 
     // Get IP and User Agent for tracking
@@ -132,6 +138,10 @@ export async function POST(req: NextRequest) {
           data: updateData,
         });
       }
+    }
+
+    if (isLandingCalendar) {
+      return NextResponse.json({ success: true, message: "Lead registrert" });
     }
 
     // Validate quiz if enabled

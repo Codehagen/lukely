@@ -154,6 +154,7 @@ enum CalendarType {
   VALENTINE
   EASTER
   CUSTOM
+  LANDING_PAGE
 }
 
 enum CalendarStatus {
@@ -189,6 +190,15 @@ model Calendar {
   footerText           String?
   favicon              String?
   metaDescription      String?
+  landingHeroTitle           String?
+  landingHeroSubtitle        String?
+  landingHeroDescription     String?
+  landingPrimaryActionLabel  String?   @default("Registrer deg nå")
+  landingPrimaryActionUrl    String?
+  landingSecondaryActionLabel String?
+  landingSecondaryActionUrl   String?
+  landingHighlights           Json?
+  landingShowLeadForm         Boolean  @default(true)
 
   // GDPR & Legal
   termsUrl             String?

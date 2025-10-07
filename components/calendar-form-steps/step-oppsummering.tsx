@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { HOME_DOMAIN } from "@/lib/config";
 import { getFontFamilyValue } from "@/lib/google-fonts";
+import type { LandingHighlight } from "./step-landing-content";
 
 interface StepOppsummeringProps {
   formData: {
@@ -23,12 +24,34 @@ interface StepOppsummeringProps {
     brandColor: string;
     brandFont?: string;
     logo?: string;
+    landingHeroTitle: string;
+    landingHeroSubtitle: string;
+    landingHeroDescription: string;
+    landingPrimaryActionLabel: string;
+    landingPrimaryActionUrl: string;
+    landingSecondaryActionLabel: string;
+    landingSecondaryActionUrl: string;
+    landingHighlights: LandingHighlight[];
+    landingShowLeadForm: boolean;
   };
+  calendarFormat: "landing" | "quiz" | "";
   onEdit: (step: number) => void;
 }
 
-export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
+export function StepOppsummering({ formData, calendarFormat, onEdit }: StepOppsummeringProps) {
   const calendarUrlPrefix = `${HOME_DOMAIN.replace(/\/$/, "")}/c/`;
+  const stepIndexMap = calendarFormat === "quiz"
+    ? {
+        grunnleggende: 3,
+        datoer: 4,
+        quiz: 5,
+        merkevare: 6,
+      }
+    : {
+        grunnleggende: 3,
+        innhold: 4,
+        merkevare: 5,
+      };
 
   return (
     <div className="space-y-6">
@@ -47,7 +70,7 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onEdit(1)}
+              onClick={() => onEdit(stepIndexMap.grunnleggende ?? 1)}
             >
               <IconEdit className="h-4 w-4 mr-2" />
               Rediger
@@ -77,107 +100,205 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
         </CardContent>
       </Card>
 
-      {/* Datoer og luker */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Datoer og luker</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(2)}
-            >
-              <IconEdit className="h-4 w-4 mr-2" />
-              Rediger
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <dt className="text-sm text-muted-foreground">Startdato</dt>
-              <dd className="font-medium">
-                {format(formData.startDate, "d. MMM yyyy", { locale: nb })}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm text-muted-foreground">Sluttdato</dt>
-              <dd className="font-medium">
-                {format(formData.endDate, "d. MMM yyyy", { locale: nb })}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm text-muted-foreground">Antall luker</dt>
-              <dd className="font-medium">{formData.doorCount} luker</dd>
-            </div>
-          </dl>
-        </CardContent>
-      </Card>
+      {/* Format-specific summary */}
+      {calendarFormat === "quiz" ? (
+        <>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Datoer og luker</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEdit(stepIndexMap.datoer ?? 4)}
+                >
+                  <IconEdit className="h-4 w-4 mr-2" />
+                  Rediger
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Startdato</dt>
+                  <dd className="font-medium">
+                    {format(formData.startDate, "d. MMM yyyy", { locale: nb })}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Sluttdato</dt>
+                  <dd className="font-medium">
+                    {format(formData.endDate, "d. MMM yyyy", { locale: nb })}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Antall luker</dt>
+                  <dd className="font-medium">{formData.doorCount} luker</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
 
-      {/* Quiz */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Quiz</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(3)}
-            >
-              <IconEdit className="h-4 w-4 mr-2" />
-              Rediger
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {formData.enableQuiz ? (
-            <dl className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Quiz</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEdit(stepIndexMap.quiz ?? 5)}
+                >
+                  <IconEdit className="h-4 w-4 mr-2" />
+                  Rediger
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {formData.enableQuiz ? (
+                <dl className="space-y-4">
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Quiz aktivert</dt>
+                    <dd className="flex items-center gap-2 font-medium text-green-600">
+                      <IconCheck className="h-4 w-4" />
+                      Ja
+                    </dd>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Poengkrav</dt>
+                      <dd className="font-medium">{formData.defaultQuizPassingScore}%</dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Vis svar</dt>
+                      <dd className="font-medium">
+                        {formData.defaultShowCorrectAnswers ? "Ja" : "Nei"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm text-muted-foreground">Tillat nye forsøk</dt>
+                      <dd className="font-medium">
+                        {formData.defaultAllowRetry ? "Ja" : "Nei"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm text-muted-foreground">AI-generering</dt>
+                      <dd className="font-medium">
+                        {formData.generateAllQuizzes ? "Automatisk" : "Manuelt"}
+                      </dd>
+                    </div>
+                  </div>
+                  {formData.aiQuizInstructions && (
+                    <div>
+                      <dt className="text-sm text-muted-foreground">AI-instruksjoner</dt>
+                      <dd className="text-sm">{formData.aiQuizInstructions}</dd>
+                    </div>
+                  )}
+                </dl>
+              ) : (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <IconX className="h-4 w-4" />
+                  Ingen quiz aktivert
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Landingsside</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(stepIndexMap.innhold ?? 4)}
+              >
+                <IconEdit className="h-4 w-4 mr-2" />
+                Rediger
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <dt className="text-sm text-muted-foreground">Quiz aktivert</dt>
-                <dd className="flex items-center gap-2 font-medium text-green-600">
-                  <IconCheck className="h-4 w-4" />
-                  Ja
+                <dt className="text-sm text-muted-foreground">Overskrift</dt>
+                <dd className="font-medium">{formData.landingHeroTitle || "–"}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Primær handling</dt>
+                <dd className="font-medium">
+                  {formData.landingPrimaryActionLabel || "Ingen CTA"}
                 </dd>
+                {formData.landingPrimaryActionUrl && (
+                  <p className="text-xs text-muted-foreground break-all mt-1">
+                    {formData.landingPrimaryActionUrl}
+                  </p>
+                )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.landingSecondaryActionLabel && (
                 <div>
-                  <dt className="text-sm text-muted-foreground">Poengkrav</dt>
-                  <dd className="font-medium">{formData.defaultQuizPassingScore}%</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">Vis svar</dt>
+                  <dt className="text-sm text-muted-foreground">Sekundær handling</dt>
                   <dd className="font-medium">
-                    {formData.defaultShowCorrectAnswers ? "Ja" : "Nei"}
+                    {formData.landingSecondaryActionLabel}
                   </dd>
+                  {formData.landingSecondaryActionUrl && (
+                    <p className="text-xs text-muted-foreground break-all mt-1">
+                      {formData.landingSecondaryActionUrl}
+                    </p>
+                  )}
                 </div>
+              )}
+              {formData.landingHeroSubtitle && (
                 <div>
-                  <dt className="text-sm text-muted-foreground">Tillat nye forsøk</dt>
-                  <dd className="font-medium">
-                    {formData.defaultAllowRetry ? "Ja" : "Nei"}
-                  </dd>
+                  <dt className="text-sm text-muted-foreground">Underoverskrift</dt>
+                  <dd className="font-medium">{formData.landingHeroSubtitle}</dd>
                 </div>
-                <div>
-                  <dt className="text-sm text-muted-foreground">AI-generering</dt>
-                  <dd className="font-medium">
-                    {formData.generateAllQuizzes ? "Automatisk" : "Manuelt"}
-                  </dd>
-                </div>
-              </div>
-              {formData.aiQuizInstructions && (
-                <div>
-                  <dt className="text-sm text-muted-foreground">AI-instruksjoner</dt>
-                  <dd className="text-sm">{formData.aiQuizInstructions}</dd>
+              )}
+              {formData.landingHeroDescription && (
+                <div className="md:col-span-2">
+                  <dt className="text-sm text-muted-foreground">Beskrivelse</dt>
+                  <dd className="text-sm">{formData.landingHeroDescription}</dd>
                 </div>
               )}
             </dl>
-          ) : (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <IconX className="h-4 w-4" />
-              Ingen quiz aktivert
+
+            {formData.landingHighlights.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Høydepunkter</p>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {formData.landingHighlights.map((highlight, index) => (
+                    <li
+                      key={`${highlight.title}-${index}`}
+                      className="rounded-lg border bg-muted/40 p-4"
+                    >
+                      <p className="font-medium">{highlight.title || `Høydepunkt ${index + 1}`}</p>
+                      {highlight.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {highlight.description}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between rounded-md border bg-muted/40 p-3">
+              <div>
+                <p className="text-sm font-medium">Leadskjema</p>
+                <p className="text-xs text-muted-foreground">
+                  {formData.landingShowLeadForm
+                    ? "Besøkende kan registrere seg direkte fra landingssiden."
+                    : "Leadskjemaet er skjult for denne kampanjen."}
+                </p>
+              </div>
+              <span className="text-sm font-medium">
+                {formData.landingShowLeadForm ? "Aktivert" : "Deaktivert"}
+              </span>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Merkevare */}
       <Card>
@@ -187,7 +308,7 @@ export function StepOppsummering({ formData, onEdit }: StepOppsummeringProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onEdit(4)}
+              onClick={() => onEdit(stepIndexMap.merkevare ?? 5)}
             >
               <IconEdit className="h-4 w-4 mr-2" />
               Rediger

@@ -2,6 +2,7 @@ import { CalendarType } from "@/app/generated/prisma";
 
 export interface CalendarTemplate {
   type: CalendarType;
+  format: "landing" | "quiz";
   title: string;
   description: string;
   doorCount: number;
@@ -17,11 +18,26 @@ export interface CalendarTemplate {
     icon: string;
     gradient: string;
   };
+  landingDefaults?: {
+    heroTitle: string;
+    heroSubtitle: string;
+    heroDescription: string;
+    primaryActionLabel: string;
+    primaryActionUrl?: string;
+    secondaryActionLabel?: string;
+    secondaryActionUrl?: string;
+    features: Array<{
+      title: string;
+      description: string;
+    }>;
+    showLeadForm?: boolean;
+  };
 }
 
 export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   christmas: {
     type: "CHRISTMAS",
+    format: "quiz",
     title: "Julekalender",
     description: "24 dager med høytidsoverraskelser frem mot jul",
     doorCount: 24,
@@ -40,6 +56,7 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   valentine: {
     type: "VALENTINE",
+    format: "quiz",
     title: "Valentinsnedtelling",
     description: "14 dager med kjærlighet frem mot Valentinsdagen",
     doorCount: 14,
@@ -58,6 +75,7 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   easter: {
     type: "EASTER",
+    format: "quiz",
     title: "Påskekalender",
     description: "Tilpassbar kalender for påskefeiring",
     doorCount: 7,
@@ -70,6 +88,7 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   },
   custom: {
     type: "CUSTOM",
+    format: "quiz",
     title: "Egen kalender",
     description: "Lag din egen kalender med valgte datoer og antall luker",
     doorCount: 12,
@@ -78,6 +97,41 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
       colors: ["#3B82F6", "#8B5CF6", "#EC4899"],
       icon: "🎁",
       gradient: "from-blue-500 to-purple-600",
+    },
+  },
+  landing: {
+    type: "LANDING_PAGE",
+    format: "landing",
+    title: "Leadmagnet landingpage",
+    description: "En fokusert destinasjon for å samle leads og vise frem verdiforslaget ditt",
+    doorCount: 0,
+    flexible: true,
+    theme: {
+      colors: ["#0EA5E9", "#2563EB", "#7C3AED"],
+      icon: "🚀",
+      gradient: "from-sky-500 to-indigo-600",
+    },
+    landingDefaults: {
+      heroTitle: "Bygg relasjoner og samle nye leads",
+      heroSubtitle: "Lanser et engasjerende univers som viser frem verdien din og samler innsikt om målgruppen.",
+      heroDescription: "Del nyheter, kampanjer og eksklusive tilbud på et øyeblikk. Perfekt for kampanjer der du ikke trenger kalenderluker.",
+      primaryActionLabel: "Start kampanjen",
+      secondaryActionLabel: "Se eksempel",
+      features: [
+        {
+          title: "Innsikt i sanntid",
+          description: "Følg trafikk og konverteringer direkte i dashboardet.",
+        },
+        {
+          title: "Smart leadskjema",
+          description: "Tilpass hvilke felt du trenger og koble til eksisterende arbeidsflyt.",
+        },
+        {
+          title: "Merkevarebygging",
+          description: "Tilpass farger, fonter og budskap for å matche profilen din.",
+        },
+      ],
+      showLeadForm: true,
     },
   },
 };
