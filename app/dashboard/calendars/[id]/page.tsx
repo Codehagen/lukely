@@ -19,12 +19,22 @@ import {
   IconExternalLink,
   IconSettings,
   IconChartBar,
+  IconDoorEnter,
+  IconDotsVertical,
 } from "@tabler/icons-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { CalendarStatusSwitcher } from "@/components/calendar-status-switcher";
 import { CalendarQuickBranding } from "@/components/calendar-quick-branding";
-import { CopyUrlButton } from "@/components/copy-url-button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 import { CalendarActivityTimeline } from "@/components/calendar-activity-timeline";
 
@@ -108,7 +118,8 @@ export default async function CalendarOverviewPage({
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
@@ -125,20 +136,62 @@ export default async function CalendarOverviewPage({
             {format(calendar.endDate, "d. MMM yyyy", { locale: nb })}
           </p>
         </div>
-        <div className="flex gap-2">
-          <CopyUrlButton url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/c/${calendar.slug}`} />
-          <Link href={`/c/${calendar.slug}`} target="_blank">
-            <Button variant="outline" size="sm">
-              <IconExternalLink className="mr-2 h-4 w-4" />
-              Forhåndsvis
-            </Button>
-          </Link>
-          <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
-            <Button variant="outline" size="sm">
-              <IconSettings className="mr-2 h-4 w-4" />
-              Innstillinger
-            </Button>
-          </Link>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          <ButtonGroup>
+            <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
+              <Button variant="outline" size="sm">
+                <IconGift className="mr-2 h-4 w-4" />
+                Luker
+              </Button>
+            </Link>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
+              <Button variant="outline" size="sm">
+                <IconTrophy className="mr-2 h-4 w-4" />
+                Velg vinnere
+              </Button>
+            </Link>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
+              <Button variant="outline" size="sm">
+                <IconSettings className="mr-2 h-4 w-4" />
+                Innstillinger
+              </Button>
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="More Options">
+                  <IconDotsVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/c/${calendar.slug}`} target="_blank">
+                      <IconExternalLink className="mr-2 h-4 w-4" />
+                      Forhåndsvis
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/calendars/${calendar.id}/analytics`}>
+                      <IconChartBar className="mr-2 h-4 w-4" />
+                      Analyser
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/calendars/${calendar.id}/leads`}>
+                      <IconUsers className="mr-2 h-4 w-4" />
+                      Vis leads
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ButtonGroup>
         </div>
       </div>
 
@@ -210,7 +263,6 @@ export default async function CalendarOverviewPage({
         <TabsList>
           <TabsTrigger value="overview">Oversikt</TabsTrigger>
           <TabsTrigger value="branding">Merkevare</TabsTrigger>
-          <TabsTrigger value="quick-actions">Hurtighandlinger</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -302,93 +354,6 @@ export default async function CalendarOverviewPage({
               thankYouMessage: calendar.thankYouMessage || null,
             }}
           />
-        </TabsContent>
-
-        <TabsContent value="quick-actions" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Administrer produkter</CardTitle>
-                <CardDescription>
-                  Legg til og rediger produkter for hver luke
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
-                  <Button className="w-full">
-                    <IconGift className="mr-2 h-4 w-4" />
-                    Gå til luker
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Velg vinnere</CardTitle>
-                <CardDescription>Trekk vinnere for åpne luker</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
-                  <Button className="w-full">
-                    <IconTrophy className="mr-2 h-4 w-4" />
-                    Administrer vinnere
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Vis leads</CardTitle>
-                <CardDescription>
-                  Se alle innsamlede leads og eksporter data
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/dashboard/calendars/${calendar.id}/leads`}>
-                  <Button className="w-full">
-                    <IconUsers className="mr-2 h-4 w-4" />
-                    Vis leads
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Analyser</CardTitle>
-                <CardDescription>
-                  Se detaljert kampanjeytelse og statistikk
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/dashboard/calendars/${calendar.id}/analytics`}>
-                  <Button className="w-full">
-                    <IconChartBar className="mr-2 h-4 w-4" />
-                    Se analyser
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Offentlig side</CardTitle>
-                <CardDescription>
-                  Se kalenderen slik brukerne opplever den
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/c/${calendar.slug}`} target="_blank">
-                  <Button className="w-full" variant="outline">
-                    <IconExternalLink className="mr-2 h-4 w-4" />
-                    Åpne offentlig side
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
