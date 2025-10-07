@@ -12,13 +12,23 @@ interface ShareTargetButtonsProps {
   url: string;
   title: string;
   description?: string;
+  shareMessage?: string;
   size?: "default" | "sm";
 }
 
-export function ShareTargetButtons({ url, title, description = "", size = "sm" }: ShareTargetButtonsProps) {
+export function ShareTargetButtons({ url, title, description = "", shareMessage, size = "sm" }: ShareTargetButtonsProps) {
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);
+
+  // Use shareMessage for Twitter/X and email if provided, otherwise fall back to title
+  const twitterText = shareMessage
+    ? encodeURIComponent(shareMessage.replace(url, '').trim()) // Remove URL as Twitter adds it
+    : encodedTitle;
+
+  const emailBody = shareMessage
+    ? encodeURIComponent(shareMessage)
+    : `${encodedDescription}%0D%0A%0D%0A${encodedUrl}`;
 
   const targets = [
     {
@@ -36,13 +46,13 @@ export function ShareTargetButtons({ url, title, description = "", size = "sm" }
     {
       label: "X",
       icon: IconBrandX,
-      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${twitterText}`,
       color: "hover:bg-black hover:text-white",
     },
     {
       label: "E-post",
       icon: IconMail,
-      href: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0D%0A%0D%0A${encodedUrl}`,
+      href: `mailto:?subject=${encodedTitle}&body=${emailBody}`,
       color: "hover:bg-green-600 hover:text-white",
     },
   ];

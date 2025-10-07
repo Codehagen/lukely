@@ -29,6 +29,14 @@ export function ShareDoorDialog({
 }: ShareDoorDialogProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedText, setCopiedText] = useState(false);
+
+  // Create engaging share message with emojis
+  const shareMessage = `🎁 Sjekk ut denne luken i vår adventskalender!
+
+${title}
+
+${description ? `${description}\n\n` : ""}🎯 Delta her: ${url}`;
 
   const handleCopy = async () => {
     try {
@@ -39,6 +47,18 @@ export function ShareDoorDialog({
     } catch (error) {
       toast.error("Kunne ikke kopiere lenke");
       console.error("Kunne ikke kopiere lenke", error);
+    }
+  };
+
+  const handleCopyText = async () => {
+    try {
+      await navigator.clipboard.writeText(shareMessage);
+      setCopiedText(true);
+      toast.success("Tekst kopiert!");
+      setTimeout(() => setCopiedText(false), 2000);
+    } catch (error) {
+      toast.error("Kunne ikke kopiere tekst");
+      console.error("Kunne ikke kopiere tekst", error);
     }
   };
 
@@ -59,6 +79,39 @@ export function ShareDoorDialog({
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
+          {/* Preview Card with copy functionality */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Forhåndsvisning
+              </label>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={handleCopyText}
+              >
+                {copiedText ? (
+                  <>
+                    <IconCheck className="h-3 w-3 mr-1 text-green-600" />
+                    Kopiert
+                  </>
+                ) : (
+                  <>
+                    <IconCopy className="h-3 w-3 mr-1" />
+                    Kopier tekst
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="rounded-lg border bg-gradient-to-br from-muted/30 to-muted/10 p-4">
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {shareMessage}
+              </p>
+            </div>
+          </div>
+
           {/* URL Section with integrated copy */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -84,30 +137,6 @@ export function ShareDoorDialog({
             </div>
           </div>
 
-          {/* Preview Card */}
-          <div className="rounded-lg border bg-gradient-to-br from-muted/30 to-muted/10 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 shrink-0">
-                <IconGift className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-tight">{title}</p>
-              </div>
-            </div>
-            {description && (
-              <div className="flex items-start gap-3">
-                <div className="rounded-md bg-muted p-2 shrink-0">
-                  <IconFileText className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {description}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Share Buttons */}
           <div className="space-y-3 pt-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -117,6 +146,7 @@ export function ShareDoorDialog({
               url={url}
               title={title}
               description={description}
+              shareMessage={shareMessage}
               size="default"
             />
           </div>
