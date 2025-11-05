@@ -102,8 +102,8 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
   fathersDay: {
     type: "FATHERS_DAY",
     format: "landing",
-    title: "Farsdagskampanje",
-    description: "Landingsside for å feire verdens beste pappas - samle leads og spre gode gaver",
+    title: "Farsdagskonkurranse",
+    description: "Konkurranselandingsside for farsdagen - samle leads med sjansen til å vinne drømmegaven til far",
     doorCount: 0,
     flexible: true,
     theme: {
@@ -112,23 +112,23 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
       gradient: "from-blue-900 to-gray-700",
     },
     landingDefaults: {
-      heroTitle: "Feir far med gaver han virkelig vil ha",
-      heroSubtitle: "Finn de perfekte gavene til verdens beste far denne farsdagen",
-      heroDescription: "Farsdagen i Norge feires andre søndag i november. Gjør årets feiring uforglemmelig med eksklusive tilbud og inspirasjoner til far.",
-      primaryActionLabel: "Se årets gaver",
-      secondaryActionLabel: "Registrer deg for tilbud",
+      heroTitle: "Vinn drømmegaven til far!",
+      heroSubtitle: "Delta i vår store farsdagskonkurranse",
+      heroDescription: "Farsdagen feires andre søndag i november. Registrer deg nå og vær med i trekningen om den perfekte gaven til verdens beste far!",
+      primaryActionLabel: "Delta i konkurransen",
+      secondaryActionLabel: "Les mer om premien",
       features: [
         {
-          title: "Gaveinspirasjoner",
-          description: "Kuraterte gaveforslag som far garantert vil elske - fra tech til opplevelser.",
+          title: "Enkel påmelding",
+          description: "Fyll inn navn, e-post og telefon - så er du med i trekningen!",
         },
         {
-          title: "Eksklusiv tilgang",
-          description: "Få tidlig tilgang til farsdags-tilbud og kampanjer før alle andre.",
+          title: "Fantastiske premier",
+          description: "Vinn eksklusive produkter som far garantert vil elske.",
         },
         {
-          title: "Personlige anbefalinger",
-          description: "Basert på fars interesser hjelper vi deg finne den perfekte gaven.",
+          title: "Gratis å delta",
+          description: "Ingen kjøp nødvendig. Alle som registrerer seg er med i konkurransen.",
         },
       ],
       showLeadForm: true,
