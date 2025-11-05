@@ -99,6 +99,41 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
       gradient: "from-blue-500 to-purple-600",
     },
   },
+  fathersDay: {
+    type: "FATHERS_DAY",
+    format: "landing",
+    title: "Farsdagskampanje",
+    description: "Landingsside for å feire verdens beste pappas - samle leads og spre gode gaver",
+    doorCount: 0,
+    flexible: true,
+    theme: {
+      colors: ["#1E3A8A", "#374151", "#92400E"],
+      icon: "👔",
+      gradient: "from-blue-900 to-gray-700",
+    },
+    landingDefaults: {
+      heroTitle: "Feir far med gaver han virkelig vil ha",
+      heroSubtitle: "Finn de perfekte gavene til verdens beste far denne farsdagen",
+      heroDescription: "Farsdagen i Norge feires andre søndag i november. Gjør årets feiring uforglemmelig med eksklusive tilbud og inspirasjoner til far.",
+      primaryActionLabel: "Se årets gaver",
+      secondaryActionLabel: "Registrer deg for tilbud",
+      features: [
+        {
+          title: "Gaveinspirasjoner",
+          description: "Kuraterte gaveforslag som far garantert vil elske - fra tech til opplevelser.",
+        },
+        {
+          title: "Eksklusiv tilgang",
+          description: "Få tidlig tilgang til farsdags-tilbud og kampanjer før alle andre.",
+        },
+        {
+          title: "Personlige anbefalinger",
+          description: "Basert på fars interesser hjelper vi deg finne den perfekte gaven.",
+        },
+      ],
+      showLeadForm: true,
+    },
+  },
   landing: {
     type: "LANDING_PAGE",
     format: "landing",
