@@ -99,6 +99,45 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
       gradient: "from-blue-500 to-purple-600",
     },
   },
+  fathersDay: {
+    type: "FATHERS_DAY",
+    format: "landing",
+    title: "Farsdagskonkurranse",
+    description: "Konkurranselandingsside for farsdagen - samle leads med sjansen til å vinne drømmegaven til far",
+    doorCount: 0,
+    flexible: true,
+    theme: {
+      colors: ["#1E3A8A", "#374151", "#92400E"],
+      icon: "👔",
+      gradient: "from-blue-900 to-gray-700",
+    },
+    landingDefaults: {
+      heroTitle: "Vinn drømmegaven til far!",
+      heroSubtitle: "Delta i vår store farsdagskonkurranse",
+      heroDescription: "Farsdagen feires andre søndag i november. Registrer deg nå og vær med i trekningen om den perfekte gaven til verdens beste far!",
+      primaryActionLabel: "Delta nå – gratis",
+      secondaryActionLabel: "Se premien",
+      features: [
+        {
+          title: "Premium premie verdt [XX XXX kr]",
+          description: "Vinn en eksklusiv gave som far garantert vil elske. Høy kvalitet fra anerkjente merkevarer.",
+        },
+        {
+          title: "100% gratis å delta",
+          description: "Ingen kjøp nødvendig. Ingen skjulte kostnader. Bare registrer deg og vær med i trekningen.",
+        },
+        {
+          title: "Enkel og rask registrering",
+          description: "Det tar kun 30 sekunder å delta. Fyll inn noen få felter, og du er med!",
+        },
+        {
+          title: "Trygg databehandling",
+          description: "Dine personopplysninger er trygge hos oss. GDPR-godkjent og sikker registrering.",
+        },
+      ],
+      showLeadForm: true,
+    },
+  },
   landing: {
     type: "LANDING_PAGE",
     format: "landing",

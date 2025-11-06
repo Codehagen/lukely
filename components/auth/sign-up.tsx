@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { signUp, signIn } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
+import { signUp, signIn, getLastUsedLoginMethod } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,25 @@ export default function SignUpAuth() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [lastLoginMethod, setLastLoginMethod] = useState<string | null>(null);
+
+  useEffect(() => {
+    const lastMethod = getLastUsedLoginMethod();
+    if (lastMethod) {
+      setLastLoginMethod(lastMethod);
+    }
+  }, []);
+
+  const getLoginMethodDisplay = (method: string) => {
+    switch (method) {
+      case "email":
+        return "E-post";
+      case "google":
+        return "Google";
+      default:
+        return method.charAt(0).toUpperCase() + method.slice(1);
+    }
+  };
 
   return (
     <>
@@ -58,6 +77,11 @@ export default function SignUpAuth() {
               <p className="text-sm text-muted-foreground">
                 Skriv inn e-posten din nedenfor for å opprette en konto
               </p>
+              {lastLoginMethod && (
+                <p className="text-xs text-muted-foreground">
+                  Tidligere registrert med {getLoginMethodDisplay(lastLoginMethod)}
+                </p>
+              )}
             </div>
             <div className="grid gap-6">
               <form

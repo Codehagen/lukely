@@ -23,6 +23,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get user with role
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "Bruker ikke funnet" }, { status: 404 });
+    }
+
+    // Check workspace creation limit for USER role (1 workspace)
+    if (user.role === "USER") {
+      const userWorkspaceCount = await prisma.workspace.count({
+        where: {
+          members: {
+            some: {
+              userId: user.id,
+              role: "OWNER",
+            },
+          },
+          status: {
+            in: ["PENDING", "APPROVED"],
+          },
+        },
+      });
+
+      if (userWorkspaceCount >= 1) {
+        return NextResponse.json(
+          { error: "Gratis brukere kan kun opprette 1 workspace. Oppgrader for å opprette flere." },
+          { status: 403 }
+        );
+      }
+    }
+
     // Check if slug is unique
     const existingWorkspace = await prisma.workspace.findUnique({
       where: { slug },
@@ -35,11 +69,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create workspace
+    // Create workspace with PENDING status
     const workspace = await prisma.workspace.create({
       data: {
         name,
         slug,
+        status: "PENDING", // Awaiting admin approval
         members: {
           create: {
             userId: session.user.id,
@@ -56,6 +91,9 @@ export async function POST(req: NextRequest) {
         defaultWorkspaceId: workspace.id,
       },
     });
+
+    // TODO: Send notification email to admins about new workspace pending approval
+    // await notifyAdminsNewWorkspace(workspace);
 
     return NextResponse.json(workspace);
   } catch (error) {

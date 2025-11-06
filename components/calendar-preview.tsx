@@ -393,12 +393,6 @@ function LandingPreviewContent({ formData, accentColor }: { formData: CalendarPr
   const showLeadForm = formData.landingShowLeadForm ?? true;
   const badgeLabel = "Landingsside";
 
-  const sampleStats = [
-    { label: "Visninger", value: "1 842" },
-    { label: "Leads", value: "312" },
-    { label: "Konvertering", value: "17,1%" },
-  ];
-
   return (
     <div
       className="min-h-[600px] flex flex-col"
@@ -441,89 +435,62 @@ function LandingPreviewContent({ formData, accentColor }: { formData: CalendarPr
           style={{ color: accentColor }}
         />
         <div className="relative px-4 py-12">
-          <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[2fr_1.2fr] items-start">
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <h2 className="text-3xl font-bold leading-tight" style={{ fontFamily }}>
-                  {heroTitle || "Tilpass overskriften for landingssiden din"}
-                </h2>
-                {heroSubtitle && <p className="text-base text-muted-foreground">{heroSubtitle}</p>}
-                <p className="text-sm text-muted-foreground">{heroDescription}</p>
-              </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2
+              className="text-3xl font-bold mb-4 leading-tight"
+              style={{
+                fontFamily,
+                backgroundImage: `linear-gradient(135deg, ${accentColor}, ${accentColor}99)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {heroTitle}
+            </h2>
+            {heroSubtitle && (
+              <p className="text-base text-muted-foreground mb-4 max-w-2xl mx-auto">
+                {heroSubtitle}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
+              {heroDescription}
+            </p>
 
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+              <Button
+                size="sm"
+                className="h-9 px-6 text-sm font-semibold shadow-md"
+                style={{ backgroundColor: accentColor, fontFamily }}
+              >
+                {primaryCta}
+              </Button>
+              {secondaryCta && (
                 <Button
                   size="sm"
-                  className="h-9 px-6 text-sm font-semibold shadow-md"
-                  style={{ backgroundColor: accentColor, fontFamily }}
+                  variant="outline"
+                  className="h-9 px-6 text-sm font-semibold"
+                  style={{
+                    borderColor: accentColor,
+                    color: accentColor,
+                    fontFamily,
+                  }}
                 >
-                  {primaryCta}
+                  {secondaryCta}
                 </Button>
-                {secondaryCta && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-9 px-6 text-sm font-semibold"
-                    style={{
-                      borderColor: accentColor,
-                      color: accentColor,
-                      fontFamily,
-                    }}
-                  >
-                    {secondaryCta}
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {sampleStats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-xl border bg-background/80 backdrop-blur-sm p-4 shadow-sm"
-                    style={{ borderColor: `${accentColor}33` }}
-                  >
-                    <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
-                    <p className="text-lg font-semibold" style={{ color: accentColor }}>
-                      {stat.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              )}
             </div>
-
-            <Card className="border-2 border-dashed border-muted-foreground/20 bg-background/90 shadow-sm">
-              <CardContent className="p-6 space-y-4">
-                <div>
-                  <p className="text-sm font-semibold" style={{ fontFamily }}>
-                    Innsikt i sanntid
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Se hvordan landingssiden leverer mens du bygger den.
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  {sampleStats.map((stat) => (
-                    <div className="flex items-center justify-between text-sm" key={`insight-${stat.label}`}>
-                      <span className="text-muted-foreground">{stat.label}</span>
-                      <span className="font-semibold" style={{ color: accentColor }}>
-                        {stat.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
 
       <section className="px-4 py-8 space-y-6">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold" style={{ fontFamily, color: accentColor }}>
-            Dette lover du brukerne
+        <div className="space-y-2 text-center">
+          <h3 className="text-xl font-bold" style={{ fontFamily, color: accentColor }}>
+            Dette får du
           </h3>
           <p className="text-sm text-muted-foreground">
-            Fremhev fordelene dine for å skape nysgjerrighet og tillit.
+            Fremhev fordelene for å øke konverteringen.
           </p>
         </div>
 

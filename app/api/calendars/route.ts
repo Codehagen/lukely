@@ -17,7 +17,15 @@ export async function POST(req: NextRequest) {
     // Get user's default workspace
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { defaultWorkspace: true },
+      include: {
+        defaultWorkspace: {
+          include: {
+            members: {
+              where: { userId: session.user.id, role: "OWNER" }
+            }
+          }
+        }
+      },
     });
 
     if (!user?.defaultWorkspaceId) {
@@ -25,6 +33,28 @@ export async function POST(req: NextRequest) {
         { error: "Du må opprette et arbeidsområde før du kan lage kalendere. Gå til innstillinger for å opprette et arbeidsområde." },
         { status: 400 }
       );
+    }
+
+    // Check if workspace is approved
+    if (user.defaultWorkspace?.status !== "APPROVED") {
+      return NextResponse.json(
+        { error: "Arbeidsområdet ditt venter på godkjenning. Du kan opprette kalendere når det er godkjent." },
+        { status: 403 }
+      );
+    }
+
+    // Check calendar creation limit for USER role (1 calendar per workspace)
+    if (user.role === "USER") {
+      const workspaceCalendarCount = await prisma.calendar.count({
+        where: { workspaceId: user.defaultWorkspaceId },
+      });
+
+      if (workspaceCalendarCount >= 1) {
+        return NextResponse.json(
+          { error: "Gratis brukere kan kun opprette 1 kalender per workspace. Oppgrader for å opprette flere." },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await req.json();
