@@ -14,10 +14,16 @@ model User {
   email         String    @unique
   name          String?
   agent         Boolean   @default(false)
+  role          UserRole  @default(USER)
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+
+  // Admin plugin fields
+  banned        Boolean   @default(false)
+  banReason     String?
+  banExpires    DateTime?
 
   // Relations
   sessions      Session[]
@@ -25,6 +31,7 @@ model User {
   workspaces    WorkspaceMember[]
   invitationsSent WorkspaceInvitation[]
   notificationPreferences UserNotificationPreferences?
+  approvedWorkspaces Workspace[] @relation("WorkspaceApprovedBy")
 
   // Default workspace
   defaultWorkspaceId String?
@@ -47,6 +54,9 @@ model Session {
   // Active workspace context
   activeWorkspaceId String?
   activeWorkspace   Workspace? @relation(fields: [activeWorkspaceId], references: [id], onDelete: SetNull)
+
+  // Admin impersonation
+  impersonatedBy String?
 
   @@unique([token])
   @@map("session")
@@ -84,10 +94,20 @@ model Verification {
 
 // Workspace model for multi-tenancy
 model Workspace {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String          @unique
   image       String?
+  status      WorkspaceStatus @default(PENDING)
+
+  // Approval tracking
+  submittedAt     DateTime  @default(now())
+  approvedAt      DateTime?
+  approvedById    String?
+  approvedBy      User?     @relation("WorkspaceApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  rejectedAt      DateTime?
+  rejectionReason String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -98,6 +118,7 @@ model Workspace {
   defaultForUsers User[] @relation("UserDefaultWorkspace")
   calendars   Calendar[]
 
+  @@index([status])
   @@map("workspace")
 }
 
@@ -146,6 +167,20 @@ enum Role {
   ADMIN
   MEMBER
   VIEWER
+}
+
+// User role enum for platform-level permissions
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// Workspace status enum for approval workflow
+enum WorkspaceStatus {
+  PENDING    // Awaiting admin approval
+  APPROVED   // Active and usable
+  REJECTED   // Denied by admin
+  SUSPENDED  // Temporarily disabled by admin
 }
 
 // Calendar template types

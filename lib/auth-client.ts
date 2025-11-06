@@ -1,9 +1,9 @@
 import { createAuthClient } from "better-auth/client";
-import { lastLoginMethodClient } from "better-auth/client/plugins";
+import { adminClient, lastLoginMethodClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  plugins: [lastLoginMethodClient()],
+  plugins: [lastLoginMethodClient(), adminClient()],
 });
 
 export const { signIn, signOut, signUp, useSession } = authClient;
@@ -12,3 +12,15 @@ export const {
   isLastUsedLoginMethod,
   clearLastUsedLoginMethod,
 } = authClient;
+
+// Admin functions
+export const {
+  impersonateUser,
+  stopImpersonation,
+  listUsers,
+  setUserRole,
+  banUser,
+  unbanUser,
+  createUser,
+  removeUser,
+} = authClient.admin;

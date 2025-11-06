@@ -62,6 +62,69 @@ export default async function DashboardPage() {
 
   const workspace = userWithWorkspace.defaultWorkspace;
 
+  // Workspace pending approval - show pending state
+  if (workspace?.status === "PENDING") {
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <IconCalendar className="h-5 w-5" />
+              Workspace Venter på Godkjenning
+            </CardTitle>
+            <CardDescription className="text-yellow-900 dark:text-yellow-100">
+              Ditt workspace "{workspace.name}" er under behandling
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm">
+              Vi behandler din forespørsel om å opprette et workspace. Du vil motta en e-post når det er godkjent og klart til bruk.
+            </p>
+            <p className="text-sm">
+              <strong>Innsendt:</strong> {new Date(workspace.submittedAt).toLocaleString("no-NO")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Dette tar normalt 1-2 virkedager. Hvis du har spørsmål, vennligst kontakt support.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Workspace rejected - show rejection message
+  if (workspace?.status === "REJECTED") {
+    return (
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <Card className="border-red-500 bg-red-50 dark:bg-red-950">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <IconCalendar className="h-5 w-5" />
+              Workspace Avvist
+            </CardTitle>
+            <CardDescription className="text-red-900 dark:text-red-100">
+              Ditt workspace "{workspace.name}" ble ikke godkjent
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {workspace.rejectionReason && (
+              <div>
+                <p className="text-sm font-medium">Grunn:</p>
+                <p className="text-sm">{workspace.rejectionReason}</p>
+              </div>
+            )}
+            <p className="text-sm">
+              Vennligst kontakt support hvis du har spørsmål om avvisningen.
+            </p>
+            <Button asChild>
+              <Link href="/settings">Gå til Innstillinger</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const statusLabels: Record<string, string> = {
     DRAFT: "KLADD",
     SCHEDULED: "PLANLAGT",

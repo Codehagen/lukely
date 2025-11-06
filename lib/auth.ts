@@ -2,7 +2,7 @@ import { PrismaClient } from "@/app/generated/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { lastLoginMethod } from "better-auth/plugins";
+import { admin, lastLoginMethod } from "better-auth/plugins";
 
 const prisma = new PrismaClient();
 export const auth = betterAuth({
@@ -18,5 +18,13 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  plugins: [nextCookies(), lastLoginMethod()],
+  plugins: [
+    nextCookies(),
+    lastLoginMethod(),
+    admin({
+      defaultRole: "USER",
+      adminRoles: ["ADMIN"],
+      impersonationSessionDuration: 3600, // 1 hour
+    }),
+  ],
 });
