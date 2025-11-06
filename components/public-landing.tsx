@@ -51,10 +51,6 @@ interface PublicLandingProps {
       name: string;
       image: string | null;
     };
-    _count: {
-      leads: number;
-      views: number;
-    };
   };
 }
 
@@ -85,17 +81,6 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
     });
   }, [calendar.landingHighlights]);
 
-  const leadStats = useMemo(() => {
-    const leads = calendar._count.leads || 0;
-    const views = calendar._count.views || 0;
-    const conversion = views > 0 ? `${((leads / views) * 100).toFixed(1)}%` : "–";
-
-    return [
-      { label: "Leads", value: leads.toLocaleString("nb-NO") },
-      { label: "Visninger", value: views.toLocaleString("nb-NO") },
-      { label: "Konvertering", value: conversion },
-    ];
-  }, [calendar._count.leads, calendar._count.views]);
 
   const heroTitle = (calendar.landingHeroTitle || "Bygg forventninger og samle leads").trim();
   const heroSubtitle = (calendar.landingHeroSubtitle || "").trim();
@@ -167,8 +152,8 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
 
   const primaryCtaButton = calendar.landingPrimaryActionUrl ? (
     <Button
-      size="sm"
-      className="h-10 px-6 text-sm font-semibold shadow-md"
+      size="lg"
+      className="h-12 px-8 text-base font-bold shadow-lg hover:shadow-xl transition-shadow"
       style={{ backgroundColor: accentColor, fontFamily }}
       asChild
     >
@@ -178,8 +163,8 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
     </Button>
   ) : (
     <Button
-      size="sm"
-      className="h-10 px-6 text-sm font-semibold shadow-md"
+      size="lg"
+      className="h-12 px-8 text-base font-bold shadow-lg hover:shadow-xl transition-shadow"
       style={{ backgroundColor: accentColor, fontFamily }}
       onClick={() => {
         const formElement = document.getElementById("lead-form");
@@ -284,21 +269,6 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
                         </Button>
                       )}
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {leadStats.map((stat) => (
-                        <div
-                          key={stat.label}
-                          className="rounded-xl border bg-background/90 backdrop-blur-sm p-4 shadow-sm"
-                          style={{ borderColor: `${accentColor}30` }}
-                        >
-                          <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
-                          <p className="text-xl font-semibold" style={{ color: accentColor, fontFamily }}>
-                            {stat.value}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
                   <Card className="border-2 border-dashed border-muted-foreground/30 bg-background/90 shadow-sm">
@@ -329,12 +299,12 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
           </section>
 
           <section className="container mx-auto max-w-6xl px-4 py-12 md:py-16 space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold" style={{ fontFamily, color: accentColor }}>
-                Dette lover du brukerne
+            <div className="space-y-2 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold" style={{ fontFamily, color: accentColor }}>
+                Dette får du
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Fremhev fordelene dine for å skape nysgjerrighet og tillit.
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+                Alt du trenger å vite om hvorfor det er verdt å delta
               </p>
             </div>
 
@@ -365,13 +335,27 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
               {calendar.landingShowLeadForm ? (
                 <Card className="shadow-lg border border-muted-foreground/30 bg-background/95">
                   <CardContent className="p-6 md:p-8 space-y-6">
-                    <div className="space-y-2">
-                      <h2 className="text-xl font-semibold" style={{ fontFamily }}>
-                        Registrer deg for tidlig tilgang
+                    <div className="space-y-3 text-center">
+                      <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily }}>
+                        Delta nå – det tar kun 30 sekunder
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Få oppdateringer, forhåndstilbud og eksklusivt innhold først.
+                      <p className="text-base text-muted-foreground">
+                        Registrer deg og vær med i konkurransen. Gratis og uten forpliktelser.
                       </p>
+                      <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1.5">
+                          <IconCheck className="h-4 w-4" style={{ color: accentColor }} />
+                          100% gratis
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <IconCheck className="h-4 w-4" style={{ color: accentColor }} />
+                          Sikker registrering
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <IconCheck className="h-4 w-4" style={{ color: accentColor }} />
+                          GDPR-godkjent
+                        </span>
+                      </div>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -464,13 +448,17 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
                     </div>
 
                     <Button
-                      className="w-full h-11 text-sm font-semibold"
+                      size="lg"
+                      className="w-full h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-shadow"
                       style={{ backgroundColor: accentColor, fontFamily }}
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Sender..." : "Registrer meg"}
+                      {isSubmitting ? "Sender..." : "Delta i konkurransen"}
                     </Button>
+                    <p className="text-xs text-center text-muted-foreground">
+                      Dine data er trygge og behandles i henhold til GDPR
+                    </p>
                   </CardContent>
                 </Card>
               ) : (

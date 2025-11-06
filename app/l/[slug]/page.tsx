@@ -47,12 +47,6 @@ async function getLandingCalendarBySlug(slug: string) {
           image: true,
         },
       },
-      _count: {
-        select: {
-          leads: true,
-          views: true,
-        },
-      },
     },
   });
 }

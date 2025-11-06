@@ -115,20 +115,24 @@ export const CALENDAR_TEMPLATES: Record<string, CalendarTemplate> = {
       heroTitle: "Vinn drømmegaven til far!",
       heroSubtitle: "Delta i vår store farsdagskonkurranse",
       heroDescription: "Farsdagen feires andre søndag i november. Registrer deg nå og vær med i trekningen om den perfekte gaven til verdens beste far!",
-      primaryActionLabel: "Delta i konkurransen",
-      secondaryActionLabel: "Les mer om premien",
+      primaryActionLabel: "Delta nå – gratis",
+      secondaryActionLabel: "Se premien",
       features: [
         {
-          title: "Enkel påmelding",
-          description: "Fyll inn navn, e-post og telefon - så er du med i trekningen!",
+          title: "Premium premie verdt [XX XXX kr]",
+          description: "Vinn en eksklusiv gave som far garantert vil elske. Høy kvalitet fra anerkjente merkevarer.",
         },
         {
-          title: "Fantastiske premier",
-          description: "Vinn eksklusive produkter som far garantert vil elske.",
+          title: "100% gratis å delta",
+          description: "Ingen kjøp nødvendig. Ingen skjulte kostnader. Bare registrer deg og vær med i trekningen.",
         },
         {
-          title: "Gratis å delta",
-          description: "Ingen kjøp nødvendig. Alle som registrerer seg er med i konkurransen.",
+          title: "Enkel og rask registrering",
+          description: "Det tar kun 30 sekunder å delta. Fyll inn noen få felter, og du er med!",
+        },
+        {
+          title: "Trygg databehandling",
+          description: "Dine personopplysninger er trygge hos oss. GDPR-godkjent og sikker registrering.",
         },
       ],
       showLeadForm: true,

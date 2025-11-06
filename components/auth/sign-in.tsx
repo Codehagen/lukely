@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
+import { signIn, getLastUsedLoginMethod } from "@/lib/auth-client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
@@ -17,6 +17,25 @@ export default function SignInAuth() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [lastLoginMethod, setLastLoginMethod] = useState<string | null>(null);
+
+  useEffect(() => {
+    const lastMethod = getLastUsedLoginMethod();
+    if (lastMethod) {
+      setLastLoginMethod(lastMethod);
+    }
+  }, []);
+
+  const getLoginMethodDisplay = (method: string) => {
+    switch (method) {
+      case "email":
+        return "E-post";
+      case "google":
+        return "Google";
+      default:
+        return method.charAt(0).toUpperCase() + method.slice(1);
+    }
+  };
 
   return (
     <>
@@ -56,6 +75,11 @@ export default function SignInAuth() {
               <p className="text-sm text-muted-foreground">
                 Skriv inn e-posten din nedenfor for å logge inn
               </p>
+              {lastLoginMethod && (
+                <p className="text-xs text-muted-foreground">
+                  Sist logget inn med {getLoginMethodDisplay(lastLoginMethod)}
+                </p>
+              )}
             </div>
             <div className="grid gap-6">
               <form
