@@ -18,9 +18,7 @@ export default async function DashboardLayout({
     headers: await headers(),
   });
 
-  // TODO: Re-enable impersonation banner with proper admin-only logic
-  // The banner should only show for admins who are actively impersonating another user
-  // const isImpersonated = session?.session?.impersonatedBy !== undefined;
+  const isImpersonated = Boolean(session?.session?.impersonatedBy);
 
   return (
     <SidebarProvider
@@ -33,13 +31,11 @@ export default async function DashboardLayout({
     >
       <AppSidebar variant="inset" user={user as any} />
       <SidebarInset>
-        {/* TODO: Temporarily disabled - needs admin role check
         {isImpersonated && (
           <ImpersonationBanner
             impersonatedUserName={user?.name || user?.email || "ukjent bruker"}
           />
         )}
-        */}
         <SiteHeader />
         {children}
       </SidebarInset>

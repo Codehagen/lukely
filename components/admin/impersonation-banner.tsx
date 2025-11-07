@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IconAlertCircle, IconX } from "@tabler/icons-react";
-import { stopImpersonation } from "@/lib/auth-client";
+import { stopImpersonating } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -18,7 +18,10 @@ export function ImpersonationBanner({ impersonatedUserName }: ImpersonationBanne
   const handleStopImpersonation = async () => {
     setIsLoading(true);
     try {
-      await stopImpersonation();
+      const { error } = await stopImpersonating();
+      if (error) {
+        throw new Error(error.message || "Kunne ikke stoppe imitering");
+      }
       toast.success("Du er nå tilbake til din egen konto");
       router.push("/admin");
       router.refresh();

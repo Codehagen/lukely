@@ -16,9 +16,9 @@ export const {
 // Admin functions
 export const {
   impersonateUser,
-  stopImpersonation,
+  stopImpersonating,
   listUsers,
-  setUserRole,
+  setRole,
   banUser,
   unbanUser,
   createUser,
