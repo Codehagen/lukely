@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -10,28 +9,28 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  email         String    @unique
+  id            String   @id
+  email         String   @unique
   name          String?
-  agent         Boolean   @default(false)
-  role          UserRole  @default(USER)
-  emailVerified Boolean   @default(false)
+  agent         Boolean  @default(false)
+  role          UserRole @default(USER)
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   // Admin plugin fields
-  banned        Boolean   @default(false)
-  banReason     String?
-  banExpires    DateTime?
+  banned     Boolean   @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   // Relations
-  sessions      Session[]
-  accounts      Account[]
-  workspaces    WorkspaceMember[]
-  invitationsSent WorkspaceInvitation[]
+  sessions                Session[]
+  accounts                Account[]
+  workspaces              WorkspaceMember[]
+  invitationsSent         WorkspaceInvitation[]
   notificationPreferences UserNotificationPreferences?
-  approvedWorkspaces Workspace[] @relation("WorkspaceApprovedBy")
+  approvedWorkspaces      Workspace[]                  @relation("WorkspaceApprovedBy")
 
   // Default workspace
   defaultWorkspaceId String?
@@ -94,11 +93,11 @@ model Verification {
 
 // Workspace model for multi-tenancy
 model Workspace {
-  id          String          @id @default(cuid())
-  name        String
-  slug        String          @unique
-  image       String?
-  status      WorkspaceStatus @default(PENDING)
+  id     String          @id @default(cuid())
+  name   String
+  slug   String          @unique
+  image  String?
+  status WorkspaceStatus @default(PENDING)
 
   // Approval tracking
   submittedAt     DateTime  @default(now())
@@ -108,15 +107,15 @@ model Workspace {
   rejectedAt      DateTime?
   rejectionReason String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  members     WorkspaceMember[]
-  invitations WorkspaceInvitation[]
-  sessions    Session[]
-  defaultForUsers User[] @relation("UserDefaultWorkspace")
-  calendars   Calendar[]
+  members         WorkspaceMember[]
+  invitations     WorkspaceInvitation[]
+  sessions        Session[]
+  defaultForUsers User[]                @relation("UserDefaultWorkspace")
+  calendars       Calendar[]
 
   @@index([status])
   @@map("workspace")
@@ -124,9 +123,9 @@ model Workspace {
 
 // Junction table for user-workspace relationship
 model WorkspaceMember {
-  id          String   @id @default(cuid())
-  role        Role     @default(MEMBER)
-  joinedAt    DateTime @default(now())
+  id       String   @id @default(cuid())
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now())
 
   // Relations
   userId      String
@@ -142,13 +141,13 @@ model WorkspaceMember {
 
 // Workspace invitation model
 model WorkspaceInvitation {
-  id          String   @id @default(cuid())
-  email       String
-  role        Role     @default(MEMBER)
-  token       String   @unique @default(cuid())
-  expiresAt   DateTime
-  acceptedAt  DateTime?
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  email      String
+  role       Role      @default(MEMBER)
+  token      String    @unique @default(cuid())
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
 
   // Relations
   workspaceId String
@@ -177,10 +176,10 @@ enum UserRole {
 
 // Workspace status enum for approval workflow
 enum WorkspaceStatus {
-  PENDING    // Awaiting admin approval
-  APPROVED   // Active and usable
-  REJECTED   // Denied by admin
-  SUSPENDED  // Temporarily disabled by admin
+  PENDING // Awaiting admin approval
+  APPROVED // Active and usable
+  REJECTED // Denied by admin
+  SUSPENDED // Temporarily disabled by admin
 }
 
 // Calendar template types
@@ -208,67 +207,69 @@ enum CalendarFormat {
 
 // Main calendar model
 model Calendar {
-  id              String          @id @default(cuid())
-  title           String
-  slug            String          @unique
-  description     String?
-  type            CalendarType
-  format          CalendarFormat  @default(LANDING)
-  status          CalendarStatus  @default(DRAFT)
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  description String?
+  type        CalendarType
+  format      CalendarFormat @default(LANDING)
+  status      CalendarStatus @default(DRAFT)
 
   // Branding
-  brandColor           String?
-  brandFont            String?   @default("Inter")
-  logo                 String?
-  bannerImage          String?
-  buttonText           String?   @default("Delta nå")
-  thankYouMessage      String?   @default("Takk for din deltakelse!")
-  footerText           String?
-  favicon              String?
-  metaDescription      String?
-  landingHeroTitle           String?
-  landingHeroSubtitle        String?
-  landingHeroDescription     String?
-  landingPrimaryActionLabel  String?   @default("Registrer deg nå")
-  landingPrimaryActionUrl    String?
+  brandColor                  String?
+  brandFont                   String? @default("Inter")
+  logo                        String?
+  bannerImage                 String?
+  buttonText                  String? @default("Delta nå")
+  thankYouMessage             String? @default("Takk for din deltakelse!")
+  footerText                  String?
+  favicon                     String?
+  metaDescription             String?
+  landingHeroTitle            String?
+  landingHeroSubtitle         String?
+  landingHeroDescription      String?
+  landingPrimaryActionLabel   String? @default("Registrer deg nå")
+  landingPrimaryActionUrl     String?
   landingSecondaryActionLabel String?
   landingSecondaryActionUrl   String?
   landingHighlights           Json?
-  landingShowLeadForm         Boolean  @default(true)
+  landingShowLeadForm         Boolean @default(true)
+
+  landingPrizeImage String?
 
   // GDPR & Legal
-  termsUrl             String?
-  privacyPolicyUrl     String?
+  termsUrl         String?
+  privacyPolicyUrl String?
 
   // Dates
-  startDate       DateTime
-  endDate         DateTime
+  startDate DateTime
+  endDate   DateTime
 
   // Configuration
-  doorCount       Int
-  allowMultipleEntries Boolean    @default(false)
-  requireEmail    Boolean         @default(true)
-  requireName     Boolean         @default(true)
-  requirePhone    Boolean         @default(true)
-  customFields    Json?
+  doorCount            Int
+  allowMultipleEntries Boolean @default(false)
+  requireEmail         Boolean @default(true)
+  requireName          Boolean @default(true)
+  requirePhone         Boolean @default(true)
+  customFields         Json?
 
   // Quiz Configuration (calendar-level defaults)
-  enableQuiz               Boolean  @default(false)
-  defaultQuizPassingScore  Int      @default(80)
+  enableQuiz                Boolean @default(false)
+  defaultQuizPassingScore   Int     @default(80)
   defaultShowCorrectAnswers Boolean @default(false)
-  defaultAllowRetry        Boolean  @default(false)
-  aiQuizInstructions       String?
+  defaultAllowRetry         Boolean @default(false)
+  aiQuizInstructions        String?
 
   // Relations
-  workspaceId     String
-  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  doors           Door[]
-  leads           Lead[]
-  views           CalendarView[]
+  workspaceId        String
+  workspace          Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  doors              Door[]
+  leads              Lead[]
+  views              CalendarView[]
   analyticsSummaries AnalyticsSummary[]
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([workspaceId])
   @@index([slug])
@@ -278,32 +279,32 @@ model Calendar {
 
 // Individual doors/days in calendar
 model Door {
-  id              String          @id @default(cuid())
-  doorNumber      Int
-  openDate        DateTime
+  id         String   @id @default(cuid())
+  doorNumber Int
+  openDate   DateTime
 
   // Door content
-  title           String?
-  description     String?
-  image           String?
+  title       String?
+  description String?
+  image       String?
 
   // Quiz Configuration
-  enableQuiz      Boolean         @default(false)
-  quizPassingScore Int            @default(100)
-  showCorrectAnswers Boolean      @default(false)
-  allowRetry      Boolean         @default(false)
+  enableQuiz         Boolean @default(false)
+  quizPassingScore   Int     @default(100)
+  showCorrectAnswers Boolean @default(false)
+  allowRetry         Boolean @default(false)
 
   // Relations
-  calendarId      String
-  calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  product         Product?
-  entries         DoorEntry[]
-  winner          Winner?
-  doorViews       DoorView[]
-  questions       Question[]
+  calendarId String
+  calendar   Calendar    @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  product    Product?
+  entries    DoorEntry[]
+  winner     Winner?
+  doorViews  DoorView[]
+  questions  Question[]
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([calendarId, doorNumber])
   @@index([calendarId])
@@ -312,48 +313,48 @@ model Door {
 
 // Products/prizes for each door
 model Product {
-  id              String          @id @default(cuid())
-  name            String
-  description     String?
-  imageUrl        String?
-  value           Float?
-  quantity        Int             @default(1)
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  value       Float?
+  quantity    Int     @default(1)
 
   // Relations
-  doorId          String          @unique
-  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  doorId String @unique
+  door   Door   @relation(fields: [doorId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("product")
 }
 
 // Lead data captured from users
 model Lead {
-  id              String          @id @default(cuid())
-  email           String
-  name            String?
-  phone           String?
-  customData      Json?
+  id         String  @id @default(cuid())
+  email      String
+  name       String?
+  phone      String?
+  customData Json?
 
   // Tracking
-  ipAddress       String?
-  userAgent       String?
+  ipAddress String?
+  userAgent String?
 
   // GDPR Consent
-  marketingConsent        Boolean   @default(false)
-  termsAccepted           Boolean   @default(false)
-  privacyPolicyAccepted   Boolean   @default(false)
-  consentTimestamp        DateTime?
+  marketingConsent      Boolean   @default(false)
+  termsAccepted         Boolean   @default(false)
+  privacyPolicyAccepted Boolean   @default(false)
+  consentTimestamp      DateTime?
 
   // Relations
-  calendarId      String
-  calendar        Calendar        @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  entries         DoorEntry[]
-  wins            Winner[]
+  calendarId String
+  calendar   Calendar    @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  entries    DoorEntry[]
+  wins       Winner[]
 
-  createdAt       DateTime        @default(now())
+  createdAt DateTime @default(now())
 
   @@index([calendarId])
   @@index([email])
@@ -362,22 +363,22 @@ model Lead {
 
 // Track which doors a lead has entered
 model DoorEntry {
-  id              String          @id @default(cuid())
+  id String @id @default(cuid())
 
   // Relations
-  leadId          String
-  doorId          String
-  lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  leadId String
+  doorId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  door   Door   @relation(fields: [doorId], references: [id], onDelete: Cascade)
 
   // Quiz results
-  quizScore       Float?
-  quizPassed      Boolean         @default(false)
-  eligibleForWinner Boolean       @default(true)
+  quizScore         Float?
+  quizPassed        Boolean @default(false)
+  eligibleForWinner Boolean @default(true)
 
-  answers         QuestionAnswer[]
+  answers QuestionAnswer[]
 
-  enteredAt       DateTime        @default(now())
+  enteredAt DateTime @default(now())
 
   @@unique([leadId, doorId])
   @@index([doorId])
@@ -387,18 +388,18 @@ model DoorEntry {
 
 // Winner selections for each door
 model Winner {
-  id              String          @id @default(cuid())
+  id String @id @default(cuid())
 
   // Relations
-  doorId          String          @unique
-  leadId          String
-  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
-  lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  doorId String @unique
+  leadId String
+  door   Door   @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
-  selectedAt      DateTime        @default(now())
-  notified        Boolean         @default(false)
-  notifiedAt      DateTime?
-  isPublic        Boolean         @default(false)
+  selectedAt DateTime  @default(now())
+  notified   Boolean   @default(false)
+  notifiedAt DateTime?
+  isPublic   Boolean   @default(false)
 
   @@index([leadId])
   @@map("winner")
@@ -406,26 +407,26 @@ model Winner {
 
 // Analytics: Track calendar page views
 model CalendarView {
-  id           String   @id @default(cuid())
-  calendarId   String
-  calendar     Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  calendarId String
+  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
 
   // Visitor tracking
-  visitorHash  String   // Hash of IP + UserAgent for unique visitor count
-  ipAddress    String?
-  userAgent    String?
-  referrer     String?
+  visitorHash String // Hash of IP + UserAgent for unique visitor count
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
 
   // Device/Browser info
-  deviceType   String?  // mobile, desktop, tablet
-  browser      String?  // chrome, safari, firefox, etc
-  os           String?  // windows, macos, ios, android
+  deviceType String? // mobile, desktop, tablet
+  browser    String? // chrome, safari, firefox, etc
+  os         String? // windows, macos, ios, android
 
   // Session tracking
-  sessionId    String?
-  duration     Int?     // seconds spent on page
+  sessionId String?
+  duration  Int? // seconds spent on page
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([calendarId])
   @@index([visitorHash])
@@ -435,19 +436,19 @@ model CalendarView {
 
 // Analytics: Track individual door interactions
 model DoorView {
-  id           String     @id @default(cuid())
-  doorId       String
-  door         Door       @relation(fields: [doorId], references: [id], onDelete: Cascade)
-  calendarId   String
+  id         String @id @default(cuid())
+  doorId     String
+  door       Door   @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  calendarId String
 
   // Visitor tracking
-  visitorHash  String
-  sessionId    String?
+  visitorHash String
+  sessionId   String?
 
   // Interaction type
-  action       DoorAction
+  action DoorAction
 
-  createdAt    DateTime   @default(now())
+  createdAt DateTime @default(now())
 
   @@index([doorId])
   @@index([calendarId])
@@ -457,36 +458,36 @@ model DoorView {
 }
 
 enum DoorAction {
-  VIEWED   // Door was visible in viewport
-  CLICKED  // Door was clicked/opened
-  ENTERED  // Entry was submitted
+  VIEWED // Door was visible in viewport
+  CLICKED // Door was clicked/opened
+  ENTERED // Entry was submitted
 }
 
 // Analytics: Daily aggregated summary (for performance)
 model AnalyticsSummary {
-  id              String   @id @default(cuid())
-  calendarId      String
-  calendar        Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
-  date            DateTime @db.Date
+  id         String   @id @default(cuid())
+  calendarId String
+  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
 
   // Aggregated metrics
-  totalViews      Int      @default(0)
-  uniqueVisitors  Int      @default(0)
-  totalEntries    Int      @default(0)
+  totalViews     Int @default(0)
+  uniqueVisitors Int @default(0)
+  totalEntries   Int @default(0)
 
   // Device breakdown
-  mobileViews     Int      @default(0)
-  desktopViews    Int      @default(0)
-  tabletViews     Int      @default(0)
+  mobileViews  Int @default(0)
+  desktopViews Int @default(0)
+  tabletViews  Int @default(0)
 
   // Traffic sources
-  directTraffic   Int      @default(0)
-  socialTraffic   Int      @default(0)
-  emailTraffic    Int      @default(0)
-  otherTraffic    Int      @default(0)
+  directTraffic Int @default(0)
+  socialTraffic Int @default(0)
+  emailTraffic  Int @default(0)
+  otherTraffic  Int @default(0)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([calendarId, date])
   @@index([calendarId])
@@ -496,34 +497,34 @@ model AnalyticsSummary {
 
 // Quiz questions for doors
 model Question {
-  id              String          @id @default(cuid())
-  doorId          String
-  door            Door            @relation(fields: [doorId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  doorId String
+  door   Door   @relation(fields: [doorId], references: [id], onDelete: Cascade)
 
-  type            QuestionType
-  questionText    String          // Norwegian text
-  order           Int
-  required        Boolean         @default(true)
-  points          Int             @default(1)
+  type         QuestionType
+  questionText String // Norwegian text
+  order        Int
+  required     Boolean      @default(true)
+  points       Int          @default(1)
 
   // For validation
-  correctAnswer   String?
+  correctAnswer     String?
   acceptableAnswers Json?
-  caseSensitive   Boolean         @default(false)
+  caseSensitive     Boolean @default(false)
 
   // Multiple choice options
-  options         Json?
+  options Json?
 
   // Media support (images/videos)
-  mediaType       String?         // "IMAGE" | "YOUTUBE" | null
-  mediaUrl        String?         // Cloudflare R2 URL or YouTube URL
+  mediaType String? // "IMAGE" | "YOUTUBE" | null
+  mediaUrl  String? // Cloudflare R2 URL or YouTube URL
 
   // AI metadata
-  generatedByAI   Boolean         @default(false)
-  aiPrompt        String?
+  generatedByAI Boolean @default(false)
+  aiPrompt      String?
 
-  createdAt       DateTime        @default(now())
-  answers         QuestionAnswer[]
+  createdAt DateTime         @default(now())
+  answers   QuestionAnswer[]
 
   @@index([doorId])
   @@map("question")
@@ -538,15 +539,15 @@ enum QuestionType {
 
 // Quiz answers from participants
 model QuestionAnswer {
-  id              String          @id @default(cuid())
-  questionId      String
-  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  doorEntryId     String
-  doorEntry       DoorEntry       @relation(fields: [doorEntryId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  questionId  String
+  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  doorEntryId String
+  doorEntry   DoorEntry @relation(fields: [doorEntryId], references: [id], onDelete: Cascade)
 
-  answer          String
-  isCorrect       Boolean         @default(false)
-  answeredAt      DateTime        @default(now())
+  answer     String
+  isCorrect  Boolean  @default(false)
+  answeredAt DateTime @default(now())
 
   @@index([questionId])
   @@index([doorEntryId])
@@ -555,18 +556,18 @@ model QuestionAnswer {
 
 // User notification preferences
 model UserNotificationPreferences {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Email notification toggles
-  emailCalendarActivity Boolean  @default(true)
-  emailWinnerSelected   Boolean  @default(true)
-  emailNewLeads         Boolean  @default(true)
-  emailWeeklySummary    Boolean  @default(true)
+  emailCalendarActivity Boolean @default(true)
+  emailWinnerSelected   Boolean @default(true)
+  emailNewLeads         Boolean @default(true)
+  emailWeeklySummary    Boolean @default(true)
 
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("user_notification_preferences")
 }

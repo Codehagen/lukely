@@ -35,6 +35,7 @@ async function getLandingCalendarBySlug(slug: string) {
       landingSecondaryActionUrl: true,
       landingHighlights: true,
       landingShowLeadForm: true,
+      landingPrizeImage: true,
       requireEmail: true,
       requireName: true,
       requirePhone: true,

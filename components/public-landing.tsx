@@ -41,6 +41,7 @@ interface PublicLandingProps {
     landingSecondaryActionUrl: string | null;
     landingHighlights: LandingHighlight[] | null;
     landingShowLeadForm: boolean;
+    landingPrizeImage: string | null;
     requireEmail: boolean;
     requireName: boolean;
     requirePhone: boolean;
@@ -236,67 +237,71 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
               style={{ color: accentColor }}
             />
             <div className="relative py-14">
-              <div className="container mx-auto max-w-6xl px-4">
-                <div className="grid gap-10 lg:grid-cols-[2fr_1.2fr] items-start">
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <h1 className="text-4xl md:text-5xl font-bold tracking-tight" style={{ fontFamily }}>
-                        {heroTitle || "Bygg forventninger og samle leads"}
-                      </h1>
-                      {heroSubtitle && (
-                        <p className="text-lg text-muted-foreground" style={{ fontFamily }}>
-                          {heroSubtitle}
-                        </p>
-                      )}
-                      <p className="text-sm md:text-base text-muted-foreground">
-                        {heroDescription}
+              <div className="container mx-auto max-w-4xl px-4 text-center">
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight" style={{ fontFamily }}>
+                      {heroTitle || "Bygg forventninger og samle leads"}
+                    </h1>
+                    {heroSubtitle && (
+                      <p className="text-lg text-muted-foreground" style={{ fontFamily }}>
+                        {heroSubtitle}
                       </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3">
-                      {primaryCtaButton}
-                      {secondaryCtaLabel && calendar.landingSecondaryActionUrl && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-10 px-6 text-sm font-semibold"
-                          style={{ borderColor: accentColor, color: accentColor, fontFamily }}
-                          asChild
-                        >
-                          <Link href={calendar.landingSecondaryActionUrl} target="_blank" rel="noreferrer">
-                            {secondaryCtaLabel}
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
+                    )}
+                    <p className="text-sm md:text-base text-muted-foreground">
+                      {heroDescription}
+                    </p>
                   </div>
 
-                  <Card className="border-2 border-dashed border-muted-foreground/30 bg-background/90 shadow-sm">
-                    <CardContent className="p-6 space-y-4">
-                      <div>
-                        <p className="text-sm font-semibold" style={{ fontFamily }}>
-                          Forventningsbygger
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Hold publikum oppdatert og samle innsikt før lansering.
-                        </p>
-                      </div>
-                      <ul className="space-y-3">
-                        {["Del eksklusive nyheter", "Skap entusiasme før lansering", "Følg med på responsen"].map(
-                          (item) => (
-                            <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <IconCheck className="h-4 w-4" style={{ color: accentColor }} />
-                              {item}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    {primaryCtaButton}
+                    {secondaryCtaLabel && calendar.landingSecondaryActionUrl && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 px-6 text-sm font-semibold"
+                        style={{ borderColor: accentColor, color: accentColor, fontFamily }}
+                        asChild
+                      >
+                        <Link href={calendar.landingSecondaryActionUrl} target="_blank" rel="noreferrer">
+                          {secondaryCtaLabel}
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </section>
+
+          {calendar.landingPrizeImage && (
+            <section className="container mx-auto max-w-4xl px-4 py-12 md:py-16">
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily, color: accentColor }}>
+                    🎁 Vinn denne premien!
+                  </h2>
+                  <p className="text-base text-muted-foreground">
+                    Delta i konkurransen og du kan vinne
+                  </p>
+                </div>
+                <Card className="border shadow-xl overflow-hidden bg-background max-w-2xl mx-auto">
+                  <CardContent className="p-0">
+                    <div className="relative w-full aspect-video">
+                      <Image
+                        src={calendar.landingPrizeImage}
+                        alt="Premie"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 672px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+          )}
 
           <section className="container mx-auto max-w-6xl px-4 py-12 md:py-16 space-y-8">
             <div className="space-y-2 text-center">

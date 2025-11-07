@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
       landingSecondaryActionUrl,
       landingHighlights,
       landingShowLeadForm,
+      landingPrizeImage,
     } = body;
 
     // Ensure slug is unique - auto-append number if needed
@@ -114,6 +115,7 @@ export async function POST(req: NextRequest) {
               ? landingHighlights
               : undefined,
           landingShowLeadForm: landingShowLeadForm ?? true,
+          landingPrizeImage: landingPrizeImage || null,
         }
       : {};
 

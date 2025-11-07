@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ interface CalendarPreviewFormData {
   landingSecondaryActionUrl?: string;
   landingHighlights?: LandingHighlight[];
   landingShowLeadForm?: boolean;
+  landingPrizeImage?: string;
 }
 
 interface CalendarPreviewProps {
@@ -435,29 +437,31 @@ function LandingPreviewContent({ formData, accentColor }: { formData: CalendarPr
           style={{ color: accentColor }}
         />
         <div className="relative px-4 py-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2
-              className="text-3xl font-bold mb-4 leading-tight"
-              style={{
-                fontFamily,
-                backgroundImage: `linear-gradient(135deg, ${accentColor}, ${accentColor}99)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              {heroTitle}
-            </h2>
-            {heroSubtitle && (
-              <p className="text-base text-muted-foreground mb-4 max-w-2xl mx-auto">
-                {heroSubtitle}
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <div className="space-y-3">
+              <h2
+                className="text-3xl font-bold leading-tight"
+                style={{
+                  fontFamily,
+                  backgroundImage: `linear-gradient(135deg, ${accentColor}, ${accentColor}99)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {heroTitle}
+              </h2>
+              {heroSubtitle && (
+                <p className="text-base text-muted-foreground">
+                  {heroSubtitle}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground">
+                {heroDescription}
               </p>
-            )}
-            <p className="text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
-              {heroDescription}
-            </p>
+            </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Button
                 size="sm"
                 className="h-9 px-6 text-sm font-semibold shadow-md"
@@ -483,6 +487,35 @@ function LandingPreviewContent({ formData, accentColor }: { formData: CalendarPr
           </div>
         </div>
       </section>
+
+      {formData.landingPrizeImage && (
+        <section className="px-4 py-8 space-y-6 border-b">
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <div className="text-center space-y-2">
+              <h3 className="text-2xl font-bold" style={{ fontFamily, color: accentColor }}>
+                🎁 Vinn denne premien!
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Delta i konkurransen og du kan vinne
+              </p>
+            </div>
+            <Card className="border shadow-xl overflow-hidden bg-background">
+              <CardContent className="p-0">
+                <div className="relative w-full aspect-video">
+                  <Image
+                    src={formData.landingPrizeImage}
+                    alt="Premie"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 672px"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
 
       <section className="px-4 py-8 space-y-6">
         <div className="space-y-2 text-center">

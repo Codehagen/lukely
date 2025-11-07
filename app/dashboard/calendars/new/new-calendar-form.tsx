@@ -81,6 +81,7 @@ interface CalendarFormState {
   landingSecondaryActionUrl: string;
   landingHighlights: LandingHighlight[];
   landingShowLeadForm: boolean;
+  landingPrizeImage: string;
 }
 
 const createDefaultLandingContent = (): Pick<
@@ -94,6 +95,7 @@ const createDefaultLandingContent = (): Pick<
   | "landingSecondaryActionUrl"
   | "landingHighlights"
   | "landingShowLeadForm"
+  | "landingPrizeImage"
 > => ({
   landingHeroTitle: "",
   landingHeroSubtitle: "",
@@ -106,6 +108,7 @@ const createDefaultLandingContent = (): Pick<
     ...highlight,
   })),
   landingShowLeadForm: true,
+  landingPrizeImage: "",
 });
 
 export default function NewCalendarForm() {

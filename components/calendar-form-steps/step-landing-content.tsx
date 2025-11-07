@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { ImageUpload } from "@/components/image-upload";
 
 export interface LandingHighlight {
   title: string;
@@ -24,6 +25,7 @@ interface StepLandingContentProps {
     landingSecondaryActionUrl: string;
     landingHighlights: LandingHighlight[];
     landingShowLeadForm: boolean;
+    landingPrizeImage: string;
   };
   onChange: (values: Partial<StepLandingContentProps["formData"]>) => void;
   onUpdateHighlight: (index: number, values: Partial<LandingHighlight>) => void;
@@ -220,7 +222,27 @@ export function StepLandingContent({
         </CardContent>
       </Card>
 
-  <Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Premiebilde</CardTitle>
+          <CardDescription>
+            Last opp et bilde av premien eller produktet som kan vinnes. Dette vises i hero-seksjonen.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ImageUpload
+            currentImageUrl={formData.landingPrizeImage}
+            onUploadComplete={(url) => onChange({ landingPrizeImage: url })}
+            onRemove={() => onChange({ landingPrizeImage: "" })}
+            aspectRatio="video"
+          />
+          <p className="text-sm text-muted-foreground mt-2">
+            Anbefalt størrelse: 1200x675 piksler (16:9 format)
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader>
           <CardTitle>Leadskjema</CardTitle>
           <CardDescription>
