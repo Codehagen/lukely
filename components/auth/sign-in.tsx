@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { buttonVariants } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function SignInAuth() {
   const [email, setEmail] = useState("");
@@ -18,6 +20,7 @@ export default function SignInAuth() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [lastLoginMethod, setLastLoginMethod] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const lastMethod = getLastUsedLoginMethod();
@@ -96,6 +99,25 @@ export default function SignInAuth() {
                       },
                       onResponse: () => {
                         setLoading(false);
+                      },
+                      onError: (ctx) => {
+                        const errorMessage = ctx.error.message?.toLowerCase() || "";
+                        if (errorMessage.includes("user not found") || errorMessage.includes("bruker ikke funnet")) {
+                          toast.error("Brukeren finnes ikke. Vennligst registrer deg først.", {
+                            action: {
+                              label: "Registrer deg",
+                              onClick: () => router.push("/sign-up"),
+                            },
+                          });
+                        } else if (errorMessage.includes("invalid password") || errorMessage.includes("ugyldig passord")) {
+                          toast.error("Feil passord. Vennligst prøv igjen.");
+                        } else {
+                          toast.error(ctx.error.message ?? "Kunne ikke logge inn");
+                        }
+                      },
+                      onSuccess: async () => {
+                        toast.success("Logget inn!");
+                        router.push("/dashboard");
                       },
                     }
                   );
