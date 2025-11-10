@@ -42,6 +42,16 @@ async function getLandingCalendarBySlug(slug: string) {
       termsUrl: true,
       privacyPolicyUrl: true,
       thankYouMessage: true,
+      landingWinners: {
+        include: {
+          lead: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
       workspace: {
         select: {
           name: true,
@@ -87,11 +97,14 @@ export default async function PublicLandingPage({
     );
   }
 
+  const { landingWinners, ...calendarData } = calendar;
+
   return (
     <PublicLanding
       calendar={{
-        ...calendar,
+        ...calendarData,
         landingHighlights: calendar.landingHighlights as LandingHighlight[] | null,
+        landingWinner: landingWinners?.[0] ?? null,
       }}
     />
   );

@@ -265,6 +265,7 @@ model Calendar {
   workspace          Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   doors              Door[]
   leads              Lead[]
+  landingWinners     LandingWinner[]
   views              CalendarView[]
   analyticsSummaries AnalyticsSummary[]
 
@@ -353,6 +354,7 @@ model Lead {
   calendar   Calendar    @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   entries    DoorEntry[]
   wins       Winner[]
+  landingWins LandingWinner[]
 
   createdAt DateTime @default(now())
 
@@ -403,6 +405,30 @@ model Winner {
 
   @@index([leadId])
   @@map("winner")
+}
+
+model LandingWinner {
+  id String @id @default(cuid())
+
+  calendarId String
+  calendar   Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  leadId String
+  lead   Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  prizeName   String?
+  prizeValue  Float?
+  description String?
+
+  selectedAt DateTime @default(now())
+  notified   Boolean  @default(false)
+  notifiedAt DateTime?
+  isPublic   Boolean  @default(false)
+
+  @@index([calendarId])
+  @@index([leadId])
+  @@unique([calendarId])
+  @@map("landing_winner")
 }
 
 // Analytics: Track calendar page views

@@ -139,25 +139,23 @@ export default async function CalendarOverviewPage({
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
           {calendar.format === "QUIZ" && (
-            <>
-              <ButtonGroup>
-                <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
-                  <Button variant="outline" size="sm">
-                    <IconGift className="mr-2 h-4 w-4" />
-                    Luker
-                  </Button>
-                </Link>
-              </ButtonGroup>
-              <ButtonGroup>
-                <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
-                  <Button variant="outline" size="sm">
-                    <IconTrophy className="mr-2 h-4 w-4" />
-                    Velg vinnere
-                  </Button>
-                </Link>
-              </ButtonGroup>
-            </>
+            <ButtonGroup>
+              <Link href={`/dashboard/calendars/${calendar.id}/doors`}>
+                <Button variant="outline" size="sm">
+                  <IconGift className="mr-2 h-4 w-4" />
+                  Luker
+                </Button>
+              </Link>
+            </ButtonGroup>
           )}
+          <ButtonGroup>
+            <Link href={`/dashboard/calendars/${calendar.id}/winners`}>
+              <Button variant="outline" size="sm">
+                <IconTrophy className="mr-2 h-4 w-4" />
+                {calendar.format === "LANDING" ? "Trekk vinner" : "Velg vinnere"}
+              </Button>
+            </Link>
+          </ButtonGroup>
           <ButtonGroup>
             <Link href={`/dashboard/calendars/${calendar.id}/settings`}>
               <Button variant="outline" size="sm">

@@ -48,6 +48,14 @@ interface PublicLandingProps {
     termsUrl: string | null;
     privacyPolicyUrl: string | null;
     thankYouMessage: string | null;
+    landingWinner?: {
+      id: string;
+      isPublic: boolean;
+      lead: {
+        name: string | null;
+        email: string;
+      };
+    } | null;
     workspace: {
       name: string;
       image: string | null;
@@ -70,6 +78,9 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
 
   const accentColor = calendar.brandColor || "#2563EB";
   const fontFamily = calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined;
+  const publicWinnerName = calendar.landingWinner?.isPublic
+    ? calendar.landingWinner.lead.name || calendar.landingWinner.lead.email
+    : null;
 
   useGoogleFont(calendar.brandFont);
 
@@ -251,6 +262,12 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
                     <p className="text-sm md:text-base text-muted-foreground">
                       {heroDescription}
                     </p>
+                    {publicWinnerName && (
+                      <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium shadow-sm border border-muted">
+                        <IconCheck className="h-4 w-4 text-green-600" />
+                        Gratulerer til {publicWinnerName}!
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center justify-center gap-3">

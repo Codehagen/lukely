@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/app/actions/user";
 import WinnerSelection from "@/components/winner-selection";
+import LandingWinnerSelection from "@/components/landing-winner-selection";
 import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
 
 async function getCalendarWithWinners(calendarId: string, workspaceId: string) {
@@ -10,7 +11,10 @@ async function getCalendarWithWinners(calendarId: string, workspaceId: string) {
       id: calendarId,
       workspaceId,
     },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      format: true,
       doors: {
         include: {
           product: true,
@@ -34,6 +38,22 @@ async function getCalendarWithWinners(calendarId: string, workspaceId: string) {
           doorNumber: "asc",
         },
       },
+      leads: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          createdAt: true,
+        },
+      },
+      landingWinners: {
+        include: {
+          lead: true,
+        },
+      },
+      workspaceId: true,
     },
   });
 }
@@ -83,7 +103,11 @@ export default async function WinnersPage({
         </div>
       </div>
 
-      <WinnerSelection calendar={calendar} />
+      {calendar.format === "LANDING" ? (
+        <LandingWinnerSelection calendar={calendar} />
+      ) : (
+        <WinnerSelection calendar={calendar} />
+      )}
     </div>
   );
 }
