@@ -23,6 +23,7 @@ async function getCalendar(calendarId: string, workspaceId: string) {
     select: {
       id: true,
       title: true,
+      format: true,
     },
   });
 }
@@ -247,6 +248,7 @@ export default async function CalendarAnalyticsPage({
 
   const dateRange = getDateRange(period);
   const analytics = await getCalendarAnalytics(id, dateRange);
+  const showDoorAnalytics = calendar.format === "QUIZ";
   const hasInsights =
     analytics.overview.totalViews > 0 ||
     analytics.overview.totalEntries > 0 ||
@@ -268,7 +270,7 @@ export default async function CalendarAnalyticsPage({
       </div>
 
       {hasInsights ? (
-        <CalendarAnalyticsContent data={analytics} />
+        <CalendarAnalyticsContent data={analytics} showDoorAnalytics={showDoorAnalytics} />
       ) : (
         <Empty className="py-16">
           <EmptyHeader>

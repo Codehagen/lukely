@@ -60,6 +60,7 @@ interface AnalyticsData {
 
 interface CalendarAnalyticsContentProps {
   data: AnalyticsData;
+  showDoorAnalytics?: boolean;
 }
 
 function formatDuration(seconds: number) {
@@ -68,7 +69,7 @@ function formatDuration(seconds: number) {
   return `${minutes}m ${remainingSeconds}s`;
 }
 
-export function CalendarAnalyticsContent({ data }: CalendarAnalyticsContentProps) {
+export function CalendarAnalyticsContent({ data, showDoorAnalytics = true }: CalendarAnalyticsContentProps) {
   const totalDeviceViews = data.devices.mobile + data.devices.desktop + data.devices.tablet;
   const totalTraffic = data.trafficSources.direct + data.trafficSources.social +
                       data.trafficSources.email + data.trafficSources.other;
@@ -257,7 +258,7 @@ export function CalendarAnalyticsContent({ data }: CalendarAnalyticsContentProps
       </div>
 
       {/* Top Performers */}
-      {data.topPerformers.length > 0 && (
+      {showDoorAnalytics && data.topPerformers.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -290,40 +291,42 @@ export function CalendarAnalyticsContent({ data }: CalendarAnalyticsContentProps
       )}
 
       {/* Door Performance Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Luke-ytelse</CardTitle>
-          <CardDescription>Detaljert oversikt over hver luke</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Luke</TableHead>
-                <TableHead>Produkt</TableHead>
-                <TableHead className="text-right">Visninger</TableHead>
-                <TableHead className="text-right">Klikk</TableHead>
-                <TableHead className="text-right">Klikk-rate</TableHead>
-                <TableHead className="text-right">Deltakelser</TableHead>
-                <TableHead className="text-right">Konvertering</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.doorPerformance.map((door) => (
-                <TableRow key={door.doorNumber}>
-                  <TableCell className="font-medium">Luke {door.doorNumber}</TableCell>
-                  <TableCell>{door.productName}</TableCell>
-                  <TableCell className="text-right">{door.totalViews}</TableCell>
-                  <TableCell className="text-right">{door.clicks}</TableCell>
-                  <TableCell className="text-right">{door.clickRate}%</TableCell>
-                  <TableCell className="text-right">{door.entries}</TableCell>
-                  <TableCell className="text-right">{door.conversionRate}%</TableCell>
+      {showDoorAnalytics && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Luke-ytelse</CardTitle>
+            <CardDescription>Detaljert oversikt over hver luke</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Luke</TableHead>
+                  <TableHead>Produkt</TableHead>
+                  <TableHead className="text-right">Visninger</TableHead>
+                  <TableHead className="text-right">Klikk</TableHead>
+                  <TableHead className="text-right">Klikk-rate</TableHead>
+                  <TableHead className="text-right">Deltakelser</TableHead>
+                  <TableHead className="text-right">Konvertering</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {data.doorPerformance.map((door) => (
+                  <TableRow key={door.doorNumber}>
+                    <TableCell className="font-medium">Luke {door.doorNumber}</TableCell>
+                    <TableCell>{door.productName}</TableCell>
+                    <TableCell className="text-right">{door.totalViews}</TableCell>
+                    <TableCell className="text-right">{door.clicks}</TableCell>
+                    <TableCell className="text-right">{door.clickRate}%</TableCell>
+                    <TableCell className="text-right">{door.entries}</TableCell>
+                    <TableCell className="text-right">{door.conversionRate}%</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
