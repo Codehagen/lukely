@@ -30,18 +30,28 @@ async function getCalendar(calendarId: string, workspaceId: string) {
 
 async function getCalendarAnalytics(
   calendarId: string,
-  dateRange: { start: Date; end: Date }
+  workspaceId: string,
+  format: "LANDING" | "QUIZ",
+  dateRange: { start: Date; end: Date },
+  previousRange: { start: Date; end: Date }
 ) {
   // Parallel queries for performance
   const [
     totalViews,
     uniqueVisitors,
-    totalEntries,
+    totalDoorEntries,
     deviceBreakdown,
     trafficSources,
     doorPerformance,
     dailyTimeline,
     averageDuration,
+    totalLeads,
+    previousViews,
+    previousUniqueVisitors,
+    previousDoorEntries,
+    previousAverageDuration,
+    previousLeads,
+    workspaceConversionSummary,
   ] = await Promise.all([
     // Total page views
     prisma.calendarView.count({
@@ -143,11 +153,83 @@ async function getCalendarAnalytics(
       },
       _avg: { duration: true },
     }),
+
+    // Leads captured
+    prisma.lead.count({
+      where: {
+        calendarId,
+        createdAt: { gte: dateRange.start, lte: dateRange.end },
+      },
+    }),
+
+    // Previous period views
+    prisma.calendarView.count({
+      where: {
+        calendarId,
+        createdAt: { gte: previousRange.start, lte: previousRange.end },
+      },
+    }),
+
+    // Previous period unique visitors
+    prisma.calendarView.findMany({
+      where: {
+        calendarId,
+        createdAt: { gte: previousRange.start, lte: previousRange.end },
+      },
+      select: { visitorHash: true },
+      distinct: ["visitorHash"],
+    }),
+
+    // Previous period entries
+    prisma.doorEntry.count({
+      where: {
+        door: { calendarId },
+        enteredAt: { gte: previousRange.start, lte: previousRange.end },
+      },
+    }),
+
+    // Previous average session duration
+    prisma.calendarView.aggregate({
+      where: {
+        calendarId,
+        createdAt: { gte: previousRange.start, lte: previousRange.end },
+        duration: { not: null },
+      },
+      _avg: { duration: true },
+    }),
+
+    // Previous leads
+    prisma.lead.count({
+      where: {
+        calendarId,
+        createdAt: { gte: previousRange.start, lte: previousRange.end },
+      },
+    }),
+
+    // Workspace conversion snapshot for benchmarks
+    prisma.analyticsSummary.groupBy({
+      by: ["calendarId"],
+      where: {
+        calendar: {
+          workspaceId,
+        },
+        date: { gte: dateRange.start, lte: dateRange.end },
+      },
+      _sum: {
+        totalViews: true,
+        totalEntries: true,
+      },
+    }),
   ]);
+
+  const isLanding = format === "LANDING";
+  const primaryMetricLabel = isLanding ? "Registrerte leads" : "Deltakelser";
+  const primaryMetricCurrent = isLanding ? totalLeads : totalDoorEntries;
+  const primaryMetricPrevious = isLanding ? previousLeads : previousDoorEntries;
 
   // Calculate conversion rate
   const conversionRate = totalViews > 0
-    ? ((totalEntries / totalViews) * 100).toFixed(2)
+    ? ((primaryMetricCurrent / totalViews) * 100).toFixed(2)
     : "0.00";
 
   // Format device breakdown
@@ -178,11 +260,89 @@ async function getCalendarAnalytics(
     .sort((a, b) => b.entries - a.entries)
     .slice(0, 5);
 
+  const previousOverview = {
+    totalViews: previousViews,
+    uniqueVisitors: previousUniqueVisitors.length,
+    totalEntries: primaryMetricPrevious,
+    conversionRate: previousViews > 0
+      ? ((primaryMetricPrevious / previousViews) * 100).toFixed(2)
+      : "0.00",
+    averageDuration: Math.round(previousAverageDuration._avg.duration || 0),
+    returningVisitorRate: previousViews > 0
+      ? (((previousViews - previousUniqueVisitors.length) / previousViews) * 100).toFixed(1)
+      : "0.0",
+  };
+
+  const currentConversionRatio = totalViews > 0 ? primaryMetricCurrent / totalViews : 0;
+  const workspaceConversionRates = workspaceConversionSummary.map((summary) => {
+    const views = summary._sum.totalViews || 0;
+    const entries = summary._sum.totalEntries || 0;
+    return views > 0 ? entries / views : 0;
+  });
+
+  const conversionPercentile = (() => {
+    if (workspaceConversionRates.length === 0) {
+      return 100;
+    }
+    const sorted = [...workspaceConversionRates].sort((a, b) => a - b);
+    let rank = 0;
+    for (const value of sorted) {
+      if (value <= currentConversionRatio) {
+        rank += 1;
+      }
+    }
+    return (rank / sorted.length) * 100;
+  })();
+
+  let conversionMessage = "Konverteringsraten din er midt på treet sammenlignet med andre kalendere.";
+  if (primaryMetricCurrent === 0) {
+    conversionMessage = isLanding
+      ? "Ingen registrerte leads i denne perioden ennå."
+      : "Ingen deltakelser i denne perioden ennå.";
+  } else if (workspaceConversionRates.length === 0) {
+    conversionMessage = "Ingen andre kalendere å sammenligne med ennå.";
+  } else if (conversionPercentile >= 75) {
+    conversionMessage = "Konverteringsraten din er i topp 25% av kalendere.";
+  } else if (conversionPercentile <= 25) {
+    conversionMessage = "Konverteringsraten din er blant de nederste 25% av kalendere.";
+  }
+
+  const ALERT_THRESHOLD = 0.2;
+  const alerts = [
+    {
+      metric: "Visninger",
+      current: totalViews,
+      previous: previousOverview.totalViews,
+    },
+    {
+      metric: "Unike besøkende",
+      current: uniqueVisitors.length,
+      previous: previousOverview.uniqueVisitors,
+    },
+    {
+      metric: primaryMetricLabel,
+      current: primaryMetricCurrent,
+      previous: previousOverview.totalEntries,
+    },
+  ]
+    .map((item) => {
+      if (item.previous === 0) return null;
+      const change = (item.current - item.previous) / item.previous;
+      if (change <= -ALERT_THRESHOLD) {
+        return {
+          metric: item.metric,
+          changePercent: (change * 100).toFixed(1),
+        };
+      }
+      return null;
+    })
+    .filter((item): item is { metric: string; changePercent: string } => Boolean(item));
+
   return {
     overview: {
       totalViews,
       uniqueVisitors: uniqueVisitors.length,
-      totalEntries,
+      totalEntries: primaryMetricCurrent,
       conversionRate,
       averageDuration: Math.round(averageDuration._avg.duration || 0),
       returningVisitorRate: totalViews > 0
@@ -208,6 +368,13 @@ async function getCalendarAnalytics(
     })),
     doorPerformance: doors,
     topPerformers: topDoors,
+    previousOverview,
+    benchmarks: {
+      conversionPercentile,
+      conversionMessage,
+      hasComparisons: workspaceConversionRates.length > 0 && primaryMetricCurrent > 0,
+    },
+    alerts,
   };
 }
 
@@ -247,7 +414,18 @@ export default async function CalendarAnalyticsPage({
   }
 
   const dateRange = getDateRange(period);
-  const analytics = await getCalendarAnalytics(id, dateRange);
+  const durationMs = dateRange.end.getTime() - dateRange.start.getTime();
+  const previousRange = {
+    start: new Date(dateRange.start.getTime() - durationMs),
+    end: new Date(dateRange.start.getTime()),
+  };
+  const analytics = await getCalendarAnalytics(
+    id,
+    userWithWorkspace.defaultWorkspaceId,
+    calendar.format,
+    dateRange,
+    previousRange
+  );
   const showDoorAnalytics = calendar.format === "QUIZ";
   const hasInsights =
     analytics.overview.totalViews > 0 ||
@@ -270,7 +448,11 @@ export default async function CalendarAnalyticsPage({
       </div>
 
       {hasInsights ? (
-        <CalendarAnalyticsContent data={analytics} showDoorAnalytics={showDoorAnalytics} />
+        <CalendarAnalyticsContent
+          data={analytics}
+          showDoorAnalytics={showDoorAnalytics}
+          variant={calendar.format}
+        />
       ) : (
         <Empty className="py-16">
           <EmptyHeader>

@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { WorkspaceEmptyState } from "@/components/workspace-empty-state";
+import { Badge } from "@/components/ui/badge";
 import {
   Empty,
   EmptyContent,
@@ -138,9 +139,9 @@ export default async function AnalyticsPage() {
       {/* Calendars List */}
       <Card>
         <CardHeader>
-          <CardTitle>Kalender-ytelse</CardTitle>
+          <CardTitle>Kampanje-ytelse</CardTitle>
           <CardDescription>
-            Detaljert oversikt over hver kalender
+            Detaljert oversikt over hver kalender eller landingsside
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,36 +167,62 @@ export default async function AnalyticsPage() {
             </Empty>
           ) : (
             <div className="space-y-4">
-              {calendars.map((calendar) => (
-                <div
-                  key={calendar.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{calendar.title}</h3>
-                    <div className="flex gap-6 mt-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <IconEye className="h-4 w-4" />
-                        <span>{calendar._count.views} visninger</span>
+              {calendars.map((calendar) => {
+                const isLanding = calendar.format === "LANDING";
+                const variantLabel = isLanding ? "Landingside" : "Quiz & kalender";
+                const metrics = [
+                  {
+                    icon: <IconEye className="h-4 w-4" />,
+                    label: "Visninger",
+                    value: calendar._count.views,
+                  },
+                  {
+                    icon: <IconUsers className="h-4 w-4" />,
+                    label: "Leads",
+                    value: calendar._count.leads,
+                  },
+                ];
+
+                if (!isLanding) {
+                  metrics.push({
+                    icon: <IconCalendar className="h-4 w-4" />,
+                    label: "Luker",
+                    value: calendar._count.doors,
+                  });
+                }
+
+                return (
+                  <div
+                    key={calendar.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-6"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold">{calendar.title}</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {variantLabel}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <IconUsers className="h-4 w-4" />
-                        <span>{calendar._count.leads} leads</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <IconCalendar className="h-4 w-4" />
-                        <span>{calendar._count.doors} luker</span>
+                      <div className="flex flex-wrap gap-6 mt-2 text-sm text-muted-foreground">
+                        {metrics.map((metric) => (
+                          <div key={metric.label} className="flex items-center gap-1">
+                            {metric.icon}
+                            <span>
+                              {metric.value} {metric.label.toLowerCase()}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
+                    <Link href={`/dashboard/calendars/${calendar.id}/analytics`}>
+                      <Button variant="outline" size="sm">
+                        <IconChartBar className="mr-2 h-4 w-4" />
+                        Se analyser
+                      </Button>
+                    </Link>
                   </div>
-                  <Link href={`/dashboard/calendars/${calendar.id}/analytics`}>
-                    <Button variant="outline" size="sm">
-                      <IconChartBar className="mr-2 h-4 w-4" />
-                      Se analyser
-                    </Button>
-                  </Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

@@ -14,10 +14,23 @@ import {
   IconShare,
   IconExternalLink,
   IconDots,
+  IconGift,
+  IconClipboard,
+  IconAlertTriangle,
+  IconArrowDownRight,
+  IconArrowUpRight,
 } from "@tabler/icons-react";
 
 interface AnalyticsData {
   overview: {
+    totalViews: number;
+    uniqueVisitors: number;
+    totalEntries: number;
+    conversionRate: string;
+    averageDuration: number;
+    returningVisitorRate: string;
+  };
+  previousOverview: {
     totalViews: number;
     uniqueVisitors: number;
     totalEntries: number;
@@ -56,11 +69,21 @@ interface AnalyticsData {
     productName: string;
     entries: number;
   }>;
+  benchmarks: {
+    conversionPercentile: number;
+    conversionMessage: string;
+    hasComparisons: boolean;
+  };
+  alerts: Array<{
+    metric: string;
+    changePercent: string;
+  }>;
 }
 
 interface CalendarAnalyticsContentProps {
   data: AnalyticsData;
   showDoorAnalytics?: boolean;
+  variant?: "LANDING" | "QUIZ";
 }
 
 function formatDuration(seconds: number) {
@@ -69,13 +92,87 @@ function formatDuration(seconds: number) {
   return `${minutes}m ${remainingSeconds}s`;
 }
 
-export function CalendarAnalyticsContent({ data, showDoorAnalytics = true }: CalendarAnalyticsContentProps) {
+function getPercentChange(current: number, previous: number) {
+  if (previous === 0) return null;
+  const change = ((current - previous) / previous) * 100;
+  return {
+    change,
+    formatted: `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`,
+    isPositive: change >= 0,
+  };
+}
+
+export function CalendarAnalyticsContent({
+  data,
+  showDoorAnalytics = true,
+  variant = "QUIZ",
+}: CalendarAnalyticsContentProps) {
   const totalDeviceViews = data.devices.mobile + data.devices.desktop + data.devices.tablet;
   const totalTraffic = data.trafficSources.direct + data.trafficSources.social +
                       data.trafficSources.email + data.trafficSources.other;
+  const isLanding = variant === "LANDING";
+  const VariantIcon = isLanding ? IconClipboard : IconGift;
+  const variantCopy = isLanding
+    ? {
+        title: "Landingside",
+        description: "En landingsside som samler leads uten daglige luker.",
+      }
+    : {
+        title: "Quiz / kalender",
+        description: "En kampanje med daglige luker, spørsmål og premier.",
+      };
+
+  const viewsTrend = getPercentChange(data.overview.totalViews, data.previousOverview.totalViews);
+  const visitorsTrend = getPercentChange(
+    data.overview.uniqueVisitors,
+    data.previousOverview.uniqueVisitors
+  );
+  const entriesTrend = getPercentChange(
+    data.overview.totalEntries,
+    data.previousOverview.totalEntries
+  );
+  const avgDurationTrend = getPercentChange(
+    data.overview.averageDuration,
+    data.previousOverview.averageDuration
+  );
+  const primaryMetricLabel = isLanding ? "Registrerte leads" : "Deltakelser";
 
   return (
     <div className="space-y-6">
+      <Card className="border-dashed">
+        <CardHeader className="flex flex-row items-start gap-3">
+          <div className="rounded-full bg-muted p-2">
+            <VariantIcon className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-base">{variantCopy.title}</CardTitle>
+            <CardDescription>{variantCopy.description}</CardDescription>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {data.alerts.length > 0 && (
+        <Card className="border-orange-400/40 bg-orange-50 dark:bg-orange-950/30">
+          <CardHeader className="flex flex-row items-start gap-3">
+            <IconAlertTriangle className="h-5 w-5 text-orange-500" />
+            <div>
+              <CardTitle className="text-base">Varsler</CardTitle>
+              <CardDescription>Signifikante dropp siden forrige periode</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {data.alerts.map((alert) => (
+              <Badge key={alert.metric} variant="destructive" className="flex items-center gap-2">
+                <IconArrowDownRight className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">
+                  {alert.metric}: {alert.changePercent}% siden sist
+                </span>
+              </Badge>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -88,6 +185,20 @@ export function CalendarAnalyticsContent({ data, showDoorAnalytics = true }: Cal
             <p className="text-xs text-muted-foreground">
               {data.overview.uniqueVisitors} unike besøkende
             </p>
+            {viewsTrend && (
+              <p
+                className={`mt-2 flex items-center gap-1 text-xs ${
+                  viewsTrend.isPositive ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {viewsTrend.isPositive ? (
+                  <IconArrowUpRight className="h-3.5 w-3.5" />
+                ) : (
+                  <IconArrowDownRight className="h-3.5 w-3.5" />
+                )}
+                {viewsTrend.formatted} fra forrige periode
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -101,19 +212,52 @@ export function CalendarAnalyticsContent({ data, showDoorAnalytics = true }: Cal
             <p className="text-xs text-muted-foreground">
               {data.overview.returningVisitorRate}% returnerende
             </p>
+            {visitorsTrend && (
+              <p
+                className={`mt-2 flex items-center gap-1 text-xs ${
+                  visitorsTrend.isPositive ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {visitorsTrend.isPositive ? (
+                  <IconArrowUpRight className="h-3.5 w-3.5" />
+                ) : (
+                  <IconArrowDownRight className="h-3.5 w-3.5" />
+                )}
+                {visitorsTrend.formatted} fra forrige periode
+              </p>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Konverteringsrate</CardTitle>
+            <CardTitle className="text-sm font-medium">{primaryMetricLabel}</CardTitle>
             <IconTarget className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.overview.conversionRate}%</div>
+            <div className="text-2xl font-bold">{data.overview.totalEntries.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {data.overview.totalEntries} totale deltakelser
+              {primaryMetricLabel} i perioden · {data.overview.conversionRate}% konvertering
             </p>
+            {entriesTrend && (
+              <p
+                className={`mt-2 flex items-center gap-1 text-xs ${
+                  entriesTrend.isPositive ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {entriesTrend.isPositive ? (
+                  <IconArrowUpRight className="h-3.5 w-3.5" />
+                ) : (
+                  <IconArrowDownRight className="h-3.5 w-3.5" />
+                )}
+                {entriesTrend.formatted} fra forrige periode
+              </p>
+            )}
+            <div className="mt-3">
+              <Badge variant="outline" className="text-[11px] font-medium">
+                {data.benchmarks.conversionMessage}
+              </Badge>
+            </div>
           </CardContent>
         </Card>
 
@@ -129,6 +273,20 @@ export function CalendarAnalyticsContent({ data, showDoorAnalytics = true }: Cal
             <p className="text-xs text-muted-foreground">
               Per besøk
             </p>
+            {avgDurationTrend && (
+              <p
+                className={`mt-2 flex items-center gap-1 text-xs ${
+                  avgDurationTrend.isPositive ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {avgDurationTrend.isPositive ? (
+                  <IconArrowUpRight className="h-3.5 w-3.5" />
+                ) : (
+                  <IconArrowDownRight className="h-3.5 w-3.5" />
+                )}
+                {avgDurationTrend.formatted} fra forrige periode
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
