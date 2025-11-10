@@ -101,10 +101,9 @@ async function getCalendarAnalytics(
         product: {
           select: { name: true },
         },
-        _count: {
-          select: {
-            entries: true,
-            doorViews: true,
+        entries: {
+          where: {
+            enteredAt: { gte: dateRange.start, lte: dateRange.end },
           },
         },
         doorViews: {
@@ -160,15 +159,16 @@ async function getCalendarAnalytics(
   const doors = doorPerformance.map((door) => {
     const clicks = door.doorViews.filter((v) => v.action === "CLICKED").length;
     const views = door.doorViews.length;
+    const entries = door.entries.length;
 
     return {
       doorNumber: door.doorNumber,
       productName: door.product?.name || `Luke ${door.doorNumber}`,
       totalViews: views,
       clicks,
-      entries: door._count.entries,
+      entries,
       clickRate: views > 0 ? ((clicks / views) * 100).toFixed(1) : "0.0",
-      conversionRate: clicks > 0 ? ((door._count.entries / clicks) * 100).toFixed(1) : "0.0",
+      conversionRate: clicks > 0 ? ((entries / clicks) * 100).toFixed(1) : "0.0",
     };
   });
 
