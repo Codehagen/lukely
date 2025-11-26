@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp, IconCalendar, IconCircleCheck, IconShare } from "@tabler/icons-react";
+import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp, IconCalendar, IconCircleCheck, IconShare, IconCopy } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -78,6 +78,8 @@ interface Calendar {
   buttonText: string | null;
   thankYouMessage: string | null;
   footerText: string | null;
+  promoCode: string | null;
+  promoCodeMessage: string | null;
   startDate: Date;
   endDate: Date;
   requireEmail: boolean;
@@ -816,6 +818,37 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                       {calendar.thankYouMessage || "Deltakelsen er registrert! Lykke til! 🎉"}
                     </p>
                   </div>
+
+                  {/* Promo Code Section */}
+                  {calendar.promoCode && (
+                    <div className="w-full max-w-sm space-y-3 p-4 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 dark:from-amber-950/30 dark:to-yellow-950/30 dark:border-amber-800">
+                      <div className="flex items-center justify-center gap-2">
+                        <IconGift className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        <h4 className="font-semibold text-amber-800 dark:text-amber-200">Din rabattkode</h4>
+                      </div>
+                      <div className="flex items-center justify-center gap-2">
+                        <code className="text-2xl font-bold tracking-wider bg-white dark:bg-gray-900 px-4 py-2 rounded border-2 border-dashed border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-100">
+                          {calendar.promoCode}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(calendar.promoCode!);
+                            toast.success("Rabattkode kopiert!");
+                          }}
+                          className="text-amber-700 hover:text-amber-900 hover:bg-amber-100 dark:text-amber-300 dark:hover:text-amber-100 dark:hover:bg-amber-900/50"
+                        >
+                          <IconCopy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {calendar.promoCodeMessage && (
+                        <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
+                          {calendar.promoCodeMessage}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Share Section */}
                   <div className="w-full max-w-sm space-y-4 pt-4 border-t">

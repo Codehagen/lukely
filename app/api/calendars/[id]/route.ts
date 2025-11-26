@@ -233,6 +233,8 @@ export async function PATCH(
         landingSecondaryActionUrl: body.landingSecondaryActionUrl,
         landingHighlights: body.landingHighlights,
         landingShowLeadForm: body.landingShowLeadForm,
+        promoCode: body.promoCode,
+        promoCodeMessage: body.promoCodeMessage,
         startDate: newStartDate,
         endDate: newEndDate,
         doorCount: newDoorCount,

@@ -237,6 +237,10 @@ model Calendar {
 
   landingPrizeImage String?
 
+  // Promo Code (shown after entry + sent via email)
+  promoCode        String?
+  promoCodeMessage String?
+
   // GDPR & Legal
   termsUrl         String?
   privacyPolicyUrl String?

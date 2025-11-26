@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as DatePicker } from "@/components/ui/calendar";
-import { IconCheck, IconTrash, IconArchive, IconCalendar } from "@tabler/icons-react";
+import { IconCheck, IconTrash, IconArchive, IconCalendar, IconGift } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { CalendarStatus } from "@/app/generated/prisma";
 import { Spinner } from "@/components/ui/spinner";
@@ -39,6 +39,8 @@ interface Calendar {
   metaDescription: string | null;
   termsUrl: string | null;
   privacyPolicyUrl: string | null;
+  promoCode: string | null;
+  promoCodeMessage: string | null;
   startDate: Date | string;
   endDate: Date | string;
   doorCount: number;
@@ -62,6 +64,8 @@ type CalendarFormData = {
   metaDescription: string;
   termsUrl: string;
   privacyPolicyUrl: string;
+  promoCode: string;
+  promoCodeMessage: string;
   status: CalendarStatus;
   requireEmail: boolean;
   requireName: boolean;
@@ -97,6 +101,8 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
     metaDescription: calendar.metaDescription || "",
     termsUrl: calendar.termsUrl || "",
     privacyPolicyUrl: calendar.privacyPolicyUrl || "",
+    promoCode: calendar.promoCode || "",
+    promoCodeMessage: calendar.promoCodeMessage || "",
     status: calendar.status,
     requireEmail: calendar.requireEmail,
     requireName: calendar.requireName,
@@ -527,6 +533,50 @@ export default function CalendarSettings({ calendar }: { calendar: Calendar }) {
               />
               <FieldDescription>
                 Lenke til personvernerklæringen (påkrevd for GDPR-samsvar)
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      {/* Promo Code */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <IconGift className="h-5 w-5" />
+            Rabattkode / Belønning
+          </CardTitle>
+          <CardDescription>
+            Gi deltakerne en rabattkode eller belønning etter at de har registrert seg
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="promoCode">Rabattkode</FieldLabel>
+              <Input
+                id="promoCode"
+                value={formData.promoCode}
+                onChange={(e) => setFormData({ ...formData, promoCode: e.target.value })}
+                placeholder="F.eks. JUL10"
+                className="font-mono uppercase"
+              />
+              <FieldDescription>
+                Denne koden vises til deltakere etter registrering og sendes på e-post
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="promoCodeMessage">Beskrivelse av rabattkoden</FieldLabel>
+              <Textarea
+                id="promoCodeMessage"
+                value={formData.promoCodeMessage}
+                onChange={(e) => setFormData({ ...formData, promoCodeMessage: e.target.value })}
+                placeholder="F.eks. 10% rabatt på valgfri tjeneste. Gyldig t.o.m 24.12.25"
+                rows={2}
+              />
+              <FieldDescription>
+                Forklar hva rabatten gir og eventuelle betingelser
               </FieldDescription>
             </Field>
           </FieldGroup>

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { validateQuizAnswers } from "@/lib/ai/quiz-orchestrator";
+import { resend } from "@/lib/resend";
+import { PromoCodeEmail } from "@/emails/promo-code";
+import { HOME_DOMAIN } from "@/lib/config";
 
 export async function POST(req: NextRequest) {
   try {
@@ -141,6 +144,32 @@ export async function POST(req: NextRequest) {
     }
 
     if (isLandingCalendar) {
+      // Send promo code email for landing calendars if configured
+      if (calendar.promoCode && email) {
+        try {
+          const calendarWithWorkspace = await prisma.calendar.findUnique({
+            where: { id: calendarId },
+            include: { workspace: { select: { name: true } } },
+          });
+
+          await resend.emails.send({
+            from: "Lukely <noreply@lukely.no>",
+            to: email.toLowerCase(),
+            subject: `Din rabattkode fra ${calendar.title}`,
+            react: PromoCodeEmail({
+              calendarTitle: calendar.title,
+              promoCode: calendar.promoCode,
+              promoCodeMessage: calendar.promoCodeMessage,
+              calendarUrl: `${HOME_DOMAIN}/l/${calendar.slug}`,
+              logo: calendar.logo,
+              brandColor: calendar.brandColor,
+              workspaceName: calendarWithWorkspace?.workspace?.name,
+            }),
+          });
+        } catch (emailError) {
+          console.error("Error sending promo code email:", emailError);
+        }
+      }
       return NextResponse.json({ success: true, message: "Lead registrert" });
     }
 
@@ -236,6 +265,35 @@ export async function POST(req: NextRequest) {
           isCorrect: qa.isCorrect,
         })),
       });
+    }
+
+    // Send promo code email if configured
+    if (calendar.promoCode && email) {
+      try {
+        // Fetch workspace info for the email
+        const calendarWithWorkspace = await prisma.calendar.findUnique({
+          where: { id: calendarId },
+          include: { workspace: { select: { name: true } } },
+        });
+
+        await resend.emails.send({
+          from: "Lukely <noreply@lukely.no>",
+          to: email.toLowerCase(),
+          subject: `Din rabattkode fra ${calendar.title}`,
+          react: PromoCodeEmail({
+            calendarTitle: calendar.title,
+            promoCode: calendar.promoCode,
+            promoCodeMessage: calendar.promoCodeMessage,
+            calendarUrl: `${HOME_DOMAIN}/c/${calendar.slug}`,
+            logo: calendar.logo,
+            brandColor: calendar.brandColor,
+            workspaceName: calendarWithWorkspace?.workspace?.name,
+          }),
+        });
+      } catch (emailError) {
+        // Log email error but don't fail the entry
+        console.error("Error sending promo code email:", emailError);
+      }
     }
 
     return NextResponse.json({
