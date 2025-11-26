@@ -41,21 +41,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate a secure token
+    // Generate a secure token (plain, not hashed - better-auth validates directly)
     const token = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     // Calculate expiry
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + RESET_TOKEN_EXPIRY_HOURS);
 
-    // Store token in Verification table
-    // Using email as identifier and hashed token as value (matching better-auth pattern)
+    // Store token in Verification table using better-auth's expected format:
+    // identifier: "reset-password:{token}", value: userId
     await prisma.verification.create({
       data: {
         id: crypto.randomUUID(),
-        identifier: user.email,
-        value: hashedToken,
+        identifier: `reset-password:${token}`,
+        value: user.id,
         expiresAt,
       },
     });
