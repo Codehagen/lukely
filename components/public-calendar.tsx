@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp, IconCalendar } from "@tabler/icons-react";
+import { IconLock, IconGift, IconTrophy, IconExternalLink, IconChevronUp, IconCalendar, IconCircleCheck, IconShare } from "@tabler/icons-react";
 import { format, isPast, isToday } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
@@ -107,6 +107,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
     marketing: false,
   });
   const [quizAnswers, setQuizAnswers] = useState<Array<{ questionId: string; answer: string }>>([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Load brand font dynamically
   useGoogleFont(calendar.brandFont);
@@ -266,7 +267,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       triggerConfetti();
 
       toast.success(calendar.thankYouMessage || "Deltakelsen er registrert! Lykke til! 🎉");
-      setSelectedDoor(null);
+      setHasSubmitted(true);
       setFormData({ email: "", name: "", phone: "" });
       setConsents({ terms: false, privacy: false, marketing: false });
       setQuizAnswers([]);
@@ -734,7 +735,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
       )}
 
       {/* Door Sheet - Bottom on mobile, Right on desktop */}
-      <Sheet open={!!selectedDoor} onOpenChange={() => setSelectedDoor(null)}>
+      <Sheet open={!!selectedDoor} onOpenChange={() => { setSelectedDoor(null); setHasSubmitted(false); }}>
         <SheetContent
           side="right"
           className="w-full md:max-w-2xl lg:max-w-3xl overflow-y-auto p-0
@@ -784,6 +785,66 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 </div>
               </SheetHeader>
 
+              {hasSubmitted ? (
+                /* Success UI with Share Buttons */
+                <div className="px-6 py-12 flex flex-col items-center justify-center text-center space-y-8">
+                  {/* Success Icon */}
+                  <div
+                    className="flex h-20 w-20 items-center justify-center rounded-full shadow-lg"
+                    style={{
+                      backgroundColor: `${calendar.brandColor || "#3B82F6"}15`,
+                    }}
+                  >
+                    <IconCircleCheck
+                      className="h-12 w-12"
+                      style={{ color: calendar.brandColor || "#3B82F6" }}
+                    />
+                  </div>
+
+                  {/* Thank You Message */}
+                  <div className="space-y-2">
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{
+                        fontFamily: calendar.brandFont ? getFontFamilyValue(calendar.brandFont) : undefined,
+                        color: calendar.brandColor || undefined
+                      }}
+                    >
+                      Takk for din deltakelse!
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {calendar.thankYouMessage || "Deltakelsen er registrert! Lykke til! 🎉"}
+                    </p>
+                  </div>
+
+                  {/* Share Section */}
+                  <div className="w-full max-w-sm space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-center gap-2">
+                      <IconShare
+                        className="h-5 w-5"
+                        style={{ color: calendar.brandColor || "#3B82F6" }}
+                      />
+                      <h4 className="font-semibold">Del kalenderen med dine venner</h4>
+                    </div>
+                    <ShareTargetButtons
+                      url={`${baseShareUrl}/c/${calendar.slug}`}
+                      title={calendar.title}
+                      description={calendar.description || `Sjekk ut denne kalenderen fra ${calendar.workspace.name}!`}
+                      size="default"
+                    />
+                  </div>
+
+                  {/* Close Button */}
+                  <Button
+                    variant="outline"
+                    onClick={() => { setSelectedDoor(null); setHasSubmitted(false); }}
+                    className="mt-4"
+                  >
+                    Lukk
+                  </Button>
+                </div>
+              ) : (
+              <>
               <div className="px-6 py-6 space-y-8 pb-32">
                 {/* Product Section */}
                 {selectedDoor.product && (
@@ -1138,6 +1199,8 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                     )}
                   </Button>
                 </SheetFooter>
+              )}
+              </>
               )}
             </>
           )}
