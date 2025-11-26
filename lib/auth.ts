@@ -4,6 +4,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, lastLoginMethod } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
+import { resend } from "./resend";
+import { PasswordResetEmail } from "@/emails/password-reset";
 
 const prisma = new PrismaClient();
 export const auth = betterAuth({
@@ -27,6 +29,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      await resend.emails.send({
+        from: "Lukely <noreply@lukely.no>",
+        to: user.email,
+        subject: "Tilbakestill passordet ditt",
+        react: PasswordResetEmail({ url, userName: user.name }),
+      });
+    },
   },
   socialProviders: {
     google: {

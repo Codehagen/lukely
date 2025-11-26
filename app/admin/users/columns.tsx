@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { DataTableColumnHeader } from "@/components/admin/data-table-column-header"
 import { ImpersonateButton } from "@/components/admin/impersonate-button"
+import { PasswordResetDialog } from "@/components/admin/password-reset-dialog"
 import { IconBuildingStore, IconCalendar } from "@tabler/icons-react"
 
 export type UserData = {
@@ -141,10 +142,17 @@ export const columns: ColumnDef<UserData>[] = [
         return null
       }
       return (
-        <ImpersonateButton
-          userId={user.id}
-          userName={user.name || user.email}
-        />
+        <div className="flex items-center gap-2">
+          <PasswordResetDialog
+            userId={user.id}
+            userName={user.name || ""}
+            userEmail={user.email}
+          />
+          <ImpersonateButton
+            userId={user.id}
+            userName={user.name || user.email}
+          />
+        </div>
       )
     },
   },

@@ -6,7 +6,7 @@ export const authClient = createAuthClient({
   plugins: [lastLoginMethodClient(), adminClient()],
 });
 
-export const { signIn, signOut, signUp, useSession } = authClient;
+export const { signIn, signOut, signUp, useSession, forgetPassword, resetPassword } = authClient;
 export const {
   getLastUsedLoginMethod,
   isLastUsedLoginMethod,

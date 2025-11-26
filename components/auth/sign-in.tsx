@@ -140,7 +140,7 @@ export default function SignInAuth() {
                     <div className="flex items-center">
                       <Label htmlFor="password">Passord</Label>
                       <Link
-                        href="#"
+                        href="/forgot-password"
                         className="ml-auto inline-block text-sm underline"
                       >
                         Glemt passordet?
