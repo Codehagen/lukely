@@ -43,19 +43,47 @@ export type WorkspaceData = {
   rejectionReason: string | null
   createdAt: Date
   updatedAt: Date
+  maxCalendars: number
 }
 
 function WorkspaceActions({ workspace }: { workspace: WorkspaceData }) {
   const router = useRouter()
+  const [showLimitDialog, setShowLimitDialog] = useState(false)
+  const [limit, setLimit] = useState(workspace.maxCalendars || 1)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [rejectionReason, setRejectionReason] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleUpdateLimit = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/admin/workspaces/${workspace.id}/limit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: parseInt(String(limit)) }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Kunne ikke oppdatere grense")
+      }
+
+      toast.success(`Grense for "${workspace.name}" ble oppdatert`)
+      setShowLimitDialog(false)
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Noe gikk galt")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleApprove = async () => {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/admin/workspaces/${workspace.id}/approve`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
       })
 
       if (!response.ok) {
@@ -102,30 +130,39 @@ function WorkspaceActions({ workspace }: { workspace: WorkspaceData }) {
     }
   }
 
-  if (workspace.status !== "PENDING") {
-    return null
-  }
-
   return (
     <>
       <div className="flex items-center gap-2">
+        {workspace.status === "PENDING" && (
+          <>
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handleApprove}
+              disabled={isLoading}
+            >
+              <IconCheck className="mr-1 h-3 w-3" />
+              Godkjenn
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setShowRejectDialog(true)}
+              disabled={isLoading}
+            >
+              <IconX className="mr-1 h-3 w-3" />
+              Avvis
+            </Button>
+          </>
+        )}
         <Button
           size="sm"
-          variant="default"
-          onClick={handleApprove}
+          variant="outline"
+          onClick={() => setShowLimitDialog(true)}
           disabled={isLoading}
         >
-          <IconCheck className="mr-1 h-3 w-3" />
-          Godkjenn
-        </Button>
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => setShowRejectDialog(true)}
-          disabled={isLoading}
-        >
-          <IconX className="mr-1 h-3 w-3" />
-          Avvis
+          <IconCalendar className="mr-1 h-3 w-3" />
+          Endre grense
         </Button>
       </div>
 
@@ -163,6 +200,45 @@ function WorkspaceActions({ workspace }: { workspace: WorkspaceData }) {
               disabled={isLoading || !rejectionReason.trim()}
             >
               {isLoading ? "Avviser..." : "Avvis Workspace"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Endre kalendergrense</DialogTitle>
+            <DialogDescription>
+              Sett maksimalt antall kalendere for "{workspace.name}".
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="limit">Antall kalendere</Label>
+              <input
+                id="limit"
+                type="number"
+                min="1"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={limit}
+                onChange={(e) => setLimit(parseInt(e.target.value))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowLimitDialog(false)}
+              disabled={isLoading}
+            >
+              Avbryt
+            </Button>
+            <Button
+              onClick={handleUpdateLimit}
+              disabled={isLoading}
+            >
+              {isLoading ? "Lagrer..." : "Lagre"}
             </Button>
           </DialogFooter>
         </DialogContent>

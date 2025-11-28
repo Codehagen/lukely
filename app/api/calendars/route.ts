@@ -43,15 +43,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check calendar creation limit for USER role (1 calendar per workspace)
+    // Check calendar creation limit for USER role
     if (user.role === "USER") {
       const workspaceCalendarCount = await prisma.calendar.count({
         where: { workspaceId: user.defaultWorkspaceId },
       });
 
-      if (workspaceCalendarCount >= 1) {
+      const maxCalendars = user.defaultWorkspace?.maxCalendars ?? 1;
+
+      if (workspaceCalendarCount >= maxCalendars) {
         return NextResponse.json(
-          { error: "Gratis brukere kan kun opprette 1 kalender per workspace. Oppgrader for å opprette flere." },
+          { 
+            error: `Gratis brukere kan kun opprette ${maxCalendars} kalender${maxCalendars > 1 ? 'e' : ''} per workspace. Oppgrader for å opprette flere.` 
+          },
           { status: 403 }
         );
       }
