@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -104,6 +105,36 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
   const primaryCtaLabel = (calendar.landingPrimaryActionLabel || "Registrer deg nå").trim();
   const secondaryCtaLabel = (calendar.landingSecondaryActionLabel || "").trim();
 
+  const triggerConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    const randomInRange = (min: number, max: number) => {
+      return Math.random() * (max - min) + min;
+    };
+
+    const interval = window.setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
+    }, 250);
+  };
+
   const handleSubmit = async () => {
     if (calendar.requireEmail && !formData.email.trim()) {
       toast.error("E-post er påkrevd");
@@ -151,7 +182,15 @@ export function PublicLanding({ calendar }: PublicLandingProps) {
         throw new Error(error.error || "Kunne ikke registrere lead");
       }
 
-      toast.success(calendar.thankYouMessage || "Takk for interessen! Vi tar kontakt snart.");
+      // Trigger confetti celebration
+      triggerConfetti();
+
+      // Show success message with clear confirmation
+      const successMessage = calendar.thankYouMessage || "🎉 Registrering fullført! Takk for deltakelsen - vi tar kontakt snart.";
+      toast.success(successMessage, {
+        duration: 5000,
+      });
+
       setFormData({ email: "", name: "", phone: "" });
       setConsents({ terms: false, privacy: false, marketing: false });
     } catch (error) {
