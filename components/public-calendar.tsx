@@ -396,7 +396,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
                 backgroundClip: "text"
               }}
             >
-              Vinn fantastiske premier hver dag!
+              Vinn fantastiske premier hver uke!
             </h2>
             {calendar.description && (
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
