@@ -85,8 +85,9 @@ export function ImageUpload({
   });
 
   const handleRemove = async () => {
-    // If there's a current image URL (not a local preview), delete it from R2
-    if (currentImageUrl && currentImageUrl.startsWith("http")) {
+    // Only attempt R2 deletion for URLs from our R2 bucket (not external URLs)
+    const isR2Url = currentImageUrl?.includes('.r2.dev') || currentImageUrl?.includes('pub-');
+    if (currentImageUrl && isR2Url) {
       setDeleting(true);
       try {
         const response = await fetch("/api/upload", {
@@ -128,7 +129,7 @@ export function ImageUpload({
             alt="Uploaded image"
             fill
             className="object-contain"
-            unoptimized={preview.startsWith("data:")}
+            unoptimized
           />
         </div>
         <Button
