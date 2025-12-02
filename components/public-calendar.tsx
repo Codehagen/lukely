@@ -404,7 +404,7 @@ export default function PublicCalendar({ calendar }: { calendar: Calendar }) {
               </p>
             )}
             <p className="text-base md:text-lg text-muted-foreground mb-10">
-              {totalDoors} lukere å åpne{totalPrizeValue > 0 && ` • Premier til en verdi av kr ${totalPrizeValue.toLocaleString('nb-NO')}`}
+              {totalDoors} luker å åpne{totalPrizeValue > 0 && ` • Premier til en verdi av kr ${totalPrizeValue.toLocaleString('nb-NO')}`}
             </p>
 
             {/* Stats Cards */}
